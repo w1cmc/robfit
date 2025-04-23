@@ -1,0 +1,9 @@
+      IMPLICIT REAL*8(A-H,O-Z)
+5     PRINT*,'ENTER COUNTS,ERR,SIG'
+      READ(*,*)COUNTS,ERR,SIG
+      IF(SIG.EQ.0)STOP
+      COUNTS=0.5D0*(SIG*SIG
+     2 +SQRT(SIG**4-4*SIG**2*COUNTS+4*SIG**2*ERR**2))
+      PRINT*,'MDA =',COUNTS
+      GOTO 5
+      END

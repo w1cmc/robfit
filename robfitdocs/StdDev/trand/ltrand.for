@@ -1,0 +1,37 @@
+      CHARACTER*256 NACML,FNAME,NASTR
+      DIMENSION DAT(:)
+CI    ALLOCATABLE DAT      
+      COMMON /NAMES/NACML      
+      NUMARGS=NARGS()
+      PRINT*,' NUMARGS= ',NUMARGS
+      IF(NUMARGS.GT.1)THEN
+        CALL BGETARG(1,NACML)
+        ILCML=ILB(NACML)
+        PRINT*,' NACML = ',NACML(:ILCML)
+      ELSE
+        PRINT*,' ENTER NACML'
+        READ(*,'(A)')NACML
+      ENDIF      
+      CALL RDATA(NACML) ! READS FROM NACML FINDS IENDC
+
+      FNAME=NASTR('dat.unf',ILDAT,EX)
+      OPEN(2,FILE=FNAME,FORM='UNFORMATTED',STATUS='OLD',ERR=137)
+      READ(2)NDAT
+      ALLOCATE(DAT(NDAT))
+      READ(2)(DAT(I),I=1,NDAT)
+      CLOSE(2)
+      NRAND=0
+      SRAND=0
+      DO I=3,NDAT-2
+        IF(DAT(I).GE.1)THEN
+          SRAND=SRAND+(DAT(I-2)-DAT(I+2)-2*(DAT(I-1)-DAT(I+1)))**2
+     2     /DAT(I)
+          NRAND=NRAND+1
+        ENDIF  
+      ENDDO
+      PRINT*,'NDAT,NRAND,TRAND',NDAT,NRAND,SRAND/(10*NRAND)
+      STOP
+137   CONTINUE
+      PRINT*,'TRAND UNABLETO OPEN ',FNAME(:ILDAT)      
+      END    
+      

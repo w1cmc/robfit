@@ -1,0 +1,29 @@
+      FUNCTION SIZELIM(D,COEF,pSIZELIMpD)
+      IMPLICIT REAL*8 (A-H,O-Z)
+      DATA ALN10M10/23.025851D0/ 
+      ARG=D*COEF
+      IF(ARG.LT.ALN10M10)THEN
+        SIZELIM=EXP(-ARG)
+      ELSE      
+        D=ALN10M10/COEF
+        ARG=ALN10M10
+      ENDIF 
+      SIZELIM=EXP(-ARG)
+      pSIZELIMpD=-COEF*SIZELIM
+      RETURN
+      END       
+
+      FUNCTION SIZELIM0(D,COEF)
+      IMPLICIT REAL*8 (A-H,O-Z)
+      DATA ALN10M10/23.025851D0/ 
+      ARG=D*COEF
+      IF(ARG.LT.ALN10M10)THEN
+        SIZELIM0=EXP(-ARG)
+      ELSE      
+        D=ALN10M10/COEF
+        ARG=ALN10M10
+      ENDIF 
+      SIZELIM0=EXP(-ARG)
+      RETURN
+      END       
+

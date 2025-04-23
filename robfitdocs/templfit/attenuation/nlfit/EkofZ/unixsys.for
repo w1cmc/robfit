@@ -1,0 +1,112 @@
+
+        SUBROUTINE MAOPEN(L,NA,STATUS)
+        CHARACTER*64 NA,STATUS
+5       CONTINUE
+        IF(STATUS.EQ.'BIG')THEN
+          OPEN(L,FILE=NA,STATUS='UNKNOWN',ERR=1197)
+          RETURN
+        ENDIF
+        OPEN(L,FILE=NA,STATUS=STATUS,ERR=1197)
+        RETURN
+1197    PRINT*,' COULD NOT OPEN FILE= ',NA
+        PRINT*,' ENTER A NEW NAME OR STOP'
+        READ(*,'(A)')NA
+        IF(NA.EQ.'STOP'.OR.NA.EQ.'stop')THEN
+          STOP
+        ELSE
+          GOTO 5
+        ENDIF
+        END
+
+        SUBROUTINE MAOPUF(L)
+        OPEN(L,STATUS='SCRATCH',ERR=1197,FORM='UNFORMATTED')
+        RETURN
+1197    PRINT*,' COULD NOT OPEN UNFORMATTED SCRATCH FILE= ',L
+        PRINT*,' IN MAPUF OF unixsys.for '
+        STOP 37
+        END
+
+        SUBROUTINE FSYSTEM(STRING)
+        CHARACTER*(*) STRING
+        I=SYSTEM(STRING)
+        IF(I.EQ.-1)THEN
+          ERRNUM=IERRNO()
+          PRINT*,' Error ',ERRNUM
+        ENDIF
+        RETURN
+        END
+
+        FUNCTION NARGS()
+        NARGS=IARGC()+1
+        RETURN
+        END
+
+        SUBROUTINE BGETARG(NTEMP,NADIR)
+        CHARACTER*(*) NADIR
+        print*,' in bgetarg ntemp =',ntemp
+        CALL GETARG(NTEMP,NADIR)
+        print*,' in bgetarg nadir =',nadir
+        RETURN
+        END
+        
+      FUNCTION IBSET(IA,IPOS)
+      CHARACTER*32 CTEMP
+      CHARACTER*4 COUT(16)
+      INTEGER IIN(8)
+      DIMENSION I1(32)
+      DATA COUT/'0000','0001','0010','0011','0100','0101','0110',
+     $ '0111','1000','1001','1010','1011','1100','1101','1110','1111'/
+      DATA IAA/-2147483648/
+      IF(IPOS.EQ.31)THEN
+        IF(IA.GE.0)THEN
+          IBSET=IA+IAA
+        ELSE
+          IBSET=IA
+        ENDIF
+        RETURN
+      ENDIF
+      WRITE(CTEMP,'(Z8)')IA
+      READ(CTEMP,'(8Z1)')IIN
+      WRITE(CTEMP,*)(COUT(IIN(I)+1),I=1,8)
+      READ(CTEMP,'(32I1)')I1
+      I1(32-IPOS)=1
+      IBSET=I1(32)
+      IP2=1
+      DO I=1,31
+       IP2=2*IP2
+       IBSET=IBSET+IP2*I1(32-I)
+      ENDDO
+      RETURN
+      END
+
+      FUNCTION IBCLR(IA,IPOS)
+      CHARACTER*32 CTEMP
+      CHARACTER*4 COUT(16)
+      INTEGER IIN(8)
+      DIMENSION I1(32)
+      DATA IAA/-2147483648/
+      DATA COUT/'0000','0001','0010','0011','0100','0101','0110',
+     $ '0111','1000','1001','1010','1011','1100','1101','1110','1111'/
+      IF(IPOS.EQ.31)THEN
+        IF(IA.LT.0)THEN
+          IBCLR=IA+IAA
+        ELSE
+          IBCLR=IA
+        ENDIF
+        RETURN
+      ENDIF
+      WRITE(CTEMP,'(Z8)')IA
+      READ(CTEMP,'(8Z1)')IIN
+      WRITE(CTEMP,*)(COUT(IIN(I)+1),I=1,8)
+      READ(CTEMP,'(32I1)')I1
+      I1(32-IPOS)=0
+      IBCLR=I1(32)
+      IP2=1
+      DO I=1,31
+       IP2=2*IP2
+       IBCLR=IBCLR+IP2*I1(32-I)
+      ENDDO
+      RETURN
+      END
+
+        

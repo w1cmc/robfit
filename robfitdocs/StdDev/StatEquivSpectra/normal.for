@@ -1,0 +1,24 @@
+      SUBROUTINE NORMAL(PHRASE,sigma,YD)
+      IMPLICIT REAL*8 (A-H,O-Z)
+      CHARACTER*80 PHRASE,FNAME
+      DATA R2PII/0.398942280401433/
+      DATA NH/100/
+      ILPHRASE=LENTRIM(PHRASE)
+      FNAME=PHRASE(:ILPHRASE)//'NORMAL.OUT'
+      L1=LENTRIM(FNAME)
+      OPEN(1,FILE=FNAME(:L1))
+      YB=YD-5
+      H=10D0/NH
+      ANS=0
+      DO I=0,NH
+        Y=YB+H*I
+        AN=R2PII*EXP(-0.5D0*((Y-YD)/SIGMA)**2)/SIGMA
+        WRITE(1,'(1P,2E15.6)')Y,AN
+        ANS=ANS+AN
+      ENDDO
+      CLOSE(1)
+      ANS=ANS*H
+      PRINT*,'INTEGRAL OF NORMAL',ANS
+      RETURN
+      END  
+        

@@ -1,0 +1,1 @@
+resbysize %1

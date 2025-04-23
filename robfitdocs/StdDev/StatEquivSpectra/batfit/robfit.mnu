@@ -1,0 +1,18 @@
+           3
+          12
+         100
+  1 Page ROBFIT                              
+  2                                          
+  3 Fitting information                      
+  4 Page (Fitting details)                   
+  5                                          
+  6 NACML common values                     Bkg_7200sRfit.txt
+  7 NASP file containing the data           Salted-U235-3.7_Bkg_7200s-0005.n42
+  8 Err2 file name  name.sp                 NONE
+  9 Egy linear interpolation file           NONE
+ 10 Eff linear interplation file            NONE
+ 11 Update .+ml file when making Rfit.txt   N
+ 12 Log interpolation in the weights        N
+ 13 Extract data from 1 to NASP             N
+ 14 delete previous .unf + files            N
+ 15 Directions are from a *.dir file        N

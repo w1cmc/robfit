@@ -1,0 +1,41 @@
+        SUBROUTINE MAOPEN(L,NA,STATUS)
+        CHARACTER*64 NA,STATUS
+5       CONTINUE
+        IF(STATUS.EQ.'BIG')THEN
+          OPEN(L,FILE=NA,STATUS='UNKNOWN',ERR=1197)
+          RETURN
+        ENDIF
+        OPEN(L,FILE=NA,STATUS=STATUS,ERR=1197)
+        RETURN
+1197    PRINT*,' COULD NOT OPEN FILE= ',NA
+        PRINT*,' ENTER A NEW NAME OR STOP'
+        READ(*,'(A)')NA
+        IF(NA.EQ.'STOP'.OR.NA.EQ.'stop')STOP
+        GOTO 5
+        END
+        
+        SUBROUTINE MAOPUF(L)
+5       OPEN(L,STATUS='SCRATCH',ERR=1197,FORM='UNFORMATTED')
+        RETURN
+1197    PRINT*,' COULD NOT OPEN UNFORMATTED FILE= ',L
+        PRINT*,' MAOPUF IN INTELSYS.FOR '
+        STOP 37
+        END
+        
+        SUBROUTINE FSYSTEM(STRING)
+        USE IFPORT
+        CHARACTER*(*) STRING
+        I=SYSTEM(STRING)
+        IF(I.EQ.-1)THEN
+          I2=IERRNO()
+          PRINT*,' Error ',I2
+        ENDIF  
+        RETURN
+        END
+
+
+      SUBROUTINE BGETARG(NTEMP,NADIR)
+      CHARACTER*(*)NADIR
+      CALL GETARG(NTEMP,NADIR,NSTATUS)
+      RETURN
+      END

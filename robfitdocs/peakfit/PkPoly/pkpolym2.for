@@ -1,0 +1,162 @@
+      FUNCTION FAPEAK(X,SKEW,W,TYPE,PX,PSKEW,PW)
+      IMPLICIT REAL*8 (A-H,O-Z)
+      CHARACTER*1 TYPE
+      IF(TYPE.EQ.'D')THEN
+        CALL XSHS(SKEW,W,XS,CEXP,ECEXP,pCEXP,pECEXP)
+        IF(X.LE.XS)THEN
+          EXPT=EXP(-ECEXP*(X-XS))
+          FAPEAK=CEXP*EXPT
+          PX=-ECEXP*FAPEAK
+          PSKEW=pCEXP*EXPT-pECEXP*FAPEAK  
+        ELSE
+          CALL HS(HST,X,W,PX,PW,NC)
+          PSKEW=0
+          FAPEAK=HST
+        ENDIF    
+        RETURN
+      ENDIF  
+C the PolyS part
+      SKEW2=SKEW*SKEW
+      IF(X.LT.-SKEW2)THEN
+        ARG=SKEW2*(SKEW2/2+X)
+        POLYS=0
+        IF(ARG.GT.-82D0)POLYS=BEXP(ARG)
+        PSKEW=2*SKEW*(SKEW2+X)*POLYS
+        PX=SKEW2*POLYS
+      ELSE
+        PSKEW=0
+        POLYS=0
+        ARG=-X*X/2
+        IF(ARG.GT.-82D0)POLYS=BEXP(ARG)
+        PX=-X*POLYS
+      ENDIF
+      FAPEAK=POLYS
+      
+      RETURN
+      END
+
+      SUBROUTINE PKPOLM(X,SKEW,AJUMP,PX,PSKEW,PJUMP,FAPOL)
+      IMPLICIT REAL*8 (A-H,O-Z)
+C the PolyS part
+      SKEW2=SKEW*SKEW
+      POLYS=0
+      POLYJ=0
+      IF(X.LT.-SKEW2)THEN
+        ARG=SKEW2*(SKEW2/2+X)
+        POLYS=0
+        IF(ARG.GT.-82D0)POLYS=BEXP(ARG)
+        PSKEW=2*SKEW*(SKEW2+X)*POLYS
+        PX=SKEW2*POLYS
+      ELSE
+        PSKEW=0
+        POLYS=0
+        ARG=-X*X/2
+        IF(ARG.GT.-82D0)POLYS=BEXP(ARG)
+        PX=-X*POLYS
+      ENDIF
+C the jump part
+      IF(X.LT.0)THEN
+        ARG=-X*X/32
+        POLYJ=0
+        PJUMP=0
+        IF(ARG.GT.-82D0)PJUMP=BEXP(ARG)
+        POLYJ=AJUMP*PJUMP
+        PX=PX-X*POLYJ/16
+      ELSE
+        ARG=-X*X/2
+        POLYJ=0
+        PJUMP=0
+        IF(ARG.GT.-82D0)PJUMP=BEXP(ARG)
+        POLYJ=AJUMP*PJUMP
+        PX=PX-X*POLYJ
+      ENDIF
+      FAPOL=POLYS+POLYJ
+      RETURN
+      END
+
+      
+      FUNCTION PEAKS(XPASS,PKS,NFPKS)
+      IMPLICIT REAL*8 (A-H,O-Z)
+      INCLUDE '\users\public\robfit\robfitdocs\fortran\structures.for'
+      RECORD /Tpk/Pks(NFPKS)  
+      DIMENSION PFA(1)    
+      CALL POLY(XPASS,PFA,NVMIN,PKS,NFpks,FA,.FALSE.)
+      PEAKS=FA
+      RETURN
+      END
+      
+      SUBROUTINE POLY(XPASS,PFA,NVMIN,PKS,NFpks,FA,LDER) 
+C      POLY(X,P,NFpks,PKS,FAR,LDER)
+C THE POLY IS SUM ON K PKS(K).hgt, loc, wth, skew, jmp
+C *** THESE ARE TREATED AS A SET OF 5 K CONSTANTS with pkploy used to 
+C find the shape.  These are made up of cons(k) terms where the 
+C relation between the k and the cons k is as determined in nlfit above
+C Note the PKS(I).hgt = cons(k)**2 and that PKS(I).wth = .5+cons(k)**2
+C The derivatives in PFA(k) are with respect to the cons(k)
+      IMPLICIT REAL*8 (A-H,O-Z)
+      INCLUDE '\users\public\robfit\robfitdocs\fortran\structures.for'
+      RECORD /Tpk/Pks(NFpks)
+      DIMENSION PFA(NVMIN)
+      LOGICAL LDER
+      FA=0
+      K=0
+      DO I=1,NVMIN
+        PFA(I)=0
+      ENDDO  
+      DO I=1,NFpks
+c peak contributions to the data are calculated even if the peak is not varied 
+        FAPOL=0
+        PSKEW=0
+        PJUMP=0  
+        PX=0
+        CAPX=0
+        IF(XPASS.GT.(PKS(I).LOC-18*PKS(I).WTH).AND.
+     2   XPASS.LT.(PKS(I).LOC+10*PKS(I).WTH))THEN
+          CAPX=(XPASS-PKS(I).LOC)/PKS(I).WTH
+          CALL PKPOLM(CAPX,PKS(I).SKW,PKS(I).JMP,PX,PSKEW,PJUMP,FAPOL)
+          FA=FA+PKS(I).HGT*FAPOL
+        ENDIF  
+        IF(PKS(I).PVARY.AND.LDER)THEN 
+          IF(PKS(I).VHGT)THEN
+            K=K+1
+            PFA(K)=2*SQRT(PKS(I).HGT)*FAPOL+PFA(K)
+          ENDIF
+          IF(PKS(I).VLOC)THEN
+            K=K+1
+            PFA(K)=-PKS(I).HGT*PX/PKS(I).WTH+PFA(K)
+          ENDIF
+          IF(PKS(I).VWTH)THEN
+            K=K+1
+            TEMP=-PKS(I).HGT*PX*CAPX/PKS(I).WTH
+            CONS=SQRT(PKS(I).WTH-.5D0)
+            PFA(K)=2*TEMP*CONS+PFA(K) 
+          ENDIF 
+          IF(PKS(I).VSKW)THEN
+            K=K+1
+            TEMP=SQRT(PKS(I).SKW-0.4D0)
+            PFA(K)=PKS(I).HGT*PSKEW*2*TEMP+PFA(K)
+          ENDIF
+          IF(PKS(I).VJMP)THEN
+            K=K+1
+            PFA(K)=PKS(I).HGT*PJUMP+PFA(K)
+          ENDIF          
+        ENDIF
+      ENDDO
+      RETURN
+      END
+      
+      FUNCTION HOFX(X,WH,pX,pWH)
+      IMPLICIT REAL*8 (A-H,O-Z)
+      DATA RPII/0.5641895835477563D0/
+      ARG1=WH+X
+      pAiGaupARG1=RPII*EXP(-ARG1*ARG1)
+      ARG2=WH-X
+      pAiGaupARG1=RPII*EXP(-ARG2*ARG2)
+      AIGAU1=AIGAU(ARG1)
+      AIGAU2=AIGAU(ARG2)
+      HOFX=AIGAU1*AIGAU2 !product form
+      pX=pAiGaupARG1*AIGAU2-AIGAU1*pAiGaupARG1
+      pWH=pAiGaupARG1*AIGAU2+AIGAU1*pAiGaupARG1
+      RETURN
+      END
+      

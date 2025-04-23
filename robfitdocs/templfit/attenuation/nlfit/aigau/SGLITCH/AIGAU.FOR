@@ -1,0 +1,68 @@
+      FUNCTION AIGAU(XT)
+      IMPLICIT REAL*8 (A-H,O-Z)
+      DIMENSION CON1(18),CON2(15)
+      DATA SQRPI/1.772453850905516D0/
+      DATA CON1/0.5D0,-0.9452049927406015D0,0.8901349154719547D0,
+     2 -0.5265323590674972D0,0.2112033098149304D0,
+     3 -0.5851110587267722D-01,0.1093104379246567D-01,
+     4 -0.1264586529819479D-02,0.7007918572074021D-04,
+     5 -3.018789152576802D0,4.186608620562856D0,
+     6 -3.510610291883386D0,1.967990042365595D0,
+     7 -0.7679453864061583D0,0.2096579949268288D0,
+     8 -0.3887374800121166D-01,0.4482842710646635D-02,
+     9 -0.2484242423263732D-03/  
+      IF(XT.LT.-27)THEN
+C Tests of this limit are in Welcome.doc      
+        AIGAU=0
+        RETURN
+      ELSEIF(XT.LT.-6.2D0)THEN
+C Discussion in public_html/nlfit/testdata/genint/Expanding the integrand.htm      
+        BR=BRACK(XT)
+        EXPP=EXP(-XT*XT)
+        AIGAU=-EXPP*BR/(2*XT*SQRPI)
+      ELSEIF(XT.LT.0)THEN
+C DISCUSION IN public_html\nlfit\ExpTimesPade.htm
+        ANUM=CON1(1)+XT*(CON1(2)+XT*(CON1(3)+XT*(CON1(4)+XT*(CON1(5)
+     2  +XT*(CON1(6)+XT*(CON1(7)+XT*(CON1(8)+XT*CON1(9))))))))
+        ADEN=1+XT*(CON1(10)+XT*(CON1(11)+XT*(CON1(12)+XT*(CON1(13)
+     2  +XT*(CON1(14)+XT*(CON1(15)+XT*(CON1(16)+XT*(CON1(17)+
+     3  XT*CON1(18)))))))))
+        BR=ANUM/ADEN
+        AIGAU=EXP(-XT*XT)*BR
+      ELSEIF(XT.LT.7)THEN
+C DISCUSSION IN ..\public_html\nlfit\MPNlfitAigau.htm
+        XN=-XT
+        ANUM=CON2(1)+XN*(CON2(2)+XN*(CON2(3)+XN*(CON2(4)+XN*(CON2(5)
+     2  +XN*(CON2(6)+XN*(CON2(7)+XN*(CON2(8)+XN*CON2(9))))))))
+        ADEN=1+XN*(CON2(10)+XN*(CON2(11)+XN*(CON2(12)+XN*(CON2(13)
+     2  +XN*(CON2(14)+XN*CON2(15))))))
+        EXPAD=ANUM/ADEN
+        AIGAU=1-EXP(EXPAD)
+      ELSE
+        AIGAU=1
+      ENDIF
+      RETURN
+      END
+
+      FUNCTION BRACK(X)
+      IMPLICIT REAL*8 (A-H,O-Z)
+      BRACK=1
+      XP=1
+      X2=X*X
+      ANUM=1
+      IS=-1
+      M=1
+      DEN=2*X2
+      ALT=1
+5     CONTINUE
+      ALT=ALT*M/DEN
+      IF(M.GT.1001)THEN
+        STOP ' BRACK NOT CONVERGING '
+      ENDIF
+      M=M+2
+      BRACK=BRACK+IS*ALT
+      IS=-IS
+      IF(ALT.GT.1D-16)GOTO 5
+      RETURN
+      END
+

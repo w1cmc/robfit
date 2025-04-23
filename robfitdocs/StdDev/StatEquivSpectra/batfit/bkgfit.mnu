@@ -1,0 +1,23 @@
+           4
+           9
+           6
+         100
+  1 Page BkgFit                              
+  2                                          
+  3 Fitting information                      
+  4 err(Chn) details                         
+  5 page  Fitting Details                    
+  6                                          
+  7 CML OR SP FILE                          Salted-U235-3.7_Bkg_7200s-0005.n42
+  8  BegCnmEgy,EndCnmEgy                     27.99   3221.08
+  9 Def,WE=c1+c2*sqrt(E)+C3*E               Def  6.141E-01 -1.388E-02  4.425E-04
+ 10 stiffness Wcnm=stiffness*wpk            14
+ 11 Use spline interpolation                N
+ 12 Start with current Cnm location values  N
+ 13 fit D 1, D-tpl 2, D-tpl-pks 3, D-pks 4  2
+ 14 Page Err2 Details                        
+ 15                                          
+ 16 Err2, Data, Err2                        Data
+ 17 err2 =err2+(alphaW*err2)**2  alphaw      1.000E-02
+ 18 Err2 =max(alphaw2,err2) alphaw2          1.000E+00
+ 19 Err2 Smoothing, None, 5-p, 17p, hofx    5-p

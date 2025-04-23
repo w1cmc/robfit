@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VisualStudioProject ProjectCreator="Intel Fortran" Keyword="Console Application" Version="9.10" ProjectIdGuid="{5DADF0C3-4838-440A-8264-B0837FB9258D}">
+	<Platforms>
+		<Platform Name="Win32"/></Platforms>
+	<Configurations>
+		<Configuration Name="Debug|Win32">
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" Interfaces="true" WarnInterfaces="true" Traceback="true" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug"/>
+				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" GenerateDebugInformation="true" SubSystem="subSystemConsole"/>
+				<Tool Name="VFResourceCompilerTool"/>
+				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
+				<Tool Name="VFCustomBuildTool"/>
+				<Tool Name="VFPreLinkEventTool"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/></Configuration>
+		<Configuration Name="Release|Win32">
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true"/>
+				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" SubSystem="subSystemConsole"/>
+				<Tool Name="VFResourceCompilerTool"/>
+				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
+				<Tool Name="VFCustomBuildTool"/>
+				<Tool Name="VFPreLinkEventTool"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/></Configuration></Configurations>
+	<Files>
+		<Filter Name="Header Files" Filter="fi;fd"/>
+		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
+		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
+		<File RelativePath="..\..\nlfit\aigau\AIGAU.FOR"/>
+		<File RelativePath="..\..\..\Progdet\SysRoutines\Anov.for"/>
+		<File RelativePath="..\TemplFit\chntotpl.for"/>
+		<File RelativePath="..\..\..\Progdet\RNUMB\Chread.for"/>
+		<File RelativePath="..\..\..\Progdet\XMLRR\cmlread.for"/>
+		<File RelativePath="..\..\..\Progdet\XMLRR\cmlrep.for"/>
+		<File RelativePath="..\..\nlfit\pade2d\CxyTox.for"/>
+		<File RelativePath="..\Attenuation\Efficiency\EgyToEff.for"/>
+		<File RelativePath="..\..\nlfit\EkofZ\ekofz.for"/>
+		<File RelativePath="..\Attenuation\Escape\escape.for"/>
+		<File RelativePath=".\fndreg.for"/>
+		<File RelativePath="..\fortran\Functions.for"/>
+		<File RelativePath="..\..\..\Progdet\SysRoutines\intelsys.for"/>
+		<File RelativePath="..\..\..\interpolation\locate.for"/>
+		<File RelativePath="..\xmldis\menurd.for"/>
+		<File RelativePath="..\..\nlfit\amu2\muAtt.for"/>
+		<File RelativePath="..\..\nlfit\Compton\muCompton.for"/>
+		<File RelativePath="..\..\nlfit\Pairp\muPairp.for"/>
+		<File RelativePath=".\nlfitsub.for"/>
+		<File RelativePath="..\..\nlfit\PabK\pabs.for"/>
+		<File RelativePath="..\TemplFit\PADE.FOR"/>
+		<File RelativePath=".\peakfit.for"/>
+		<File RelativePath=".\pfit.for"/>
+		<File RelativePath=".\pklink.for"/>
+		<File RelativePath="..\PkPoly\pkpolym.for"/>
+		<File RelativePath="..\xmldis\readvals.for"/>
+		<File RelativePath=".\resl.for"/>
+		<File RelativePath="..\..\nlfit\RhoOfZ\rhoofz.for"/>
+		<File RelativePath="..\..\..\Progdet\RNUMB\Rnumb.for"/>
+		<File RelativePath="..\..\..\optimization\Robmin\RobminSA\robminW1.for"/>
+		<File RelativePath="..\TemplFit\RUNKPS.FOR"/>
+		<File RelativePath="..\..\..\MatrixInverse\Cholesky\MatInvSA\sminv.for"/>
+		<File RelativePath="..\..\..\Progdet\sorting\sort8.for"/>
+		<File RelativePath="..\TemplFit\SPLINT.FOR"/>
+		<File RelativePath="..\fortran\Weight.for"/></Filter></Files>
+	<Globals/></VisualStudioProject>
