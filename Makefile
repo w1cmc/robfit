@@ -222,7 +222,7 @@ PEAKFIT_LIB_OBJS = $(OBJDIR)/gfortransys.o \
 # ============================================================================
 .PHONY: all clean debug help test_api
 
-all: $(BINDIR)/robfit_menu $(BINDIR)/xmldis $(BINDIR)/bkgfit $(BINDIR)/peakfit $(BINDIR)/templfit
+all: $(BINDIR)/robfit_menu $(BINDIR)/xmldis $(BINDIR)/bkgfit $(BINDIR)/peakfit $(BINDIR)/peakfit_curses $(BINDIR)/templfit
 
 # ncurses menu driver (recommended)
 $(BINDIR)/robfit_menu: robfit_menu.c
@@ -233,6 +233,11 @@ $(BINDIR)/robfit_menu: robfit_menu.c
 $(BINDIR)/libpeakfit.a: $(PEAKFIT_LIB_OBJS)
 	ar rcs $@ $^
 	@echo "Built libpeakfit.a successfully"
+
+# Curses-based peakfit (modern UI)
+$(BINDIR)/peakfit_curses: peakfit_curses.c $(BINDIR)/libpeakfit.a
+	$(CC) $(CFLAGS) -o $@ $< -L$(BINDIR) -lpeakfit -L/opt/homebrew/lib/gcc/current -lgfortran -lquadmath $(LDFLAGS_CURSES)
+	@echo "Built peakfit_curses successfully"
 
 # Test program for C API
 $(BINDIR)/test_peakfit_api: test_peakfit_api.c $(BINDIR)/libpeakfit.a
