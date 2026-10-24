@@ -4,19 +4,23 @@
  * Replaces the Fortran runrobfit.for text-based menu with a modern
  * terminal UI using ncurses.
  *
- * Build: cc -o robfit_menu robfit_menu.c -lncurses
+ * Configuration is stored in robfit.ini (INI format).
+ * Legacy .mnu files are generated on-the-fly when launching Fortran programs.
  */
 
 #include <curses.h>
 #include <ctype.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <libgen.h>
+#include "config.h"
 
 #define MAX_MENU_ITEMS 16
-#define MAX_PATH 256
+#define MAX_PATH 512
 
 /* Menu item structure */
 typedef struct {
@@ -27,32 +31,369 @@ typedef struct {
 } MenuItem;
 
 /* Global state */
-static char g_datafile[MAX_PATH] = "PLANCHETB.+ML";
+static char g_datafile[MAX_PATH] = "";
 static char g_program_dir[MAX_PATH] = ".";
+static char g_ini_file[MAX_PATH] = "robfit.ini";
+static RobfitConfig *g_cfg = NULL;
 
 /* Forward declarations */
 static int run_command(const char *cmd, const char *arg);
-static int handle_roblink(const char *datafile);
+static int handle_config(const char *datafile);
 static int handle_calibration(const char *datafile);
 static int handle_rebin(const char *datafile);
 static int handle_stop(const char *datafile);
 static void draw_menu(WINDOW *win, MenuItem *items, int n_items, int selected);
 static int get_datafile_basename(const char *path, char *base, size_t len);
+static void generate_mnu_files(void);
 
 /* Menu items */
 static MenuItem menu_items[] = {
-    {"Configure",    "Change filenames and options (roblink)", NULL, handle_roblink},
-    {"Display",      "Display data and results (xmldis)",      "xmldis", NULL},
-    {"Background",   "Fit continuum/background (bkgfit)",      "bkgfit", NULL},
-    {"Peaks",        "Fit peaks - curses UI (peakfit_curses)", "peakfit_curses", NULL},
-    {"Peaks (old)",  "Fit peaks - legacy menu (peakfit)",      "peakfit", NULL},
-    {"Energy Cal",   "Calibrate energy (EgyCal)",              "EgyCal", NULL},
-    {"Width/Eff",    "Width or efficiency calibration",        NULL, handle_calibration},
-    {"Template",     "Template fitting (templfit)",            "templfit", NULL},
-    {"Rebin",        "Rebin spectrum data",                    NULL, handle_rebin},
-    {"Quit",         "Exit ROBFIT",                            NULL, handle_stop},
+    {"Configure",    "Change filenames and options",             NULL, handle_config},
+    {"Display",      "Display data and results (xmldis)",        "xmldis", NULL},
+    {"Background",   "Fit continuum/background (bkgfit)",        "bkgfit", NULL},
+    {"Peaks",        "Fit peaks - curses UI (peakfit_curses)",   "peakfit_curses", NULL},
+    {"Peaks (old)",  "Fit peaks - legacy menu (peakfit)",        "peakfit", NULL},
+    {"Energy Cal",   "Calibrate energy (EgyCal)",                "EgyCal", NULL},
+    {"Width/Eff",    "Width or efficiency calibration",          NULL, handle_calibration},
+    {"Template",     "Template fitting (templfit)",              "templfit", NULL},
+    {"Rebin",        "Rebin spectrum data",                      NULL, handle_rebin},
+    {"Quit",         "Exit ROBFIT",                              NULL, handle_stop},
 };
 static const int n_menu_items = sizeof(menu_items) / sizeof(menu_items[0]);
+
+/*
+ * Generate legacy .mnu files for Fortran programs
+ */
+static void generate_robfit_mnu(void) {
+    FILE *f = fopen("robfit.mnu", "w");
+    if (!f) return;
+    
+    const char *spectrum = config_get(g_cfg, "spectrum", "file", "NONE");
+    const char *err2 = config_get(g_cfg, "spectrum", "err2_file", "NONE");
+    const char *egy_file = config_get(g_cfg, "calibration", "energy_file", "NONE");
+    const char *eff_file = config_get(g_cfg, "calibration", "efficiency_file", "NONE");
+    int log_wt = config_get_bool(g_cfg, "fitting", "log_weights", 0);
+    int restore = config_get_bool(g_cfg, "fitting", "restore_unf", 0);
+    int write_sp = config_get_bool(g_cfg, "output", "write_sp", 0);
+    
+    fprintf(f, "           3\n");
+    fprintf(f, "          10\n");
+    fprintf(f, "         100\n");
+    fprintf(f, "  1 %-40s\n", "Page ROBFIT");
+    fprintf(f, "  2 %-40s\n", "");
+    fprintf(f, "  3 %-40s\n", "Fitting information");
+    fprintf(f, "  4 %-40s\n", "Page (Fitting details)");
+    fprintf(f, "  5 %-40s\n", "");
+    fprintf(f, "  6 %-40s%s\n", "NACML common values", spectrum);
+    fprintf(f, "  7 %-40s%s\n", "NASP file containing the data", spectrum);
+    fprintf(f, "  8 %-40s%s\n", "Err2 file name  name.sp", err2[0] ? err2 : "NONE");
+    fprintf(f, "  9 %-40s%s\n", "Egy linear interpolation file", egy_file[0] ? egy_file : "NONE");
+    fprintf(f, " 10 %-40s%s\n", "Eff linear interplation file", eff_file[0] ? eff_file : "NONE");
+    fprintf(f, " 11 %-40s%s\n", "Log interpolation in the weights", log_wt ? "Y" : "N");
+    fprintf(f, " 12 %-40s%s\n", "restore nastr*.unf files", restore ? "Y" : "N");
+    fprintf(f, " 13 %-40s%s\n", "Put data into an SP file NASP", write_sp ? "Y" : "N");
+    
+    fclose(f);
+}
+
+static void generate_xmldis_mnu(void) {
+    FILE *f = fopen("xmldis.mnu", "w");
+    if (!f) return;
+    
+    const char *spectrum = config_get(g_cfg, "spectrum", "file", "NONE");
+    int energy_cal = config_get_bool(g_cfg, "spectrum", "energy_calibrated", 1);
+    double e_begin = config_get_double(g_cfg, "display", "energy_begin", 0.0);
+    double e_end = config_get_double(g_cfg, "display", "energy_end", 3000.0);
+    double y_min = config_get_double(g_cfg, "display", "y_min", 0.01);
+    double y_max = config_get_double(g_cfg, "display", "y_max", 1e8);
+    const char *y_scale = config_get(g_cfg, "display", "y_scale", "log");
+    int view_data = config_get_bool(g_cfg, "display", "view_data", 1);
+    int view_tpl = config_get_bool(g_cfg, "display", "view_template", 1);
+    int view_cnm = config_get_bool(g_cfg, "display", "view_continuum", 0);
+    int view_pks = config_get_bool(g_cfg, "display", "view_peaks", 0);
+    int view_res = config_get_bool(g_cfg, "display", "view_residuals", 0);
+    const char *nuclides = config_get(g_cfg, "display", "nuclides", "");
+    double alpha1 = config_get_double(g_cfg, "error", "alpha_w1", 0.01);
+    double alpha2 = config_get_double(g_cfg, "error", "alpha_w2", 1.0);
+    const char *smoothing = config_get(g_cfg, "error", "smoothing", "5pt");
+    const char *err_src = config_get(g_cfg, "error", "source", "data");
+    
+    /* Parse nuclides list */
+    char nuc1[32] = "NONE", nuc2[32] = "NONE", nuc3[32] = "NONE";
+    if (nuclides[0]) {
+        char *copy = strdup(nuclides);
+        char *tok = strtok(copy, ",");
+        if (tok) { while(isspace((unsigned char)*tok)) tok++; strncpy(nuc1, tok, 31); }
+        tok = strtok(NULL, ",");
+        if (tok) { while(isspace((unsigned char)*tok)) tok++; strncpy(nuc2, tok, 31); }
+        tok = strtok(NULL, ",");
+        if (tok) { while(isspace((unsigned char)*tok)) tok++; strncpy(nuc3, tok, 31); }
+        free(copy);
+    }
+    
+    /* Header */
+    fprintf(f, "           6\n");
+    fprintf(f, "          11\n");
+    fprintf(f, "          11\n");
+    fprintf(f, "          15\n");
+    fprintf(f, "           8\n");
+    fprintf(f, "         100\n");
+    
+    /* Page 1 - Menu structure */
+    fprintf(f, "  1 %-40s\n", "Page FSPDIS");
+    fprintf(f, "  2 %-40s\n", "");
+    fprintf(f, "  3 %-40s\n", "General information");
+    fprintf(f, "  4 %-40s\n", "General Viewing information");
+    fprintf(f, "  5 %-40s\n", "Output/Special Viewing options");
+    fprintf(f, "  6 %-40s\n", "Err**2 options");
+    
+    /* Page 2 - General information */
+    fprintf(f, "  7 %-40s\n", "Page FSPDIS1 (General information)");
+    fprintf(f, "  8 %-40s\n", "");
+    fprintf(f, "  9 %-40s%s\n", "NACMLSP file with fit data", spectrum);
+    fprintf(f, " 10 %-40s%c\n", "Energy calibrated", energy_cal ? 'E' : 'C');
+    fprintf(f, " 11 %-40s%10.2f%10.2f\n", "Data Beg/End in Egy", e_begin, e_end);
+    fprintf(f, " 12 %-40s%10.2f%10.2f\n", "CnmFit Beg/End in Egy", e_begin, e_end);
+    fprintf(f, " 13 %-40s%10.2f%10.2f\n", "PeakFit Beg/End in Egy", e_begin, e_end);
+    fprintf(f, " 14 %-40s%10.2f%10.2f\n", "TplFit Beg/End in Egy", e_begin, e_end);
+    fprintf(f, " 15 %-40s%d\n", "Vertical axis = COUNTS * SCALE FACTOR", 1);
+    fprintf(f, " 16 %-40s%.2g,%.2g\n", "Desired min and max Y scale", y_min, y_max);
+    fprintf(f, " 17 %-40s%s\n", "Log or linear Y scale", 
+            (y_scale[0] == 'l' || y_scale[0] == 'L') ? "Log" : "Lin");
+    
+    /* Page 3 - Viewing options */
+    fprintf(f, " 18 %-40s\n", "Page FSPDIS2 (General Viewing options)");
+    fprintf(f, " 19 %-40s\n", "");
+    fprintf(f, " 20 %-40s%c\n", "View the data (Y/N)", view_data ? 'Y' : 'N');
+    fprintf(f, " 21 %-40s%c\n", "View the tpl (Y/N)", view_tpl ? 'Y' : 'N');
+    fprintf(f, " 22 %-40s%c\n", "View the tpl+peaks", 'N');
+    fprintf(f, " 23 %-40s%c\n", "View the Cnm  (Y/N)", view_cnm ? 'Y' : 'N');
+    fprintf(f, " 24 %-40s%c\n", "View the peaks (Y/N)", view_pks ? 'Y' : 'N');
+    fprintf(f, " 25 %-40s%c\n", "View the residuals (Y/N)", view_res ? 'Y' : 'N');
+    fprintf(f, " 26 %-40s%s\n", "Nuclide of interest1 (K-40)[coin]", nuc1);
+    fprintf(f, " 27 %-40s%s\n", "Nuclide of interest2", nuc2);
+    fprintf(f, " 28 %-40s%s\n", "Nuclide of interest3", nuc3);
+    
+    /* Page 4 - Special options */
+    fprintf(f, " 29 %-40s\n", "Page Special output/viewing options");
+    fprintf(f, " 30 %-40s%c\n", "", 'N');
+    fprintf(f, " 31 %-40s%c\n", "Interpolate Cnm with splines", 'N');
+    fprintf(f, " 32 %-40s%c\n", "View CnmStdDev", 'N');
+    fprintf(f, " 33 %-40s%s\n", "Tpl Pks Table EgyBeg,EgyEnd min counts", 
+            config_get(g_cfg, "peak_table", "params", "3000,0,10"));
+    fprintf(f, " 34 %-40s%c\n", "View the Widths", 'N');
+    fprintf(f, " 35 %-40s%c\n", "View the efficiencys", 'N');
+    fprintf(f, " 36 %-40s%c\n", "View Attn1", 'N');
+    fprintf(f, " 37 %-40s%c\n", "View Attn2", 'N');
+    fprintf(f, " 38 %-40s%c\n", "View Attn3", 'N');
+    fprintf(f, " 39 %-40s%c\n", "View Chn Master.cml - Current.Cml", 'N');
+    fprintf(f, " 40 %-40s%c\n", "Output fit.sp file", 'N');
+    fprintf(f, " 41 %-40s%s\n", "Plot name.sp", "NONE");
+    fprintf(f, " 42 %-40s%s\n", "Plot name.sp", "NONE");
+    fprintf(f, " 43 %-40s%s\n", "Plot name.sp", "NONE");
+    
+    /* Page 5 - Error options */
+    fprintf(f, " 44 %-40s\n", "Page Err**2");
+    fprintf(f, " 45 %-40s\n", "");
+    fprintf(f, " 46 %-40s%.4g\n", "alphawl (err2=err2+(alpha*err2)**2)", alpha1);
+    fprintf(f, " 47 %-40s%.4g\n", "err2=max(alphaw2,err2)  alphaw2", alpha2);
+    fprintf(f, " 48 %-40s%c\n", "View Err2", 'N');
+    fprintf(f, " 49 %-40s%s\n", "Err2 = Data, Fit ,Err2", 
+            (err_src[0] == 'f' || err_src[0] == 'F') ? "Fit" : "Data");
+    fprintf(f, " 50 %-40s%s\n", "Data-->Err smooth No, 5pt, 17pt, hofx", smoothing);
+    fprintf(f, " 51 %-40s%c\n", "Make TplFit with No Plot", 'Y');
+    
+    fclose(f);
+}
+
+static void generate_bkgfit_mnu(void) {
+    FILE *f = fopen("bkgfit.mnu", "w");
+    if (!f) return;
+    
+    const char *spectrum = config_get(g_cfg, "spectrum", "file", "NONE");
+    
+    fprintf(f, "           4\n");
+    fprintf(f, "          10\n");
+    fprintf(f, "           5\n");
+    fprintf(f, "         100\n");
+    fprintf(f, "  1 %-40s\n", "Page bkgfit");
+    fprintf(f, "  2 %-40s\n", "");
+    fprintf(f, "  3 %-40s\n", "Spectrum and fit information");
+    fprintf(f, "  4 %-40s\n", "Page");
+    fprintf(f, "  5 %-40s\n", "");
+    fprintf(f, "  6 %-40s%s\n", "Name of Spectrum file", spectrum);
+    fprintf(f, "  7 %-40s\n", "Background fit region");
+    fprintf(f, "  8 %-40s%.2f\n", "Beg Energy", 
+            config_get_double(g_cfg, "fitting", "continuum_begin", 0.0));
+    fprintf(f, "  9 %-40s%.2f\n", "End Energy",
+            config_get_double(g_cfg, "fitting", "continuum_end", 3000.0));
+    fprintf(f, " 10 %-40s%c\n", "Subtract existing background", 'N');
+    fprintf(f, " 11 %-40s%c\n", "Write background to file", 'N');
+    fprintf(f, " 12 %-40s%c\n", "Plot result", 'Y');
+    fprintf(f, " 13 %-40s%.2g\n", "Alpha weight", 
+            config_get_double(g_cfg, "error", "alpha_w1", 0.01));
+    fprintf(f, " 14 %-40s%d\n", "Polynomial order", 
+            config_get_int(g_cfg, "fitting", "poly_order", 5));
+    
+    fclose(f);
+}
+
+static void generate_peakfit_mnu(void) {
+    FILE *f = fopen("peakfit.mnu", "w");
+    if (!f) return;
+    
+    const char *spectrum = config_get(g_cfg, "spectrum", "file", "NONE");
+    
+    fprintf(f, "           4\n");
+    fprintf(f, "          10\n");
+    fprintf(f, "           5\n");
+    fprintf(f, "         100\n");
+    fprintf(f, "  1 %-40s\n", "Page peakfit");
+    fprintf(f, "  2 %-40s\n", "");
+    fprintf(f, "  3 %-40s\n", "Peak fitting information");
+    fprintf(f, "  4 %-40s\n", "Page");
+    fprintf(f, "  5 %-40s\n", "");
+    fprintf(f, "  6 %-40s%s\n", "Name of Spectrum file", spectrum);
+    fprintf(f, "  7 %-40s\n", "Peak fit region");
+    fprintf(f, "  8 %-40s%.2f\n", "Beg Energy",
+            config_get_double(g_cfg, "fitting", "peak_begin", 0.0));
+    fprintf(f, "  9 %-40s%.2f\n", "End Energy",
+            config_get_double(g_cfg, "fitting", "peak_end", 3000.0));
+    fprintf(f, " 10 %-40s%.1f\n", "Peak search cutoff (sigma)",
+            config_get_double(g_cfg, "fitting", "peak_cutoff", 3.0));
+    fprintf(f, " 11 %-40s%c\n", "Fit peak widths", 'N');
+    fprintf(f, " 12 %-40s%c\n", "Fit peak skew", 'N');
+    fprintf(f, " 13 %-40s%c\n", "Plot result", 'Y');
+    fprintf(f, " 14 %-40s%d\n", "Max iterations",
+            config_get_int(g_cfg, "fitting", "max_iterations", 100));
+    
+    fclose(f);
+}
+
+static void generate_templfit_mnu(void) {
+    FILE *f = fopen("templfit.mnu", "w");
+    if (!f) return;
+    
+    const char *spectrum = config_get(g_cfg, "spectrum", "file", "NONE");
+    
+    fprintf(f, "           5\n");
+    fprintf(f, "          10\n");
+    fprintf(f, "          10\n");
+    fprintf(f, "          10\n");
+    fprintf(f, "         100\n");
+    fprintf(f, "  1 %-40s\n", "Page templfit");
+    fprintf(f, "  2 %-40s\n", "");
+    fprintf(f, "  3 %-40s\n", "Template fitting");
+    fprintf(f, "  4 %-40s\n", "Nuclide selection");
+    fprintf(f, "  5 %-40s\n", "Fitting options");
+    fprintf(f, "  6 %-40s\n", "Page (Template fitting)");
+    fprintf(f, "  7 %-40s\n", "");
+    fprintf(f, "  8 %-40s%s\n", "Name of Spectrum file", spectrum);
+    fprintf(f, "  9 %-40s%.2f\n", "Beg Energy",
+            config_get_double(g_cfg, "fitting", "template_begin", 0.0));
+    fprintf(f, " 10 %-40s%.2f\n", "End Energy",
+            config_get_double(g_cfg, "fitting", "template_end", 3000.0));
+    fprintf(f, " 11 %-40s%c\n", "Subtract background first", 'Y');
+    fprintf(f, " 12 %-40s%c\n", "Write results to file", 'Y');
+    fprintf(f, " 13 %-40s%c\n", "Plot result", 'Y');
+    fprintf(f, " 14 %-40s%d\n", "Max iterations",
+            config_get_int(g_cfg, "fitting", "max_iterations", 100));
+    fprintf(f, " 15 %-40s%.4g\n", "Convergence tolerance",
+            config_get_double(g_cfg, "fitting", "tolerance", 1e-6));
+    
+    /* Page 2 - Nuclides */
+    fprintf(f, " 16 %-40s\n", "Page (Nuclide selection)");
+    fprintf(f, " 17 %-40s\n", "");
+    const char *nuclides = config_get(g_cfg, "display", "nuclides", "");
+    fprintf(f, " 18 %-40s%s\n", "Nuclides to fit (comma-separated)", nuclides);
+    fprintf(f, " 19 %-40s%s\n", "Template library path", 
+            config_get(g_cfg, "fitting", "template_library", "."));
+    fprintf(f, " 20 %-40s%c\n", "Use efficiency correction", 'Y');
+    fprintf(f, " 21 %-40s%c\n", "Use attenuation correction", 'N');
+    fprintf(f, " 22 %-40s%c\n", "Use cascade summing correction", 'N');
+    fprintf(f, " 23 %-40s%c\n", "Use escape peak correction", 'N');
+    fprintf(f, " 24 %-40s\n", "");
+    fprintf(f, " 25 %-40s\n", "");
+    
+    /* Page 3 - Options */
+    fprintf(f, " 26 %-40s\n", "Page (Fitting options)");
+    fprintf(f, " 27 %-40s\n", "");
+    fprintf(f, " 28 %-40s%.4g\n", "Alpha weight 1",
+            config_get_double(g_cfg, "error", "alpha_w1", 0.01));
+    fprintf(f, " 29 %-40s%.4g\n", "Alpha weight 2",
+            config_get_double(g_cfg, "error", "alpha_w2", 1.0));
+    fprintf(f, " 30 %-40s%s\n", "Error smoothing", 
+            config_get(g_cfg, "error", "smoothing", "5pt"));
+    fprintf(f, " 31 %-40s%c\n", "Verbose output", 'N');
+    fprintf(f, " 32 %-40s%c\n", "Debug mode", 'N');
+    fprintf(f, " 33 %-40s\n", "");
+    fprintf(f, " 34 %-40s\n", "");
+    fprintf(f, " 35 %-40s\n", "");
+    
+    fclose(f);
+}
+
+static void generate_mnu_files(void) {
+    generate_robfit_mnu();
+    generate_xmldis_mnu();
+    generate_bkgfit_mnu();
+    generate_peakfit_mnu();
+    generate_templfit_mnu();
+}
+
+/*
+ * Create default config if robfit.ini doesn't exist
+ */
+static void create_default_config(const char *spectrum_file) {
+    g_cfg = config_new();
+    
+    config_set(g_cfg, "spectrum", "file", spectrum_file);
+    config_set_bool(g_cfg, "spectrum", "energy_calibrated", 1);
+    config_set(g_cfg, "spectrum", "err2_file", "");
+    
+    config_set_int(g_cfg, "display", "channel_begin", 1);
+    config_set_int(g_cfg, "display", "channel_end", 16384);
+    config_set_double(g_cfg, "display", "energy_begin", 0.0);
+    config_set_double(g_cfg, "display", "energy_end", 3000.0);
+    config_set(g_cfg, "display", "y_scale", "log");
+    config_set_double(g_cfg, "display", "y_min", 0.01);
+    config_set_double(g_cfg, "display", "y_max", 1e8);
+    config_set_bool(g_cfg, "display", "view_data", 1);
+    config_set_bool(g_cfg, "display", "view_template", 1);
+    config_set_bool(g_cfg, "display", "view_continuum", 0);
+    config_set_bool(g_cfg, "display", "view_peaks", 0);
+    config_set_bool(g_cfg, "display", "view_residuals", 0);
+    config_set(g_cfg, "display", "nuclides", "");
+    
+    config_set_double(g_cfg, "fitting", "continuum_begin", 0.0);
+    config_set_double(g_cfg, "fitting", "continuum_end", 3000.0);
+    config_set_double(g_cfg, "fitting", "peak_begin", 0.0);
+    config_set_double(g_cfg, "fitting", "peak_end", 3000.0);
+    config_set_double(g_cfg, "fitting", "template_begin", 0.0);
+    config_set_double(g_cfg, "fitting", "template_end", 3000.0);
+    config_set_double(g_cfg, "fitting", "peak_cutoff", 3.0);
+    config_set_int(g_cfg, "fitting", "poly_order", 5);
+    config_set_int(g_cfg, "fitting", "max_iterations", 100);
+    config_set_double(g_cfg, "fitting", "tolerance", 1e-6);
+    config_set_bool(g_cfg, "fitting", "log_weights", 0);
+    config_set_bool(g_cfg, "fitting", "restore_unf", 0);
+    config_set(g_cfg, "fitting", "template_library", ".");
+    
+    config_set(g_cfg, "calibration", "energy_file", "");
+    config_set(g_cfg, "calibration", "efficiency_file", "");
+    
+    config_set_double(g_cfg, "error", "alpha_w1", 0.01);
+    config_set_double(g_cfg, "error", "alpha_w2", 1.0);
+    config_set(g_cfg, "error", "smoothing", "5pt");
+    config_set(g_cfg, "error", "source", "data");
+    
+    config_set(g_cfg, "peak_table", "params", "3000,0,10");
+    
+    config_set_bool(g_cfg, "output", "write_sp", 0);
+    config_set(g_cfg, "output", "plot_files", "");
+    
+    config_save(g_cfg, g_ini_file);
+}
 
 /*
  * Run an external command with the datafile as argument
@@ -60,6 +401,9 @@ static const int n_menu_items = sizeof(menu_items) / sizeof(menu_items[0]);
 static int run_command(const char *cmd, const char *arg) {
     char full_cmd[MAX_PATH * 2];
     int status;
+    
+    /* Generate .mnu files before running legacy Fortran */
+    generate_mnu_files();
     
     endwin();  /* Temporarily exit curses mode */
     
@@ -81,127 +425,44 @@ static int run_command(const char *cmd, const char *arg) {
 }
 
 /*
- * Configuration item structure
+ * Configuration item for display
  */
 typedef struct {
-    char label[45];
-    char value[256];
-    int editable;  /* 0=label only, 1=text, 2=Y/N toggle */
-} ConfigItem;
+    const char *section;
+    const char *key;
+    const char *label;
+    int type;  /* 0=readonly, 1=text, 2=bool, 3=double, 4=int */
+} ConfigField;
 
-static ConfigItem g_config[16];
-static int g_config_count = 0;
-
-/*
- * Load configuration from robfit.mnu
- */
-static int load_config(void) {
-    FILE *f;
-    char line[512];
-    int counts[20], n_counts = 0, total_items = 0;
-    int i;
-    
-    f = fopen("robfit.mnu", "r");
-    if (!f) f = fopen("Robfit.mnu", "r");
-    if (!f) return -1;
-    
-    /* Read counts until we hit 100 */
-    while (n_counts < 20 && fgets(line, sizeof(line), f)) {
-        int val;
-        if (sscanf(line, "%d", &val) == 1) {
-            counts[n_counts++] = val;
-            if (val == 100) break;
-            total_items += val;
-        }
-    }
-    
-    /* Read config items */
-    g_config_count = 0;
-    for (i = 0; i < total_items && i < 16; i++) {
-        if (!fgets(line, sizeof(line), f)) break;
-        
-        int idx;
-        char label[45] = "", value[256] = "";
-        
-        /* Parse: index, 40-char label, rest is value */
-        if (sscanf(line, "%d", &idx) == 1) {
-            /* Skip the index and space */
-            char *p = line;
-            while (*p && (*p == ' ' || (*p >= '0' && *p <= '9'))) p++;
-            
-            /* Copy up to 40 chars for label */
-            strncpy(label, p, 40);
-            label[40] = '\0';
-            
-            /* Trim trailing whitespace from label */
-            char *lend = label + strlen(label) - 1;
-            while (lend >= label && isspace((unsigned char)*lend)) *lend-- = '\0';
-            
-            /* Rest is value */
-            if (strlen(p) > 40) {
-                strncpy(value, p + 40, 255);
-                value[255] = '\0';
-                /* Trim trailing whitespace */
-                char *end = value + strlen(value) - 1;
-                while (end > value && isspace((unsigned char)*end)) *end-- = '\0';
-                /* Trim leading whitespace */
-                char *start = value;
-                while (isspace((unsigned char)*start)) start++;
-                if (start != value) memmove(value, start, strlen(start) + 1);
-            }
-            
-            /* Skip blank lines (empty label and value) */
-            if (strlen(label) == 0 && strlen(value) == 0) {
-                continue;
-            }
-            
-            strncpy(g_config[g_config_count].label, label, 44);
-            strncpy(g_config[g_config_count].value, value, 255);
-            
-            /* Determine if editable and type */
-            if (strstr(label, "Page") || strlen(value) == 0) {
-                g_config[g_config_count].editable = 0;  /* Not editable */
-            } else if (strcmp(value, "Y") == 0 || strcmp(value, "N") == 0) {
-                g_config[g_config_count].editable = 2;  /* Y/N toggle */
-            } else {
-                g_config[g_config_count].editable = 1;  /* Text edit */
-            }
-            g_config_count++;
-        }
-    }
-    
-    fclose(f);
-    return 0;
-}
+static ConfigField config_fields[] = {
+    {"spectrum", "file", "Spectrum file", 1},
+    {"spectrum", "energy_calibrated", "Energy calibrated", 2},
+    {"spectrum", "err2_file", "Error squared file", 1},
+    {"display", "energy_begin", "Energy begin (keV)", 3},
+    {"display", "energy_end", "Energy end (keV)", 3},
+    {"display", "y_scale", "Y scale (log/linear)", 1},
+    {"display", "y_min", "Y minimum", 3},
+    {"display", "y_max", "Y maximum", 3},
+    {"display", "view_data", "View data", 2},
+    {"display", "view_template", "View template", 2},
+    {"display", "view_continuum", "View continuum", 2},
+    {"display", "view_peaks", "View peaks", 2},
+    {"display", "nuclides", "Nuclides", 1},
+    {"fitting", "peak_cutoff", "Peak search cutoff (sigma)", 3},
+    {"fitting", "poly_order", "Background polynomial order", 4},
+    {"fitting", "log_weights", "Log weight interpolation", 2},
+    {"error", "alpha_w1", "Alpha weight 1", 3},
+    {"error", "alpha_w2", "Alpha weight 2", 3},
+    {"error", "smoothing", "Error smoothing", 1},
+    {"calibration", "energy_file", "Energy calibration file", 1},
+    {"calibration", "efficiency_file", "Efficiency calibration file", 1},
+};
+static const int n_config_fields = sizeof(config_fields) / sizeof(config_fields[0]);
 
 /*
- * Save configuration to robfit.mnu
+ * Handle configuration editing
  */
-static int save_config(void) {
-    FILE *f;
-    int i;
-    
-    f = fopen("robfit.mnu", "w");
-    if (!f) return -1;
-    
-    /* Write header - assume simple 3/10/100 structure */
-    fprintf(f, "           3\n");
-    fprintf(f, "          10\n");
-    fprintf(f, "         100\n");
-    
-    /* Write items */
-    for (i = 0; i < g_config_count; i++) {
-        fprintf(f, "%3d %-40s%s\n", i + 1, g_config[i].label, g_config[i].value);
-    }
-    
-    fclose(f);
-    return 0;
-}
-
-/*
- * Handle roblink (configuration) - curses-based config editor
- */
-static int handle_roblink(const char *datafile) {
+static int handle_config(const char *datafile) {
     WINDOW *win;
     int ch, selected = 0;
     int editing = 0;
@@ -210,27 +471,10 @@ static int handle_roblink(const char *datafile) {
     int win_height, win_width;
     int i;
     
-    (void)datafile;  /* May use later */
+    (void)datafile;
     
-    if (load_config() < 0) {
-        endwin();
-        printf("\nCannot open robfit.mnu configuration file.\n");
-        printf("Press Enter to continue...");
-        fflush(stdout);
-        getchar();
-        refresh();
-        return 0;
-    }
-    
-    /* Find first editable item */
-    selected = 0;
-    while (selected < g_config_count && g_config[selected].editable == 0) {
-        selected++;
-    }
-    if (selected >= g_config_count) selected = 0;
-    
-    win_height = g_config_count + 6;
-    win_width = 78;
+    win_height = n_config_fields + 6;
+    win_width = 76;
     win = newwin(win_height, win_width, (LINES - win_height) / 2, (COLS - win_width) / 2);
     keypad(win, TRUE);
     
@@ -242,25 +486,25 @@ static int handle_roblink(const char *datafile) {
         wattroff(win, A_BOLD);
         
         /* Draw items */
-        for (i = 0; i < g_config_count; i++) {
+        for (i = 0; i < n_config_fields; i++) {
             int y = i + 3;
+            ConfigField *f = &config_fields[i];
+            const char *val = config_get(g_cfg, f->section, f->key, "");
             
             if (i == selected && !editing) {
                 wattron(win, A_REVERSE);
             }
             
-            if (g_config[i].editable == 0) {
-                /* Section header */
-                wattron(win, A_BOLD);
-                mvwprintw(win, y, 2, "%-40s", g_config[i].label);
-                wattroff(win, A_BOLD);
+            mvwprintw(win, y, 2, "%-35s", f->label);
+            
+            if (editing && i == selected) {
+                mvwprintw(win, y, 38, "[%-32s]", edit_buf);
+            } else if (f->type == 2) {
+                /* Boolean - show yes/no */
+                int bval = config_get_bool(g_cfg, f->section, f->key, 0);
+                mvwprintw(win, y, 38, " %-32s", bval ? "yes" : "no");
             } else {
-                mvwprintw(win, y, 2, "%-40s", g_config[i].label);
-                if (editing && i == selected) {
-                    mvwprintw(win, y, 43, "[%-30s]", edit_buf);
-                } else {
-                    mvwprintw(win, y, 43, " %-30s", g_config[i].value);
-                }
+                mvwprintw(win, y, 38, " %-32s", val);
             }
             
             if (i == selected && !editing) {
@@ -272,7 +516,7 @@ static int handle_roblink(const char *datafile) {
         if (editing) {
             mvwprintw(win, win_height - 2, 2, "Enter=save, Esc=cancel");
         } else {
-            mvwprintw(win, win_height - 2, 2, "Enter=edit, Space=toggle Y/N, S=save & exit, Q=quit");
+            mvwprintw(win, win_height - 2, 2, "Enter/Space=edit, S=save & exit, Q=quit without saving");
         }
         
         wrefresh(win);
@@ -282,7 +526,30 @@ static int handle_roblink(const char *datafile) {
             switch (ch) {
                 case '\n':
                 case '\r':
-                    strncpy(g_config[selected].value, edit_buf, 255);
+                    {
+                        ConfigField *f = &config_fields[selected];
+                        if (f->type == 2) {
+                            /* Boolean */
+                            int bval = (strcasecmp(edit_buf, "yes") == 0 || 
+                                       strcasecmp(edit_buf, "y") == 0 ||
+                                       strcasecmp(edit_buf, "true") == 0 ||
+                                       strcmp(edit_buf, "1") == 0);
+                            config_set_bool(g_cfg, f->section, f->key, bval);
+                        } else if (f->type == 3) {
+                            double dval = atof(edit_buf);
+                            config_set_double(g_cfg, f->section, f->key, dval);
+                        } else if (f->type == 4) {
+                            int ival = atoi(edit_buf);
+                            config_set_int(g_cfg, f->section, f->key, ival);
+                        } else {
+                            config_set(g_cfg, f->section, f->key, edit_buf);
+                        }
+                        /* Update global datafile if spectrum changed */
+                        if (strcmp(f->section, "spectrum") == 0 && 
+                            strcmp(f->key, "file") == 0) {
+                            strncpy(g_datafile, edit_buf, MAX_PATH - 1);
+                        }
+                    }
                     editing = 0;
                     break;
                 case 27:  /* ESC */
@@ -306,58 +573,38 @@ static int handle_roblink(const char *datafile) {
             switch (ch) {
                 case KEY_UP:
                 case 'k':
-                    {
-                        int tries = g_config_count;
-                        do {
-                            selected = (selected - 1 + g_config_count) % g_config_count;
-                        } while (g_config[selected].editable == 0 && --tries > 0);
-                    }
+                    selected = (selected - 1 + n_config_fields) % n_config_fields;
                     break;
                     
                 case KEY_DOWN:
                 case 'j':
-                    {
-                        int tries = g_config_count;
-                        do {
-                            selected = (selected + 1) % g_config_count;
-                        } while (g_config[selected].editable == 0 && --tries > 0);
-                    }
+                    selected = (selected + 1) % n_config_fields;
                     break;
                     
                 case '\n':
                 case '\r':
-                    if (g_config[selected].editable == 1) {
-                        strncpy(edit_buf, g_config[selected].value, 255);
-                        edit_pos = strlen(edit_buf);
-                        editing = 1;
-                    } else if (g_config[selected].editable == 2) {
-                        /* Toggle Y/N */
-                        if (strcmp(g_config[selected].value, "Y") == 0) {
-                            strcpy(g_config[selected].value, "N");
-                        } else {
-                            strcpy(g_config[selected].value, "Y");
-                        }
-                    }
-                    break;
-                    
                 case ' ':
-                    /* Toggle Y/N */
-                    if (g_config[selected].editable == 2) {
-                        if (strcmp(g_config[selected].value, "Y") == 0) {
-                            strcpy(g_config[selected].value, "N");
+                    {
+                        ConfigField *f = &config_fields[selected];
+                        if (f->type == 2) {
+                            /* Toggle boolean */
+                            int bval = config_get_bool(g_cfg, f->section, f->key, 0);
+                            config_set_bool(g_cfg, f->section, f->key, !bval);
                         } else {
-                            strcpy(g_config[selected].value, "Y");
+                            /* Edit text/number */
+                            const char *val = config_get(g_cfg, f->section, f->key, "");
+                            strncpy(edit_buf, val, 255);
+                            edit_buf[255] = '\0';
+                            edit_pos = strlen(edit_buf);
+                            editing = 1;
                         }
                     }
                     break;
                     
                 case 's':
                 case 'S':
-                    save_config();
-                    /* Update the global datafile if changed */
-                    if (strlen(g_config[5].value) > 0) {
-                        strncpy(g_datafile, g_config[5].value, MAX_PATH - 1);
-                    }
+                    config_save(g_cfg, g_ini_file);
+                    generate_mnu_files();
                     delwin(win);
                     touchwin(stdscr);
                     refresh();
@@ -366,6 +613,12 @@ static int handle_roblink(const char *datafile) {
                 case 'q':
                 case 'Q':
                 case 27:
+                    /* Reload config to discard changes */
+                    config_free(g_cfg);
+                    g_cfg = config_load(g_ini_file);
+                    if (!g_cfg) {
+                        create_default_config(g_datafile);
+                    }
                     delwin(win);
                     touchwin(stdscr);
                     refresh();
@@ -439,6 +692,9 @@ static int handle_calibration(const char *datafile) {
  */
 static int handle_rebin(const char *datafile) {
     char input[64];
+    
+    /* Generate .mnu files before running */
+    generate_mnu_files();
     
     endwin();
     printf("\n=== Rebin Spectrum ===\n");
@@ -535,6 +791,7 @@ int main(int argc, char *argv[]) {
     int ch, selected = 0;
     int result;
     char *dir;
+    struct stat st;
     
     /* Get program directory */
     if (argc > 0) {
@@ -550,6 +807,28 @@ int main(int argc, char *argv[]) {
     if (argc > 1) {
         strncpy(g_datafile, argv[1], sizeof(g_datafile) - 1);
     }
+    
+    /* Load or create configuration */
+    if (stat(g_ini_file, &st) == 0) {
+        g_cfg = config_load(g_ini_file);
+    }
+    
+    if (!g_cfg) {
+        /* Create default config */
+        const char *default_spectrum = g_datafile[0] ? g_datafile : "spectrum.+ML";
+        create_default_config(default_spectrum);
+    }
+    
+    /* Get spectrum file from config if not specified on command line */
+    if (!g_datafile[0]) {
+        strncpy(g_datafile, config_get(g_cfg, "spectrum", "file", ""), sizeof(g_datafile) - 1);
+    } else {
+        /* Update config with command-line spectrum */
+        config_set(g_cfg, "spectrum", "file", g_datafile);
+    }
+    
+    /* Generate .mnu files for legacy programs */
+    generate_mnu_files();
     
     /* Initialize curses */
     mainwin = initscr();
@@ -638,6 +917,13 @@ int main(int argc, char *argv[]) {
     
 cleanup:
     endwin();
+    
+    /* Save config on exit */
+    if (g_cfg) {
+        config_save(g_cfg, g_ini_file);
+        config_free(g_cfg);
+    }
+    
     printf("ROBFIT session ended.\n");
     return 0;
 }

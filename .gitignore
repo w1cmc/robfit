@@ -24,3 +24,13 @@ temp.txt
 ides/Debug/
 build/
 *.out
+
+# Generated menu files (created from robfit.ini at runtime)
+robfit.mnu
+xmldis.mnu
+bkgfit.mnu
+peakfit.mnu
+templfit.mnu
+
+# User configuration (generated from defaults if missing)
+robfit.ini
