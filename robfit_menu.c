@@ -230,16 +230,18 @@ static void draw_menu(WINDOW *win, MenuItem *items, int n_items, int selected) {
         if (i == selected) {
             wattron(win, A_REVERSE);
         }
+        /* Use 0 for Quit (last item), 1-9 for others */
+        int display_num = (i == n_items - 1) ? 0 : i + 1;
         mvwprintw(win, start_y + i, 4, "%d. %-12s - %s", 
-                  i + 1, items[i].label, items[i].description);
+                  display_num, items[i].label, items[i].description);
         if (i == selected) {
             wattroff(win, A_REVERSE);
         }
     }
     
     /* Help */
-    mvwprintw(win, LINES - 3, 2, "Use arrow keys or j/k to navigate, Enter to select, q to quit");
-    mvwprintw(win, LINES - 2, 2, "Press 1-9 for quick selection");
+    mvwprintw(win, LINES - 3, 2, "Use arrow keys or j/k to navigate, Enter to select");
+    mvwprintw(win, LINES - 2, 2, "Press 1-9 for quick selection, 0 to quit");
     
     wrefresh(win);
 }
@@ -322,11 +324,15 @@ int main(int argc, char *argv[]) {
             case 'Q':
                 goto cleanup;
                 
+            case '0':
+                /* 0 = Quit (last item) */
+                goto cleanup;
+                
             case '1': case '2': case '3': case '4': case '5':
             case '6': case '7': case '8': case '9':
                 {
                     int idx = ch - '1';
-                    if (idx < n_menu_items) {
+                    if (idx < n_menu_items - 1) {  /* -1 because 0 is Quit */
                         selected = idx;
                         /* Fall through to execute */
                         if (menu_items[selected].handler) {
