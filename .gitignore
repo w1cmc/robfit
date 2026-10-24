@@ -1,0 +1,19 @@
+# Executables
+*.exe
+
+# Fortran temporary/scratch files
+fort.*
+
+# Temporary files
+temp.txt
+
+# Binary/unformatted data files
+*.unf
+*.UNF
+
+# Build artifacts
+*.obj
+*.mod
+*.pdb
+*.suo
+ides/Debug/

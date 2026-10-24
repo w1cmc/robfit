@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VisualStudioProject ProjectCreator="Intel Fortran" Keyword="Console Application" Version="9.10" ProjectIdGuid="{8A6CEC4A-A6C5-45E6-AE00-29FEED69982C}">
+	<Platforms>
+		<Platform Name="Win32"/></Platforms>
+	<Configurations>
+		<Configuration Name="Debug|Win32">
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" Interfaces="true" WarnInterfaces="true" Traceback="true" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug"/>
+				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" GenerateManifest="false" GenerateDebugInformation="true" SubSystem="subSystemConsole"/>
+				<Tool Name="VFResourceCompilerTool"/>
+				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
+				<Tool Name="VFCustomBuildTool"/>
+				<Tool Name="VFPreLinkEventTool"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/></Configuration>
+		<Configuration Name="Release|Win32">
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" WarnUnusedVariables="true"/>
+				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" SubSystem="subSystemConsole"/>
+				<Tool Name="VFResourceCompilerTool"/>
+				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
+				<Tool Name="VFCustomBuildTool"/>
+				<Tool Name="VFPreLinkEventTool"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/></Configuration></Configurations>
+	<Files>
+		<Filter Name="Header Files" Filter="fi;fd"/>
+		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
+		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
+		<File RelativePath="..\robfitdocs\fortran\SysRoutines\Anov.for"/>
+		<File RelativePath="..\robfitdocs\interpolation\bli.for"/>
+		<File RelativePath="..\robfitdocs\fortran\XMLRR\cmlread.for"/>
+		<File RelativePath="..\robfitdocs\fortran\XMLRR\cmlrep.for"/>
+		<File RelativePath="..\robfitdocs\CnmFit\CnmFuns.for"/>
+		<File RelativePath="..\robfitdocs\fortran\format\compout.for"/>
+		<File RelativePath="..\robfitdocs\fortran\ComToFrUnf.for"/>
+		<File RelativePath="..\robfitdocs\fortran\FrCmlRfit.for"/>
+		<File RelativePath="..\robfitdocs\fortran\Functions.for"/>
+		<File RelativePath="..\robfitdocs\fortran\SysRoutines\intelsys.for"/>
+		<File RelativePath="..\robfitdocs\interpolation\locate.for"/>
+		<File RelativePath="..\robfitdocs\fortran\NaStr.for"/>
+		<File RelativePath="..\robfitdocs\peakfit\PkPoly\pkpolym.for"/>
+		<File RelativePath="..\robfitdocs\interpolation\quadratic.for"/>
+		<File RelativePath="..\robfitdocs\fortran\Rdata.for"/>
+		<File RelativePath="..\robfitdocs\ReBin\Rebin.for"/>
+		<File RelativePath="..\robfitdocs\fortran\sorting\sort8.for"/>
+		<File RelativePath="..\robfitdocs\interpolation\Uelag.for"/></Filter></Files>
+	<Globals/></VisualStudioProject>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VisualStudioProject ProjectCreator="Intel Fortran" Keyword="Console Application" Version="9.10" ProjectIdGuid="{398D28DD-FB86-473E-B5E1-6A7739B9F725}">
+	<Platforms>
+		<Platform Name="Win32"/></Platforms>
+	<Configurations>
+		<Configuration Name="Debug|Win32">
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" Interfaces="true" WarnInterfaces="true" Traceback="true" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug"/>
+				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" GenerateManifest="false" GenerateDebugInformation="true" ProgramDatabaseFile="c:\users\public\robfit\$(TargetName).pdb" SubSystem="subSystemConsole"/>
+				<Tool Name="VFResourceCompilerTool"/>
+				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
+				<Tool Name="VFCustomBuildTool"/>
+				<Tool Name="VFPreLinkEventTool"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/></Configuration>
+		<Configuration Name="Release|Win32">
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" GlobalOptimizations="true" OptimizeForProcessor="procOptimizeBlended"/>
+				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" GenerateManifest="false" SubSystem="subSystemConsole"/>
+				<Tool Name="VFResourceCompilerTool"/>
+				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
+				<Tool Name="VFCustomBuildTool"/>
+				<Tool Name="VFPreLinkEventTool"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/></Configuration></Configurations>
+	<Files>
+		<Filter Name="Header Files" Filter="fi;fd"/>
+		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
+		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
+		<File RelativePath="..\robfitdocs\Robmin\1dSolve.for"/>
+		<File RelativePath="..\robfitdocs\templfit\attenuation\nlfit\aigau\AIGAU.for"/>
+		<File RelativePath="..\robfitdocs\interpolation\Bli\bli.for"/>
+		<File RelativePath="..\robfitdocs\templfit\chntotpl.for"/>
+		<File RelativePath="..\robfitdocs\xmldis\chntotpl0.for"/>
+		<File RelativePath="..\robfitdocs\Robmin\choleskyq.for"/>
+		<File RelativePath="..\robfitdocs\CnmFit\cnmfit.for"/>
+		<File RelativePath="..\robfitdocs\CnmFit\CnmFuns.for"/>
+		<File RelativePath="..\robfitdocs\fortran\commons.for"/>
+		<File RelativePath="..\robfitdocs\ComUnf\ComToFrUnf.for"/>
+		<File RelativePath="..\robfitdocs\templfit\attenuation\nlfit\pade2d\CxyTox.for"/>
+		<File RelativePath="..\robfitdocs\fortran\datmfit.for"/>
+		<File RelativePath="..\robfitdocs\templfit\DerivCheck.for"/>
+		<File RelativePath="..\robfitdocs\templfit\EdtTempl.for"/>
+		<File RelativePath="..\robfitdocs\templfit\attenuation\nlfit\EkofZ\ekofz.for"/>
+		<File RelativePath="..\robfitdocs\templfit\FillCR.for"/>
+		<File RelativePath="..\robfitdocs\xmldis\fillcr0.for"/>
+		<File RelativePath="..\robfitdocs\interpolation\fnrsrhos.for"/>
+		<File RelativePath="..\robfitdocs\fortran\Functions.for"/>
+		<File RelativePath="..\robfitdocs\fortran\Functions2.for"/>
+		<File RelativePath="..\robfitdocs\xmldis\funnop.for"/>
+		<File RelativePath="..\robfitdocs\templfit\funwp.for"/>
+		<File RelativePath="..\robfitdocs\fortran\SysRoutines\intelsys.for"/>
+		<File RelativePath="..\robfitdocs\fortran\menurd.for"/>
+		<File RelativePath="..\robfitdocs\templfit\attenuation\nlfit\amu2\muAtt.for"/>
+		<File RelativePath="..\robfitdocs\templfit\attenuation\nlfit\Compton\muCompton2.for"/>
+		<File RelativePath="..\robfitdocs\templfit\attenuation\nlfit\Pairp\muPairp.for"/>
+		<File RelativePath="..\robfitdocs\fortran\NaStr.for"/>
+		<File RelativePath="..\robfitdocs\peakfit\PkPoly\pkpolym.for"/>
+		<File RelativePath="..\robfitdocs\fortran\SysRoutines\qnov.for"/>
+		<File RelativePath="..\robfitdocs\Robmin\robminq.for"/>
+		<File RelativePath="..\robfitdocs\emitters\rtpl.for"/>
+		<File RelativePath="..\robfitdocs\Robmin\sminvq.for"/>
+		<File RelativePath="..\robfitdocs\fortran\sorting\sort8.for"/>
+		<File RelativePath="..\robfitdocs\templfit\templfit.for"/>
+		<File RelativePath="..\robfitdocs\templfit\templqerrest.for"/>
+		<File RelativePath="..\robfitdocs\templfit\tmplink.for"/>
+		<File RelativePath="..\robfitdocs\templfit\tplfitq.for"/>
+		<File RelativePath="..\robfitdocs\StdDev\TplPks.for"/>
+		<File RelativePath="..\robfitdocs\StdDev\Weight.for"/></Filter></Files>
+	<Globals/></VisualStudioProject>
