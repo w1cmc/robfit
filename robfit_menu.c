@@ -469,13 +469,41 @@ static int handle_config(const char *datafile) {
     char edit_buf[256];
     int edit_pos = 0;
     int win_height, win_width;
+    int win_y, win_x;
     int i;
+    int max_visible;
+    int scroll_offset = 0;
     
     (void)datafile;
     
+    /* Calculate window size with bounds checking */
     win_height = n_config_fields + 6;
     win_width = 76;
-    win = newwin(win_height, win_width, (LINES - win_height) / 2, (COLS - win_width) / 2);
+    
+    /* Ensure window fits on screen */
+    if (win_height > LINES - 2) {
+        win_height = LINES - 2;
+    }
+    if (win_width > COLS - 2) {
+        win_width = COLS - 2;
+    }
+    
+    max_visible = win_height - 6;  /* Items that fit in window */
+    
+    win_y = (LINES - win_height) / 2;
+    win_x = (COLS - win_width) / 2;
+    if (win_y < 0) win_y = 0;
+    if (win_x < 0) win_x = 0;
+    
+    win = newwin(win_height, win_width, win_y, win_x);
+    if (!win) {
+        /* Fallback: try full screen */
+        win = newwin(LINES, COLS, 0, 0);
+        if (!win) return 0;
+        win_height = LINES;
+        win_width = COLS;
+        max_visible = win_height - 6;
+    }
     keypad(win, TRUE);
     
     while (1) {
@@ -485,9 +513,18 @@ static int handle_config(const char *datafile) {
         mvwprintw(win, 1, (win_width - 20) / 2, "ROBFIT Configuration");
         wattroff(win, A_BOLD);
         
+        /* Adjust scroll to keep selected item visible */
+        if (selected < scroll_offset) {
+            scroll_offset = selected;
+        } else if (selected >= scroll_offset + max_visible) {
+            scroll_offset = selected - max_visible + 1;
+        }
+        
         /* Draw items */
-        for (i = 0; i < n_config_fields; i++) {
-            int y = i + 3;
+        for (i = 0; i < n_config_fields && i < scroll_offset + max_visible; i++) {
+            if (i < scroll_offset) continue;
+            
+            int y = (i - scroll_offset) + 3;
             ConfigField *f = &config_fields[i];
             const char *val = config_get(g_cfg, f->section, f->key, "");
             
@@ -510,6 +547,14 @@ static int handle_config(const char *datafile) {
             if (i == selected && !editing) {
                 wattroff(win, A_REVERSE);
             }
+        }
+        
+        /* Show scroll indicators if needed */
+        if (scroll_offset > 0) {
+            mvwprintw(win, 2, win_width - 4, "^");
+        }
+        if (scroll_offset + max_visible < n_config_fields) {
+            mvwprintw(win, win_height - 3, win_width - 4, "v");
         }
         
         /* Help line */
