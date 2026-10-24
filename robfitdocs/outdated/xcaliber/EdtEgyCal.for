@@ -7,7 +7,7 @@
       DIMENSION EGY(NFpks+5)
       LOGICAL LVCONS,VEGYCAL,LDUM,VResCal,EX
  
-      INCLUDE '\users\public\robfit\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Tpk/Pks(NFpks+5)
       
       COMMON /TFIT/EGYCAL(6),RESCAL(6),DUMB(66),VEGYCAL(6),VRESCAL(6),

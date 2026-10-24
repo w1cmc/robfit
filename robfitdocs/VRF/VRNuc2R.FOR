@@ -2,7 +2,7 @@
 C       unformatted, Rfit, +ml, PML, n42, sp 
       IMPLICIT REAL*8 (A-H,O-Z) 
       REAL*4 R4BIN 
-      INCLUDE '..\robfitdocs\fortran\structures.for'       
+      INCLUDE 'STRUCTURES.FOR'       
       CHARACTER*256 NAPMLSP,NASTR,NANUC
       CHARACTER*25 CBIN
       RECORD /Nuclides/Nuclide(:)
@@ -66,7 +66,7 @@ C        print*,'NUCLIDE(J).IATTEN',NUCLIDE(J).IATTEN
 
 C      SUBROUTINE RNucVRF(NAPMLSP) 
 C      IMPLICIT REAL*8 (A-H,O-Z)  
-C      INCLUDE '..\robfitdocs\fortran\structures.for'       
+C      INCLUDE 'STRUCTURES.FOR'       
 C      LOGICAL EXNUC,LFND
 C      REAL*4 R4
 C      CHARACTER*256 NAPMLSP,NASTR,NANUC,FNAME

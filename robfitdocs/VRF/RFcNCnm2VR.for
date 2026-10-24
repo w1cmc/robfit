@@ -1,6 +1,6 @@
       SUBROUTINE RFcNcnm2VR(NARFIT)
       IMPLICIT REAL*8 (A-H,O-Z)  
-      INCLUDE '..\robfitdocs\fortran\structures.for' 
+      INCLUDE 'STRUCTURES.FOR' 
       RECORD /Nuclides/Nuclide(:)
       ALLOCATABLE:: Nuclide,XS,FS  
       CHARACTER*1 CLF    

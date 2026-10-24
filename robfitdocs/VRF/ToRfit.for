@@ -27,7 +27,7 @@ C /B  Indicates a binary file.
       CHARACTER*256 FNAME,NASTR,NARFIT,COMMAND,NAINDIR
 C      INTEGER FSYSTEM
       DIMENSION PPCCI(:)
-      INCLUDE '..\robfitdocs\fortran\structures.for'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Nuclides/Nuclide(:)  
 CI    ALLOCATABLE:: NUCLIDE,PPCCI
       NARFIT=NAINDIR('Rfit.txt',ILRFIT)
@@ -81,7 +81,7 @@ C      print*,'torfit 52 narfit ',narfit
       CHARACTER*3 ANSL,ANSL2(8,3)
       CHARACTER*17 CFIT(6)
       CHARACTER*32 CTEST,CTEST2,CTEST3,CTEST4
-      INCLUDE '..\robfitdocs\fortran\structures.for'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Nuclides/Nuclide(:)  
       DIMENSION PPCCI(:)
 CI    ALLOCATABLE:: NUCLIDE,PPCCI
@@ -352,7 +352,7 @@ C      READ(*,*)ITEST
       IMPLICIT REAL*8 (A-H,O-Z)
       CHARACTER*256 NAFPKS,NASTR,NARFIT,NAINDIR
       LOGICAL EXPKS 
-      INCLUDE '..\robfitdocs\fortran\structures.for'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Tpk/Pks(:)
 CI    ALLOCATABLE:: PKS
       
@@ -392,7 +392,7 @@ C <!-- Hgt HgtErr Loc LocErr Wth WthErr Skw SkwErr Jmp JmpErr Area AreaErr -->
       IMPLICIT REAL*8 (A-H,O-Z)
       CHARACTER*256 NAFPKS,NASTR,NAPML
       LOGICAL EXPKS,EX 
-      INCLUDE '..\robfitdocs\fortran\structures.for'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Tpk/Pks(:)
 CI    ALLOCATABLE:: PKS
       COMMON /DOUBLE/DUM(20)

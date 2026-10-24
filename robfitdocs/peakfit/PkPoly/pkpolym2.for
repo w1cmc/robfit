@@ -77,7 +77,7 @@ C the jump part
       
       FUNCTION PEAKS(XPASS,PKS,NFPKS)
       IMPLICIT REAL*8 (A-H,O-Z)
-      INCLUDE '\users\public\robfit\robfitdocs\fortran\structures.for'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Tpk/Pks(NFPKS)  
       DIMENSION PFA(1)    
       CALL POLY(XPASS,PFA,NVMIN,PKS,NFpks,FA,.FALSE.)
@@ -94,7 +94,7 @@ C relation between the k and the cons k is as determined in nlfit above
 C Note the PKS(I).hgt = cons(k)**2 and that PKS(I).wth = .5+cons(k)**2
 C The derivatives in PFA(k) are with respect to the cons(k)
       IMPLICIT REAL*8 (A-H,O-Z)
-      INCLUDE '\users\public\robfit\robfitdocs\fortran\structures.for'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Tpk/Pks(NFpks)
       DIMENSION PFA(NVMIN)
       LOGICAL LDER

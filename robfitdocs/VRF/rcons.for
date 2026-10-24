@@ -15,8 +15,8 @@ C       unformatted, Rfit, +ml, PML, n42, sp
       CHARACTER*3 ANSL  
       CHARACTER*1 ANS 
       LOGICAL LDUM,EX,EXNUC,LMDA  
-      INCLUDE '..\robfitdocs\fortran\structures.for'
-c     2 'C:\users\public\robfit\robfitdocs\fortran\structures.for'  
+      INCLUDE 'STRUCTURES.FOR'
+c     2 'STRUCTURES.FOR'  
       RECORD /Nuclides/Nuclide(:)
       DIMENSION EFFT(:),XS(:),FS(:)
       ALLOCATABLE:: NUCLIDE,EFFT,XS,FS
@@ -517,8 +517,8 @@ c ***  <NuclidesWeightsLimiter>
       LOGICAL EXNUC,LINQUIRE,EX
       DIMENSION PPCCI(:)
 C *** READING THE NUCLIDE CONSTANTS
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
-c     2 'C:\users\public\robfit\robfitdocs\fortran\structures.for'
+      INCLUDE 'STRUCTURES.FOR'
+c     2 'STRUCTURES.FOR'
       RECORD /Nuclides/Nuclide(:)
       ALLOCATABLE:: NUCLIDE,PPCCI
       COMMON /INTVALS/IDUM(4),NNUC,IDUM2(15)      
@@ -624,8 +624,8 @@ C      READ(1,*)LVCONS
       IMPLICIT REAL*8 (A-H,O-Z)
       CHARACTER*256 NAPMLSP,NASTR,NAFPKS
       LOGICAL LDUM,EXPKS,LINQUIRE
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
-c     2  'C:\users\public\robfit\robfitdocs\fortran\structures.for'
+      INCLUDE 'STRUCTURES.FOR'
+c     2  'STRUCTURES.FOR'
       RECORD /Tpk/Pks(:)      
       ALLOCATABLE:: Pks 
       COMMON/LOGICVALS/LDUM(40)      
@@ -703,8 +703,8 @@ C      CALL MAOPEN(1,'temp.txt','Stream_LF')
       IMPLICIT REAL*8 (A-H,O-Z)
       CHARACTER*256 NAFPKS,NAPMLSP,NASTR
       LOGICAL EXPKS,LDUM 
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
-c     2  'C:\users\public\robfit\robfitdocs\fortran\structures.for'
+      INCLUDE 'STRUCTURES.FOR'
+c     2  'STRUCTURES.FOR'
       RECORD /Tpk/Pks(:)
       ALLOCATABLE:: PKS      
       COMMON/LOGICVALS/LDUM(40)        
@@ -767,8 +767,8 @@ C <!-- Hgt HgtErr Loc LocErr Wth WthErr Skw SkwErr Jmp JmpErr Area AreaErr -->
 
       SUBROUTINE UPPEAKS(PKS,NFPKS)
       IMPLICIT REAL*8 (A-H,O-Z)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
-c     2  'C:\users\public\robfit\robfitdocs\fortran\structures.for'
+      INCLUDE 'STRUCTURES.FOR'
+c     2  'STRUCTURES.FOR'
       RECORD /Tpk/Pks(NFPKS)
       CHARACTER*256 NASTR,FNAME
       REAL*4 FIT(:)

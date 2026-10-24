@@ -4,7 +4,7 @@
       DIMENSION PC(:),PPCC(:),EGY(NFPKS),
      2 ERR2(:),PPADE(6),VCONS(6)
       allocatable PC,PPCC,ERR2
-      INCLUDE '\users\public\robfit\robfitdocs\FORTRAN\STRUCTURES.FOR' 
+      INCLUDE 'STRUCTURES.FOR' 
       RECORD /Tpk/Pks(NFPKS)
       
       LOGICAL LVCONS,VEGYCAL

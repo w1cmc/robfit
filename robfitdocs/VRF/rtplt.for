@@ -1,6 +1,6 @@
       SUBROUTINE RTPL()
       IMPLICIT REAL*8 (A-H,O-Z)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /TTpl0/Tpl0(:)
       RECORD /Nuclides/Nuclide(:)
       CHARACTER*256 NACMLSP,NANUC,NASTR,FNAME
@@ -55,7 +55,7 @@ C      IF(LBAT)WRITE(33,*)'NUCLIDES'
 
       SUBROUTINE CountPks(Nuclide,NNUC)
       IMPLICIT REAL*8 (A-H,O-Z)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Nuclides/Nuclide(NNUC)      
       LOGICAL EX
       CHARACTER*256 FNAME,CTEMP,CTEMP2,NASTR
@@ -105,7 +105,7 @@ C        PRINT*,'I,NUCLIDE(I).NTPL',I,NUCLIDE(I).NTPL
       IMPLICIT REAL*8 (A-H,O-Z)
       LOGICAL LDUM
       COMMON/LOGICVALS/LDUM(40)  
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Nuclides/Nuclide(NNUC)
 C      STRUCTURE /Nuclides/
 C        Real*8 Coef,ErrC

@@ -6,7 +6,7 @@ c *** that MAXCONS in ROBMIN must be 5 times maxopks
       IMPLICIT REAL*8 (A-H,O-Z)
       PARAMETER (MAXOPKS=10)
 C      LOGICAL LDUM
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Tpk/Pks(NFpks)
 c      COMMON /TFIT/DUM(6),ResCal(6),dum2(60),Ldum(72)
       LOGICAL LEGY,LRES,LEFF,LATT,LSKEW,LESCAPE,LCAS,LRAN,LPCAP
@@ -57,7 +57,7 @@ C *** ASSIGN PVARY = .true. to the peaks in the list and vary = false to the res
       SUBROUTINE PLOC(X,PKS,NFpks,J)
 C PLOC RETURNS A VALUE J SUCH THAT PKS(J).LOC<=X<=PKS(J+1).LOC
       IMPLICIT REAL*8 (A-H,O-Z)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Tpk/Pks(NFpks)
       JL=0
       JU=NFpks+1

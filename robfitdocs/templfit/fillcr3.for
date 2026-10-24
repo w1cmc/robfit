@@ -5,7 +5,7 @@ c have derivatives. Much overlap with fillcr0.for
       CHARACTER*256 FNAME,NASTR
       LOGICAL LDUM,EX,LpTPL,LpTPLC,LpTPLR
       DIMENSION PeakEgy(:),NPKORD(:) 
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /TTpl/Tpl(:)
       RECORD /TTPLCR/TPLC(:),TPLR(:)
       RECORD /Nuclides/Nuclide(NNUC)
@@ -255,7 +255,7 @@ c      PRINT*,'FLVALS LATT2(1) ',LATT2(1)
 
       SUBROUTINE FTPLM(TPLM,TPL0,IATT)
       IMPLICIT REAL*8 (A-H,O-Z)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /TTpl0/TPL0
       RECORD /TTpl/TPLM
       LOGICAL LEGY2,LRES2,LEFF2,LSKEW2,LATT2,LESCAPE2,LATTZ,LDUMC
@@ -382,7 +382,7 @@ c skew
 
       SUBROUTINE FILLTPL(Nuclide,NNUC,NTPL)
       IMPLICIT REAL*8 (A-H,O-Z)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Nuclides/Nuclide(NNUC)
       RECORD /TTpl0/Tpl0(:)
       REAL*4 AL(:),SIGSN(:)

@@ -6,7 +6,7 @@
       LOGICAL LVCONS,VResCal,EXPKS,EXFPKS,EX,LDUM,LDUM2
       DIMENSION EGY(:)
        
-      INCLUDE '\users\public\robfit\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Tpk/Pks(:)
       allocatable Pks,EGY
       

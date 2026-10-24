@@ -15,7 +15,7 @@ C      REAL*4 DAT(IBEGPKF-IENDPKF+1),WT(IBEGPKF-IENDPKF+1),ALR(MAXLR)
       REAL*4 RDUM,ORIGDAT(:)
 CI    ALLOCATABLE ORIGDAT  
       DIMENSION FDIFF(101),FCOUNT(101),PFA(1),ILR(MAXLR)
-      INCLUDE '\users\public\robfit\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Tpk/Pks(NPKSM) 
       
 C CURRENT VALUE IS 51, VALUES POSSIBLY GO FORWARD TO 101 AND BACK TO 1
@@ -121,7 +121,7 @@ C          WRITE(3,*)XP,CTEST
       SUBROUTINE RESL21(DAT,PKS,NFPKS,NPKSM,ALR,ILR,NLR,
      2 MAXLR,IBD,IED)
       IMPLICIT REAL*8 (A-H,O-Z)
-      INCLUDE '\users\public\robfit\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
 c  DAT is , 
 c  , the region of interest extends from IB to IE.  
 C  ALR(i) is the residual at ILR(i).  There are NLR residuals found 
@@ -212,7 +212,7 @@ C FDIFF AND AIDAT ARE TWO FUNCTIONS DEFINED AT CHANNELS IBD TO IED
       SUBROUTINE RESL21A(DAT,PKS,NFPKS,NPKSM,ALR,CLR,NLR,
      2 MAXLR,IBD,IED)
       IMPLICIT REAL*8 (A-H,O-Z)
-      INCLUDE '\users\public\robfit\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       COMMON/PKL/WPG,IADAT,IADATMF
 c  DAT is , 
 c  , the region of interest extends from IB to IE.  

@@ -2,7 +2,7 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 C calculates the template value and derivatives 
      
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /TTpl/Tpl(:)
       RECORD /TTPLCR/TPLC(:),TPLR(:)
       RECORD /Nuclides/Nuclide(nucb)
@@ -250,7 +250,7 @@ C        IF(ITEST.EQ.0)STOP
 C calculates the template value - no derivatives and 0 
 C if ldum(6) sets it to false <-- only difference with chntotpl0
      
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'  
+      INCLUDE 'STRUCTURES.FOR'  
       RECORD /Nuclides/Nuclide(:)
       DIMENSION PFA(1)
 CI    ALLOCATABLE:: Nuclide  
@@ -290,7 +290,7 @@ C calculates the template value - no derivatives and 0
 C if ldum(6) re-initializes the random and cascade paks
       CHARACTER*16 MDANUC(:)
       DIMENSION AMDA(:)   
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Nuclides/Nuclide(:)
       DIMENSION PFA(1)
 CI    ALLOCATABLE:: Nuclide,MDANUC,AMDA  
@@ -384,7 +384,7 @@ C            if(itest.eq.0)stop
      2 pEpc,TPL,TPLC)
       IMPLICIT REAL*8 (A-H,O-Z)
 C calculates the template value and 0 derivatives     
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /TTpl/TPL(NTPL)
       RECORD /TTPLCR/TPLC(NCAS)
       RECORD /Nuclides/Nuclide(nucb)
@@ -530,7 +530,7 @@ C     2     FAPOLY,TplFact,ABS(THETACAS*NUCLIDE(ITN).COEF)
       IMPLICIT REAL*8 (A-H,O-Z)
 C calculates the template value and 0 derivatives 
      
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /TTpl/Tpl(NTPL)
       RECORD /TTPLCR/TPLR(NRAN)
       RECORD /Nuclides/Nuclide(nucb)

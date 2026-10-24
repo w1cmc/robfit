@@ -1,6 +1,6 @@
       SUBROUTINE FILLFITTED(NAPMLSP)
       IMPLICIT REAL*8 (A-H,O-Z)  
-      INCLUDE '..\robfitdocs\fortran\structures.for'       
+      INCLUDE 'STRUCTURES.FOR'       
       CHARACTER*256 NAPMLSP
       CHARACTER*32 CFIT(9)
       CHARACTER*25 CBIN

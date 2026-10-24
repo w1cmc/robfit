@@ -1,6 +1,6 @@
       SUBROUTINE R2fitted2VR(NAPMLSP)
       IMPLICIT REAL*8 (A-H,O-Z)  
-      INCLUDE '..\robfitdocs\fortran\structures.for' 
+      INCLUDE 'STRUCTURES.FOR' 
       RECORD /Nuclides/Nuclide(:)
 ci    ALLOCATABLE:: Nuclide      
       

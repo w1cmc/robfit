@@ -3,7 +3,7 @@
 
       LOGICAL EXPKS,LDUM,EX
       REAL*4 DAT(:),WT(:),DUM
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Tpk/TPks(15),Pks(:)
 CI    ALLOCATABLE DAT,WT,Pks
 C     LOGICAL LVCONS      

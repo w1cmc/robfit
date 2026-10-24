@@ -6,7 +6,7 @@
       CHARACTER*1 CT(:)      
       CHARACTER*3 CFERR      
       LOGICAL VEffCal,EXFPKS,EX,LDUM,LDUM2,LDUM3,LEDT,EXpml,Latten,Lfpks
-      INCLUDE '\users\public\robfit\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       DIMENSION TplEgy(:),pTplArea(:),TplErr(:),PksArea(:),PksErr(:)
       DIMENSION PEFF(7)
       RECORD /Nuclides/Nuclide(:)

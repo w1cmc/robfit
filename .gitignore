@@ -1,5 +1,10 @@
 # Executables
 *.exe
+robfit
+xmldis
+bkgfit
+peakfit
+templfit
 
 # Fortran temporary/scratch files
 fort.*
@@ -17,3 +22,4 @@ temp.txt
 *.pdb
 *.suo
 ides/Debug/
+build/

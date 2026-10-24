@@ -2,7 +2,7 @@
      2 TPL,NTpl2)
       IMPLICIT REAL*8 (A-H,O-Z)
       PARAMETER (NT=78)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Nuclides/Nuclide(NNUC2)
       RECORD /TTpl/Tpl(NTpl2)
       DIMENSION PPCCI(IPPCCI),KLOC(NT+NNUC2)

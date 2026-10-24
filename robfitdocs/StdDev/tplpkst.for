@@ -59,7 +59,7 @@ C  SIGMA2=2*SUMIJ pEFF(I)*pEFF(J)*ppCCI(I,J)
       IMPLICIT REAL*8 (A-H,O-Z)
 c ..\robfitdocs\StdDev\StdDev.doc equation(34)  
       PARAMETER (NT=65)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Nuclides/Nuclide(NNUC2)
       RECORD /TTpl/Tpl(NTpl2)
       REAL*16 PPCCI
@@ -135,7 +135,7 @@ c above usese the inverse matrix to assign the errors.
      2 NTpl2,THETADET,TplFact)
       IMPLICIT REAL*8 (A-H,O-Z)
       PARAMETER (NT=65)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Nuclides/Nuclide(NNUC2)
       RECORD /TTpl/Tpl(NTpl2)
       REAL*16 PPCCI
@@ -198,7 +198,7 @@ c above usese the inverse matrix to assign the errors.
      2 NUCLIDE,NNUC2,PPCCI,IPPCCI,TPL,NTpl2,TRAN)
       IMPLICIT REAL*8 (A-H,O-Z)
       PARAMETER (NT=65)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Nuclides/Nuclide(NNUC2)
       RECORD /TTpl/Tpl(NTpl2)  
       REAL*16 PPCCI    
@@ -293,7 +293,7 @@ C http://www.phys.ufl.edu/~coldwell/Fittery/ErrorMatrix/StdDev.htm
 C  Documentation in \public_html\Fittery\robfit\TemplFit\TplPeaks.docx  
       IMPLICIT REAL*8 (A-H,O-Z)
       PARAMETER (NT=65)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Nuclides/Nuclide(:)
       RECORD /TTpl/Tpl(:)
       RECORD /Tpk/Pks(:) 
@@ -602,7 +602,7 @@ c     2     NUCLIDE,NNUC2,PPCCI,IPPCCI,TPL,NTpl2,TRAN)
 
       SUBROUTINE FillKloc(NUCLIDE,NNUC2,KLOC)
       IMPLICIT REAL*8 (A-H,O-Z)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       PARAMETER (NT=65)
       RECORD /Nuclides/Nuclide(NNUC2)
 C      COMMON /TFIT/CONS(NT),LVCONS(NT)

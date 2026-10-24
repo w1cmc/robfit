@@ -5,7 +5,7 @@ C for including them are assumed to be false -- mostly commented out
       CHARACTER*256 FNAME,NASTR
       LOGICAL LDUM,EX,LpTPL,LpTPLC,LpTPLR
       DIMENSION PeakEgy(:),NPKORD(:) 
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /TTpl/Tpl(:)
       RECORD /TTPLCR/TPLC(:),TPLR(:)
       RECORD /Nuclides/Nuclide(NNUC)
@@ -208,7 +208,7 @@ C the NCAS section has already written NTPL if NRAN=0
       
       SUBROUTINE SIGSNOISE(TPL0,NTPL0,NUCLIDE,NNUC,AL,SIGSN)
       IMPLICIT REAL*8 (A-H,O-Z)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Nuclides/Nuclide(NNUC)
       RECORD /TTpl0/Tpl0(NTPL0)
       LOGICAL LEGY,LRES,LEFF,LATT,LSKEW,LESCAPE,LCAS,LRAN
@@ -270,7 +270,7 @@ C      print*,'in sigsnoise ntpl0,nnuc',ntpl0,nnuc
 
       SUBROUTINE FILLTPL(Nuclide,NNUC,NTPL)
       IMPLICIT REAL*8 (A-H,O-Z)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Nuclides/Nuclide(NNUC)
       RECORD /TTpl0/Tpl0(:)
       REAL*4 AL(:),SIGSN(:)
@@ -304,7 +304,7 @@ C      print*,'in sigsnoise ntpl0,nnuc',ntpl0,nnuc
       SUBROUTINE FTPLM0(TPLM,TPL0,IATT)
       IMPLICIT REAL*8 (A-H,O-Z)
       LOGICAL LDUMC
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /TTpl0/TPL0
       RECORD /TTpl/TPLM
       LOGICAL LEGY,LRES,LEFF,LATT,LSKEW,LESCAPE,LCAS,LRAN,
@@ -421,7 +421,7 @@ C      and the the anti string is not the same.
       SUBROUTINE FTPLCRM(TPLCM,TPLK,TPLJ,K,J,WE,IATT)
       IMPLICIT REAL*8 (A-H,O-Z)
 C      LOGICAL LRES,LSKW,LDUM
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /TTpl/TPLK,TPLJ
       RECORD /TTPLCR/TPLCM
 
@@ -472,7 +472,7 @@ C      LOGICAL LRES,LSKW,LDUM
       
       SUBROUTINE FILLTPLC(TPL,NTPL,NUCLIDE,NNUC,NCAS)
       IMPLICIT REAL*8 (A-H,O-Z)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /TTpl/Tpl(NTPL)
       RECORD /TTPLCR/TPLCM
       RECORD /Nuclides/Nuclide(NNUC)
@@ -556,7 +556,7 @@ c              PRINT*,'SIGNAL=',SIGNAL
 
       SUBROUTINE FILLTPLR(TPL,NTPL,NUCLIDE,NNUC,NRAN)
       IMPLICIT REAL*8 (A-H,O-Z)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /TTpl/Tpl(NTPL)
       RECORD /TTPLCR/TPLRM
       RECORD /Nuclides/Nuclide(NNUC)
@@ -630,7 +630,7 @@ C THE FOLLOWING AVERAGES THE SKEWS ACCORDING TO THEIR SIZE IN THE PEAK
 
       SUBROUTINE AintToAintmC(TPL,NTPL,TPLC,NCAS)
       IMPLICIT REAL*8 (A-H,O-Z)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /TTpl/Tpl(NTPL)
       RECORD /TTPLCR/TPLC(NCAS)
       
@@ -661,7 +661,7 @@ C CASCADE SUM SINGLES CORRECTION
       
       SUBROUTINE AintToAintmR(TPL,NTPL)
       IMPLICIT REAL*8 (A-H,O-Z)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /TTpl/Tpl(NTPL)
       CHARACTER*256 FNAME,NASTR
       REAL*4 DAT(:)

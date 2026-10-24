@@ -185,7 +185,7 @@ C      PRINT*,'AT END OF CHNTOTPL0',CHNTOTPL0
      2 TPL,TPLC)
       IMPLICIT REAL*8 (A-H,O-Z)
 C calculates the template value and 0 derivatives     
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /TTpl/TPL(NTPL)
       RECORD /TTPLCR/TPLC(NCAS)
       RECORD /Nuclides/Nuclide(NNUC)
@@ -235,7 +235,7 @@ C          AJUMPF=PADES(CHN,AJUMP(1,IAtt))
       IMPLICIT REAL*8 (A-H,O-Z)
 C calculates the template value and 0 derivatives 
      
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /TTpl/Tpl(NTPL)
       RECORD /TTPLCR/TPLR(NRAN)
       RECORD /Nuclides/Nuclide(NNUC)

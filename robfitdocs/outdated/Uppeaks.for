@@ -1,7 +1,7 @@
       SUBROUTINE UPPEAKS(PKS,NFPKS)
       IMPLICIT REAL*8 (A-H,O-Z)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
-c     2  'C:\users\public\robfit\robfitdocs\fortran\structures.for'
+      INCLUDE 'STRUCTURES.FOR'
+c     2  'STRUCTURES.FOR'
       RECORD /Tpk/Pks(NFPKS)
       CHARACTER*256 NASTR,FNAME
       REAL*4 FIT(:)

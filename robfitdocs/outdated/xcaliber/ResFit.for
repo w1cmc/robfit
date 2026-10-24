@@ -3,7 +3,7 @@
       CHARACTER*3 CFERR
       DIMENSION PC(:),PPCC(:),ERR2(:),Prescal(6)
 CI    ALLOCATABLE::  PC,PPCC,ERR2
-      INCLUDE '\users\public\robfit\robfitdocs\FORTRAN\STRUCTURES.FOR' 
+      INCLUDE 'STRUCTURES.FOR' 
       RECORD /Tpk/Pks(NFPKS)
       
       LOGICAL LVCONS,VEGYCAL,VRESCAL

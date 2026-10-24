@@ -1,6 +1,6 @@
       SUBROUTINE VRfitted2RF(NAPMLSP)
       IMPLICIT REAL*8 (A-H,O-Z)  
-      INCLUDE '..\robfitdocs\fortran\structures.for' 
+      INCLUDE 'STRUCTURES.FOR' 
 c      CHARACTER*256 CTEMP      
       CHARACTER*256 NAPMLSP
       CHARACTER*32 CFIT(9)

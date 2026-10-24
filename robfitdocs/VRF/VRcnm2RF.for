@@ -1,6 +1,6 @@
       SUBROUTINE VRFCnm2Rf(NADAT)
       IMPLICIT REAL*8 (A-H,O-Z)
-      INCLUDE '..\robfitdocs\fortran\structures.for'  
+      INCLUDE 'STRUCTURES.FOR'  
       REAL*4 R4BIN,FS(:)
       CHARACTER*256 NADAT,FNAME,NASTR
       DIMENSION XS(:) !CNM, not data but a large file

@@ -4,7 +4,7 @@ C calculates the template value - no derivatives and 0
 C if ldum(6) re-initializes the random and cascade paks
       CHARACTER*16 MDANUC(:)
       DIMENSION AMDA(:)   
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Nuclides/Nuclide(:)
       DIMENSION PFA(1)
 CI    ALLOCATABLE:: Nuclide,MDANUC,AMDA  

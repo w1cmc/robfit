@@ -733,7 +733,7 @@ C *** ptemplmda adds the continuum to the result from CHNTOTPL2
       LOGICAL VENERGY,LDUM
       DIMENSION TFX(:),TFY(:),ERR(:)
 
-      INCLUDE '..\robfitdocs\fortran\structures.for'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Nuclides/Nuclide(:)
       
       ALLOCATABLE::NUCLIDE,TFX,TFY,ERR
@@ -1012,7 +1012,7 @@ c IROI = -137 uses none
       IMPLICIT REAL*8 (A-H,O-Z)
       CHARACTER*256 FNAME,NASTR
       LOGICAL LPfcall,EX
-      INCLUDE '..\robfitdocs\fortran\structures.for'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Tpk/Pks(:)      
       ALLOCATABLE::Pks
       SAVE Pks,NFpks,LPfcall
@@ -1051,7 +1051,7 @@ C THE POLY IS SUM ON K CC*PKPOLY(CAPX,SKEW,AJUMP,...)
       FUNCTION FIXPKE(X)
       IMPLICIT REAL*8 (A-H,O-Z)
       CHARACTER*256 FNAME,NASTR
-      INCLUDE '..\robfitdocs\fortran\structures.for'
+      INCLUDE 'STRUCTURES.FOR'
       LOGICAL LPfcall,EX
       RECORD /Tpk/Pks(:)      
       ALLOCATABLE::Pks

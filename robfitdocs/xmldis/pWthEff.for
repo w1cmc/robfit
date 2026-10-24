@@ -3,7 +3,7 @@
       LOGICAL EX
       CHARACTER*256 FNAME,NASTR
       DIMENSION XWTH(:),WTHPL(:),ERR(:)
-      INCLUDE '..\robfitdocs\fortran\structures.for'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Tpk/Pks(:)
       ALLOCATABLE::PKS,XWTH,WTHPL,ERR     
      

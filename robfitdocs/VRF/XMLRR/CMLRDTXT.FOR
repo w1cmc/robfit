@@ -45,8 +45,8 @@ C      OPEN(2,FILE=FILEOUT,RECORDTYPE='Stream_LF')
       IMPLICIT REAL*8 (A-H,O-Z)
       CHARACTER*256 NACMLSP,NASTR,NAFPKS
       LOGICAL LDUM,EXPKS
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
-c     2  'C:\users\public\robfit\robfitdocs\fortran\structures.for'
+      INCLUDE 'STRUCTURES.FOR'
+c     2  'STRUCTURES.FOR'
       RECORD /Tpk/Pks(:)
       ALLOCATABLE:: Pks 
       COMMON/LOGICVALS/LDUM(40)      
@@ -283,7 +283,7 @@ C relation between the k and the cons k is as determined in nlfit above
 C Note the PKS(I).hgt = cons(k)**2 and that PKS(I).wth = .5+cons(k)**2
 C The derivatives in PFA(k) are with respect to the cons(k)
       IMPLICIT REAL*8 (A-H,O-Z)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Tpk/Pks(NFpks)
       DIMENSION PFA(NVMIN)
       LOGICAL LDER

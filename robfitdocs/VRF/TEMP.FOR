@@ -71,8 +71,8 @@ C        ENDIF
       LOGICAL EXNUC,LINQUIRE,EX
       DIMENSION PPCCI(:)
 C *** READING THE NUCLIDE CONSTANTS
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
-c     2 'C:\users\public\robfit\robfitdocs\fortran\structures.for'
+      INCLUDE 'STRUCTURES.FOR'
+c     2 'STRUCTURES.FOR'
       RECORD /Nuclides/Nuclide(:)
 CI    ALLOCATABLE:: NUCLIDE,PPCCI
       COMMON /INTVALS/IDUM(4),NNUC,IDUM2(15)      
@@ -178,8 +178,8 @@ C      READ(1,*)LVCONS
       IMPLICIT REAL*8 (A-H,O-Z)
       CHARACTER*256 NACMLSP,NASTR,NAFPKS
       LOGICAL LDUM,EXPKS,LINQUIRE
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
-c     2  'C:\users\public\robfit\robfitdocs\fortran\structures.for'
+      INCLUDE 'STRUCTURES.FOR'
+c     2  'STRUCTURES.FOR'
       RECORD /Tpk/Pks(:)      
 CI    ALLOCATABLE:: Pks 
       COMMON/LOGICVALS/LDUM(40)      
@@ -257,8 +257,8 @@ C      CALL MAOPEN(1,'temp.txt','Stream_LF')
       IMPLICIT REAL*8 (A-H,O-Z)
       CHARACTER*256 NAFPKS,NACMLSP,NASTR
       LOGICAL EXPKS,LDUM 
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
-c     2  'C:\users\public\robfit\robfitdocs\fortran\structures.for'
+      INCLUDE 'STRUCTURES.FOR'
+c     2  'STRUCTURES.FOR'
       RECORD /Tpk/Pks(:)
 CI    ALLOCATABLE:: PKS      
       COMMON/LOGICVALS/LDUM(40)        
@@ -321,8 +321,8 @@ C <!-- Hgt HgtErr Loc LocErr Wth WthErr Skw SkwErr Jmp JmpErr Area AreaErr -->
 
       SUBROUTINE UPPEAKS(PKS,NFPKS)
       IMPLICIT REAL*8 (A-H,O-Z)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
-c     2  'C:\users\public\robfit\robfitdocs\fortran\structures.for'
+      INCLUDE 'STRUCTURES.FOR'
+c     2  'STRUCTURES.FOR'
       RECORD /Tpk/Pks(NFPKS)
       CHARACTER*256 NASTR,FNAME
       REAL*4 FIT(:)
@@ -623,7 +623,7 @@ C THIS READS THE SECOND LINE
       END
       SUBROUTINE VRFTONUC(NAPMLSP) !reads cons in order
       IMPLICIT REAL*8 (A-H,O-Z)  
-      INCLUDE '..\robfitdocs\fortran\structures.for'       
+      INCLUDE 'STRUCTURES.FOR'       
       CHARACTER*256 NAPMLSP,NASTR,NANUC,NANUCFIT,
      2 FNAME,CTEMP
       CHARACTER*32 CFIT(9)

@@ -1,6 +1,6 @@
       SUBROUTINE NLFIT(DAT,WT,Pks,NFpks,IB,IE)
       IMPLICIT REAL *8 (A-H,O-Z)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Tpk/Pks(NFpks)      
       LOGICAL LDERC,LDUM,LDUM2
 C *** This routine does a least squares fit to DAT using weights WT in the
@@ -203,7 +203,7 @@ C SUBROUTINE ROBMIN(CHI,CONS,PC,PPCC,FR,NCON,IEND,INIT)
 
       SUBROUTINE NLERREST(DAT,WT,Pks,NFpks,IB,IE)
       IMPLICIT REAL *8 (A-H,O-Z)
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /Tpk/Pks(NFpks)
       DIMENSION PPCC(:),ALU(:),PPCCHAT(:),PPCCT(:),PFA(:)
       REAL*4 DAT(IBEGPKF:IENDPKF),WT(IBEGPKF:IENDPKF)

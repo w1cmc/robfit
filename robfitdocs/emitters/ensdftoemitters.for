@@ -4,7 +4,7 @@ C or earlier from test data.  This code makes
 C \users\public\robfit\emitters\name.txt from this file 
       IMPLICIT REAL*8 (A-H,O-Z)
       CHARACTER*256 FNAME,CTEMP,COUT,FNAME1
-      INCLUDE '..\robfitdocs\fortran\structures.for'
+      INCLUDE 'STRUCTURES.FOR'
       RECORD /TTpl0/Tpl(:)
       DIMENSION PEAKEGY(:),NPKORD(:)
       

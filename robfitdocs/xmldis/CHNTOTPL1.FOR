@@ -3,7 +3,7 @@
 C calculates the template value - no derivatives and 0 
 C if ldum(6) sets it to false <-- only difference with chntotpl0
      
-      INCLUDE '..\robfitdocs\FORTRAN\STRUCTURES.FOR'  
+      INCLUDE 'STRUCTURES.FOR'  
       RECORD /Nuclides/Nuclide(:)
       DIMENSION PFA(1)
 CI    ALLOCATABLE:: Nuclide  
