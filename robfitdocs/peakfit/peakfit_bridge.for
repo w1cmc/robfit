@@ -360,8 +360,8 @@ C ----------------------------------------------------------------------
       RECORD /Tpk/ PKS(256)
       REAL*4 DAT(:)
       ALLOCATABLE DAT
-      REAL*8 ALR(10), CLR(10)
-      INTEGER I, NLR, NFPKS, MAXLR, NPKSM
+      REAL*8 ALR(10), CLR(10), HEST
+      INTEGER I, NLR, NFPKS, MAXLR, NPKSM, ICHN
       INTEGER IBEGC, IENDC, IDUM(9), IBEGPKF, IENDPKF
       INTEGER IDUM2(3), IFIT, IDUM3(3)
       REAL*8 DDUM3(11), CUTOFF, DDUM4(8)
@@ -398,13 +398,18 @@ C     Allocate data array
 C     Call peak finding routine
       CALL RESL21A(DAT, PKS, NFPKS, NPKSM, ALR, CLR, NLR, MAXLR)
       
-      DEALLOCATE(DAT)
-      
-C     Add found peaks to the array
+C     Add found peaks to the array (before deallocating DAT)
       DO I = 1, NLR
         IF (NFPKS + I .LE. MAX_PEAKS) THEN
+C         Get height estimate from data at peak location
+          ICHN = NINT(ALR(I))
+          IF (ICHN .GE. IBEG .AND. ICHN .LE. IEND) THEN
+            HEST = DAT(ICHN)
+          ELSE
+            HEST = 100.0D0
+          END IF
 C         Initialize new peak at found location
-          C_PEAKS(1, NFPKS + I) = 100.0D0  ! Default height
+          C_PEAKS(1, NFPKS + I) = MAX(1.0D0, DBLE(HEST))  ! Height from data
           C_PEAKS(2, NFPKS + I) = 0.0D0
           C_PEAKS(3, NFPKS + I) = ALR(I)   ! Location
           C_PEAKS(4, NFPKS + I) = 0.0D0
@@ -428,6 +433,8 @@ C         Initialize new peak at found location
           C_PEAKS(22, NFPKS + I) = 0.0D0   ! VJmp = false
         END IF
       END DO
+      
+      DEALLOCATE(DAT)
       
       PEAKFIT_FIND_PEAKS_F = MIN(NLR, MAX_PEAKS - NFPKS)
       N_PEAKS = NFPKS + PEAKFIT_FIND_PEAKS_F
