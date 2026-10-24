@@ -12,7 +12,7 @@
   6 Err**2 options                           
   7 Page FSPDIS1 (General information)       
   8                                          
-  9 NACMLSP file with fit data              Salted-U235-3.7_Bkg_7200s-0005.n42
+  9 NACMLSP file with fit data              PLANCHETB.+ML
  10 Energy calibrated                       E
  11 Data Beg/End in Egy                           0.29   3287.24
  12 CnmFit Beg/End in Egy                         0.29   3220.60

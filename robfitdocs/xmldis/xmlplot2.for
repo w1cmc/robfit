@@ -130,8 +130,8 @@ c        WRITE(1,'(A)')'plot "EffPrimary.out" with lines lt 3,'//
 c     2    '"EffSingle.out" with lines lt 2,'//
 c     3    '"EffDouble.out" with lines lt 4' 
 c        CLOSE(1)
-c        ISTATUS=FSYSTEM('START GNUPLOT PLOTEff.GNU')
-c        CALL FSYSTEM('START GNUPLOT PLOTEff.GNU')
+c        ISTATUS=FSYSTEM('gnuplot PLOTEff.GNU')
+c        CALL FSYSTEM('gnuplot PLOTEff.GNU')
 c      ENDIF  
              
       IF(VCNMERR)THEN
@@ -278,8 +278,8 @@ C *** THE WIDTHS
           WRITE(1,'(A)')'plot "FWE.OUT" with lines lt 3'
         ENDIF  
         CLOSE(1)  
-C        ISTATUS=FSYSTEM('START GNUPLOT PLOTW.GNU')
-         CALL FSYSTEM('START GNUPLOT PLOTW.GNU') 
+C        ISTATUS=FSYSTEM('gnuplot PLOTW.GNU')
+         CALL FSYSTEM('gnuplot PLOTW.GNU') 
       ENDIF
       DO I=1,3
         IF(VATT(I))THEN
@@ -291,7 +291,7 @@ C        ISTATUS=FSYSTEM('START GNUPLOT PLOTW.GNU')
           write(1,'(A)')'set label 1 "energy" at graph 0.5,0.05'
           write(1,'(A)')'plot "'//PATTOUT//'" with lines lt 3' 
           close(1)
-          COMMAND='START GNUPLOT '//PlotAttnI
+          COMMAND='gnuplot '//PlotAttnI
           ILC=LENTRIM(COMMAND)
 C          ISTATUS=FSYSTEM(COMMAND(:ILC))
           CALL FSYSTEM(COMMAND(:ILC))
@@ -311,8 +311,8 @@ C is no longer an EffI.out to plot
      2    '"EffSingle.out" with lines lt 2,'//
      3    '"EffDouble.out" with lines lt 4' 
         CLOSE(1)
-C        ISTATUS=FSYSTEM('START GNUPLOT PLOTEff.GNU')
-        CALL FSYSTEM('START GNUPLOT PLOTEff.GNU')
+C        ISTATUS=FSYSTEM('gnuplot PLOTEff.GNU')
+        CALL FSYSTEM('gnuplot PLOTEff.GNU')
       ENDIF  
 
       IF(VDCHN)THEN
@@ -325,8 +325,8 @@ C        ISTATUS=FSYSTEM('START GNUPLOT PLOTEff.GNU')
      2   //' graph 0.5,0.05'
         WRITE(1,'(A)')'plot "ChnDiff.out" with lines lt 3'
         CLOSE(1)  
-C        ISTATUS=FSYSTEM('START GNUPLOT PCHDIFF.GNU')
-        CALL FSYSTEM('START GNUPLOT PCHDIFF.GNU')
+C        ISTATUS=FSYSTEM('gnuplot PCHDIFF.GNU')
+        CALL FSYSTEM('gnuplot PCHDIFF.GNU')
       ENDIF
          
 C *** regions of interest
@@ -427,8 +427,8 @@ C *** NORMAL PLOT
         IF(COMMAND(ILC:ILC).EQ.',')COMMAND(ILC:ILC)=' '
         WRITE(1,'(A)')COMMAND(:ILC)
         CLOSE(1)  
-C        ISTATUS=FSYSTEM('START GNUPLOT PLOT.GNU')
-        CALL FSYSTEM('START GNUPLOT PLOT.GNU')
+C        ISTATUS=FSYSTEM('gnuplot PLOT.GNU')
+        CALL FSYSTEM('gnuplot PLOT.GNU')
         CALL COMTOUNF(EX)
         STOP 'NORMAL PLOT'
       ENDIF                               

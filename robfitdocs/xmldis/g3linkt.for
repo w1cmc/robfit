@@ -114,41 +114,43 @@ c      PRINT*,'NADATUNF ',NADATUNF(:ILDAT)
       DO I=1,3
         PNAOI(I)=FFVAR(I+26)(:16)
       ENDDO
+C     Menu indices adjusted to match xmldis.mnu layout:
+C     31=Interpolate splines, 32=CnmStdDev, 33=TplPks params, 34=Widths...
       LDUM(4)=.FALSE.
-      IF(FFVAR(32)(1:1).EQ.'Y'.OR.FFVAR(32)(1:1).EQ.'y')LDUM(4)=.TRUE.
+      IF(FFVAR(31)(1:1).EQ.'Y'.OR.FFVAR(31)(1:1).EQ.'y')LDUM(4)=.TRUE.
       VCnmErr=.FALSE.
-      IF(FFVAR(33)(1:1).EQ.'Y'.OR.FFVAR(33)(1:1).EQ.'y')
+      IF(FFVAR(32)(1:1).EQ.'Y'.OR.FFVAR(32)(1:1).EQ.'y')
      2 VCnmErr=.TRUE.                  
-      READ(FFVAR(34),*)EOB,EOE,C1
+      READ(FFVAR(33),*)EOB,EOE,C1
       VWTH=.FALSE.
-      IF(FFVAR(35)(1:1).EQ.'Y'.OR.FFVAR(35)(1:1).EQ.'y')VWTH=.TRUE.     
+      IF(FFVAR(34)(1:1).EQ.'Y'.OR.FFVAR(34)(1:1).EQ.'y')VWTH=.TRUE.     
       VEFF=.FALSE.
-      IF(FFVAR(36)(1:1).EQ.'Y'.OR.FFVAR(36)(1:1).EQ.'y')VEFF=.TRUE.
+      IF(FFVAR(35)(1:1).EQ.'Y'.OR.FFVAR(35)(1:1).EQ.'y')VEFF=.TRUE.
       VATTN1=.FALSE.
-      IF(FFVAR(37)(1:1).EQ.'Y'.OR.FFVAR(37)(1:1).EQ.'y')VATTN1=.TRUE.
+      IF(FFVAR(36)(1:1).EQ.'Y'.OR.FFVAR(36)(1:1).EQ.'y')VATTN1=.TRUE.
       VATTN2=.FALSE.
-      IF(FFVAR(38)(1:1).EQ.'Y'.OR.FFVAR(38)(1:1).EQ.'y')VATTN2=.TRUE.
+      IF(FFVAR(37)(1:1).EQ.'Y'.OR.FFVAR(37)(1:1).EQ.'y')VATTN2=.TRUE.
       VATTN3=.FALSE.
-      IF(FFVAR(39)(1:1).EQ.'Y'.OR.FFVAR(39)(1:1).EQ.'y')VATTN3=.TRUE.
+      IF(FFVAR(38)(1:1).EQ.'Y'.OR.FFVAR(38)(1:1).EQ.'y')VATTN3=.TRUE.
       VDCHN=.FALSE.
-      IF(FFVAR(40)(1:1).EQ.'Y'.OR.FFVAR(40)(1:1).EQ.'y')VDCHN=.TRUE.
+      IF(FFVAR(39)(1:1).EQ.'Y'.OR.FFVAR(39)(1:1).EQ.'y')VDCHN=.TRUE.
       OFIT=.FALSE.
-      IF(FFVAR(41)(1:1).EQ.'Y'.OR.FFVAR(41)(1:1).EQ.'y')OFIT=.TRUE.
+      IF(FFVAR(40)(1:1).EQ.'Y'.OR.FFVAR(40)(1:1).EQ.'y')OFIT=.TRUE.
       DO I=1,3
-        READ(FFVAR(41+I),'(A)')NASPS(I)
+        READ(FFVAR(40+I),'(A)')NASPS(I)
       ENDDO  
-      READ(FFVAR(47),*)ALPHAW
-      READ(FFVAR(48),*)ALPHAW2      
+      READ(FFVAR(46),*)ALPHAW
+      READ(FFVAR(47),*)ALPHAW2      
       VERR2=.FALSE.
-      IF(FFVAR(49)(1:1).EQ.'Y'.OR.FFVAR(49)(1:1).EQ.'y')VERR2=.TRUE.
+      IF(FFVAR(48)(1:1).EQ.'Y'.OR.FFVAR(48)(1:1).EQ.'y')VERR2=.TRUE.
       WGT='D'
-      IF(MAX(INDEX(FFVAR(50),'E'),INDEX(FFVAR(50),'e')).GT.0)WGT='E'
+      IF(MAX(INDEX(FFVAR(49),'E'),INDEX(FFVAR(49),'e')).GT.0)WGT='E'
       WSM='N'
-      IF(INDEX(FFVAR(51),'5').GT.0)WSM='5'
-      IF(INDEX(FFVAR(51),'17').GT.0)WSM='7'
-      IF(MAX(INDEX(FFVAR(51),'H'),INDEX(FFVAR(51),'h')).GT.0)WSM='H'
+      IF(INDEX(FFVAR(50),'5').GT.0)WSM='5'
+      IF(INDEX(FFVAR(50),'17').GT.0)WSM='7'
+      IF(MAX(INDEX(FFVAR(50),'H'),INDEX(FFVAR(50),'h')).GT.0)WSM='H'
       VPTPLE=.FALSE.
-      IF(FFVAR(52)(1:1).EQ.'Y'.OR.FFVAR(52)(1:1).EQ.'y')VPTPLE=.TRUE.
+      IF(FFVAR(51)(1:1).EQ.'Y'.OR.FFVAR(51)(1:1).EQ.'y')VPTPLE=.TRUE.
       DEALLOCATE(FFCOM,FFVAR)      
       RETURN
 1900  STOP 'COULD NOT OPEN NAMNU'
