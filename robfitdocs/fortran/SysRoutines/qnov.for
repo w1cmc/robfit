@@ -1,6 +1,11 @@
       FUNCTION QNOV(A,B)
-      IMPLICIT REAL*16 (A-H,O-Z)!real*16
-      DATA QNOVT/2Q4932/
+C     Quad-precision overflow-safe multiplication
+C     Returns A*B or max representable value if overflow
+      IMPLICIT REAL*16 (A-H,O-Z)
+      REAL*16 QNOVT
+C     Maximum REAL*16 value is approximately 1.18973E+4932
+C     Use HUGE() intrinsic for portability
+      QNOVT = HUGE(1.0Q0)
       AT=ABS(A)
       IF(AT.EQ.0Q0)THEN
         QNOV=0
@@ -13,7 +18,8 @@
       ENDIF  
       ALT=LOG(AT)
       BLT=LOG(BT)
-      IF(ALT+BLT.LT.11357.042825827193258886151086625Q0)THEN
+C     ln(max_quad) is approximately 11356.5
+      IF(ALT+BLT.LT.11356.0Q0)THEN
         QNOV=A*B
       ELSE
         QNOV=QNOVT
@@ -23,14 +29,16 @@
       END 
         
       FUNCTION QEXP(ALPHA)
-      IMPLICIT REAL*16 (A-H,O,Z)!real*16
-      IF(ALPHA.GT.11357.042825827193258886151086625Q0)THEN
-        QEXP=2Q4932
+C     Quad-precision overflow-safe exponential
+      IMPLICIT REAL*16 (A-H,O,Z)
+      REAL*16 QEXPT
+      QEXPT = HUGE(1.0Q0)
+C     ln(max_quad) is approximately 11356.5
+      IF(ALPHA.GT.11356.0Q0)THEN
+        QEXP=QEXPT
         RETURN
       ELSE
         QEXP=EXP(ALPHA)
         RETURN
       ENDIF
       END
-
-        

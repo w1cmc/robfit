@@ -257,3 +257,10 @@ C     Returns current time as integers
       HSECOND = VALUES(8) / 10
       RETURN
       END
+
+      FUNCTION QSQRT(X)
+C     Quad-precision square root
+      IMPLICIT REAL*16 (A-H,O-Z)
+      QSQRT = SQRT(X)
+      RETURN
+      END

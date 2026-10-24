@@ -293,7 +293,6 @@ C  Documentation in \public_html\Fittery\robfit\TemplFit\TplPeaks.docx
      3 VaryTResCal,VARYTEFF,VaryTAtt,VaryTSkew,VaryTJump,VaryTescape 
       COMMON /DOUBLE/DUM(20)     
       COMMON /INTVALS/IDUMx(20)      
-      LOGICAL LDUM
       COMMON/LOGICVALS/LDUM(9),LBAT,LDUM2(30)  
       DATA R2PI/2.5066282746310005D0/
       
@@ -571,6 +570,7 @@ C        CALL PksCalc(NUCLIDE,NNUC2,TPL,NTPL2)!partials for width, eff, att
       IMPLICIT REAL*8 (A-H,O-Z)
       INCLUDE 'STRUCTURES.FOR'
       PARAMETER (NT=78)
+      LOGICAL LVCONS
       RECORD /Nuclides/Nuclide(NNUC2)
       COMMON /TFIT/CONS(NT),LVCONS(NT)
       DIMENSION KLOC(NT+NNUC2)
