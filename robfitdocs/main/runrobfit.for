@@ -32,7 +32,7 @@ C      INTEGER FSYSTEM
       ENDDO
 20    CONTINUE
       ILPML=LENTRIM(NAPMLSP)
-      IBP1=BINDEX(NAPMLSP(:ILPML),'\')+1 
+      IBP1=MAX(BINDEX(NAPMLSP(:ILPML),'\\'),BINDEX(NAPMLSP(:ILPML),'/'))+1 
       PRINT*,' SELECT ONE OF THE FOLLOWING '
       IF(LDUM(28))PRINT*,'EgyEffPairs true' 
       PRINT*,'1 roblink change filenames, general options, unf files'
@@ -64,10 +64,10 @@ C      INTEGER FSYSTEM
         CALL ROBLINK()
         GOTO 15
       CASE(2)
-        COMMAND='xmldis.exe "'
+        COMMAND='./xmldis "'
      2   //NAPMLSP(:ILPML)//'"'
       CASE(3)
-       COMMAND='bkgfit.exe "'//
+       COMMAND='./bkgfit "'//
      2  NAPMLSP(:ILPML)//'"'
        PRINT*,'ROBFIT NAPMLSP ',NAPMLSP(:ILPML) 
        ILCOM=LENTRIM(COMMAND)
@@ -77,11 +77,11 @@ C      INTEGER FSYSTEM
          COMMAND=COMMAND(:ILCOM)//' '//CSTIFF
        ENDIF  
       CASE(4)
-      COMMAND='\users\public\robfit\peakfit.exe "'//NAPMLSP(:ILPML)
+      COMMAND='./peakfit "'//NAPMLSP(:ILPML)
      2 //'"'
       PRINT*,'COMMAND ',COMMAND
       CASE(5)
-       COMMAND='\users\public\robfit\EgyCal.exe "'//NAPMLSP(:ILPML)//'"'
+       COMMAND='./EgyCal "'//NAPMLSP(:ILPML)//'"'
       CASE(6)
         print*,'enter a for WthCal, b for EffCal c for EffCal2'
         read(*,'(A1)')ANS
@@ -89,43 +89,43 @@ C      INTEGER FSYSTEM
           print*,'case 6a'
           read(*,*)itest
           if(itest.eq.0)stop 
-          COMMAND='\users\public\robfit\WthCal.exe "'//NAPMLSP(:ILPML)//
+          COMMAND='./WthCal "'//NAPMLSP(:ILPML)//
      2     '"'
         ELSEIF(ANS.EQ.'B'.OR.ANS.EQ.'b')THEN 
-          COMMAND='\users\public\robfit\EffCal.exe "'//NAPMLSP(:ILPML)//
+          COMMAND='./EffCal "'//NAPMLSP(:ILPML)//
      2     '"'
         ELSEIF(ANS.EQ.'C'.OR.ANS.EQ.'c')THEN 
-          COMMAND='\users\public\robfit\EffCal2.exe "'//NAPMLSP(:ILPML)
+          COMMAND='./EffCal2 "'//NAPMLSP(:ILPML)
      2     //'"'
         ELSE
           PRINT*,ANS,' NOT RECOGNIZED TRY AGAIN'
           GOTO 20                                                         
         ENDIF
       CASE(7)
-        COMMAND='Templfit.exe "'
+        COMMAND='./templfit "'
      2   //NAPMLSP(:ILPML)//'"'
       CASE(8) 
         PRINT*,'Enter the desired linear calibration value '
         READ(*,*)ALINEAR  
         WRITE(CREAD,'(F10.7)')ALINEAR    
-        COMMAND='\users\public\robfit\Rebin.exe "'//NAPMLSP(:ILPML)//'"'
+        COMMAND='./Rebin "'//NAPMLSP(:ILPML)//'"'
      2   //CREAD
         PRINT*,COMMAND
         CALL FSYSTEM(COMMAND)
         GOTO 20
       CASE(9)
-        COMMAND='\users\public\robfit\SPSPSUMERR.exe '      
+        COMMAND='./SPSPSUMERR '      
         CALL FSYSTEM(COMMAND)
         GOTO 20
       CASE(10)
         CALL VRdat2RF(NAPMLSP) !makes namedat.unf and puts ibegc,iendc into 
 C        intvals
-        COMMAND='\users\public\robfit\StatEquivSpectra.exe "'
+        COMMAND='./StatEquivSpectra "'
      2   //NAPMLSP(:ILPML)//'"'
         CALL FSYSTEM(COMMAND)
         GOTO 20
       CASE(11)
-        COMMAND='\users\public\robfit\Trand.exe "'
+        COMMAND='./Trand "'
      2   //NAPMLSP(:ILPML)//'"'  
       CASE(12)
       PRINT*,'open the pdf file of interest on http://ie.lbl.gov/toi'
@@ -133,19 +133,19 @@ C        intvals
       PRINT*,'paste this into the temp.txt that will open '
       PRINT*,'then close and save'
       PRINT*,'then press enter to continue or s to stop'
-      OPEN(1,FILE='\users\public\robfit\ensdf\temp.txt')
+      OPEN(1,FILE='ensdf/temp.txt')
       WRITE(1,*)'replace this line with the pdf contents ',
      2 'then save/exit'  
       READ(*,'(A)')ANS
       if(ANS.EQ.'S'.OR.ANS.EQ.'s')GOTO 20  
-      COMMAND='NOTEPAD \users\public\robfit\ensdf\temp.txt' 
+      COMMAND='open ensdf/temp.txt' 
       CALL FSYSTEM(COMMAND)          
-      COMMAND='wwwtoensdf.exe '
+      COMMAND='./wwwtoensdf '
       CALL FSYSTEM(COMMAND)      
-      COMMAND='ensdftoemitters.exe '
+      COMMAND='./ensdftoemitters '
       GOTO 20
       CASE(13)
-        PRINT*, 'The Unf files remain in \users\public\robfit'
+        PRINT*, 'The Unf files remain in current directory'
         PRINT*, 'Enter anything to stop'
         READ(*,'(A1)')ANS    
         GOTO 100  

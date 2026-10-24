@@ -29,8 +29,10 @@ c      COMMON /TFIT/EGYCAL(6),RESCAL(6),CONS(NT-12),LVCONS(NT)
       LDUM(29)=.TRUE.
       IF(LINQUIRE('Peakfit.mnu'))THEN
         NAMNU='Peakfit.mnu'
-      ELSE  
-        NAMNU='\users\public\robfit\Peakfit.mnu'
+      ELSEIF(LINQUIRE('peakfit.mnu'))THEN  
+        NAMNU='peakfit.mnu'
+      ELSE
+        NAMNU='peakfit.mnu'
       ENDIF 
      
       NUMARGS=NARGS()

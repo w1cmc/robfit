@@ -32,8 +32,10 @@
       IF(.NOT.EX)STOP 'NO COM.UNF FILE'
       IF(LINQUIRE('XMLDIS.MNU'))THEN
         NAMNU='XMLDIS.MNU'
-      ELSE  
-        NAMNU='\users\public\robfit\XMLDIS.MNU'
+      ELSEIF(LINQUIRE('xmldis.mnu'))THEN  
+        NAMNU='xmldis.mnu'
+      ELSE
+        NAMNU='xmldis.mnu'
       ENDIF   
       PRINT*,'NAMNU ',NAMNU(:LENTRIM(NAMNU)) 
       IRN=0

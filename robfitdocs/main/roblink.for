@@ -18,7 +18,7 @@ C      INTEGER FSYSTEM
       IF(LINQUIRE('Robfit.mnu'))THEN
         NAMNU='Robfit.mnu'
       ELSE  
-        NAMNU='\users\public\robfit\Robfit.mnu'
+        NAMNU='robfit.mnu'
       ENDIF  
       ILMNU=LENTRIM(NAMNU)
       PRINT*,'NAMNU(:ILMNU) ',NAMNU(:ILMNU)
