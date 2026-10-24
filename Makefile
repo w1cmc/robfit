@@ -3,7 +3,8 @@
 #
 # Usage:
 #   make              - build all executables
-#   make robfit       - build main robfit program
+#   make robfit_menu  - build ncurses menu driver (recommended)
+#   make robfit       - build legacy Fortran menu driver
 #   make xmldis       - build xmldis display program
 #   make bkgfit       - build background fitting program
 #   make peakfit      - build peak fitting program
@@ -11,11 +12,16 @@
 #   make clean        - remove object files and executables
 #   make help         - show this help
 
-# Compiler and flags
+# Fortran compiler and flags
 FC = /opt/homebrew/bin/gfortran
 INCLUDES = -I$(SRCDIR)/fortran
 FFLAGS = -fdec-structure -fallow-argument-mismatch -std=legacy -O2 $(INCLUDES)
 FFLAGS_DEBUG = -fdec-structure -fallow-argument-mismatch -std=legacy -g -fcheck=all -fbacktrace $(INCLUDES)
+
+# C compiler and flags (for ncurses menu)
+CC = cc
+CFLAGS = -O2 -Wall
+LDFLAGS_CURSES = -lncurses
 
 # Directories
 SRCDIR = robfitdocs
@@ -190,8 +196,14 @@ TEMPLFIT_OBJS = $(OBJDIR)/gfortransys.o \
 # ============================================================================
 .PHONY: all clean debug help
 
-all: $(BINDIR)/robfit $(BINDIR)/xmldis $(BINDIR)/bkgfit $(BINDIR)/peakfit $(BINDIR)/templfit
+all: $(BINDIR)/robfit_menu $(BINDIR)/xmldis $(BINDIR)/bkgfit $(BINDIR)/peakfit $(BINDIR)/templfit
 
+# ncurses menu driver (recommended)
+$(BINDIR)/robfit_menu: robfit_menu.c
+	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS_CURSES)
+	@echo "Built robfit_menu successfully"
+
+# Legacy Fortran menu driver
 $(BINDIR)/robfit: $(ROBFIT_OBJS)
 	$(FC) $(FFLAGS) -o $@ $^
 	@echo "Built robfit successfully"
@@ -339,7 +351,7 @@ $(OBJDIR)/fillcr0_xmldis.o: $(SRCDIR)/xmldis/fillcr0.for
 # ============================================================================
 clean:
 	rm -rf $(OBJDIR)
-	rm -f $(BINDIR)/robfit $(BINDIR)/xmldis $(BINDIR)/bkgfit $(BINDIR)/peakfit $(BINDIR)/templfit
+	rm -f $(BINDIR)/robfit $(BINDIR)/robfit_menu $(BINDIR)/xmldis $(BINDIR)/bkgfit $(BINDIR)/peakfit $(BINDIR)/templfit
 
 # ============================================================================
 # Help
@@ -348,8 +360,9 @@ help:
 	@echo "ROBFIT Makefile - Gamma Ray Spectrum Analysis Suite"
 	@echo ""
 	@echo "Targets:"
-	@echo "  make              - build all executables"
-	@echo "  make robfit       - build main robfit program"
+	@echo "  make              - build all executables (uses ncurses menu)"
+	@echo "  make robfit_menu  - build ncurses menu driver (recommended)"
+	@echo "  make robfit       - build legacy Fortran menu driver"
 	@echo "  make xmldis       - build display program"
 	@echo "  make bkgfit       - build continuum/background fitting"
 	@echo "  make peakfit      - build peak fitting program"
