@@ -132,6 +132,10 @@ static int load_config(void) {
             strncpy(label, p, 40);
             label[40] = '\0';
             
+            /* Trim trailing whitespace from label */
+            char *lend = label + strlen(label) - 1;
+            while (lend >= label && (*lend == ' ' || *lend == '\n' || *lend == '\r')) *lend-- = '\0';
+            
             /* Rest is value */
             if (strlen(p) > 40) {
                 strncpy(value, p + 40, 255);
@@ -143,6 +147,11 @@ static int load_config(void) {
                 char *start = value;
                 while (*start == ' ') start++;
                 if (start != value) memmove(value, start, strlen(start) + 1);
+            }
+            
+            /* Skip blank lines (empty label and value) */
+            if (strlen(label) == 0 && strlen(value) == 0) {
+                continue;
             }
             
             strncpy(g_config[g_config_count].label, label, 44);
