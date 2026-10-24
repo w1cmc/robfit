@@ -1,0 +1,35 @@
+           5
+          12
+           7
+           6
+         100
+  1 Page TemplFit                            
+  2                                          
+  3 General information                     1
+  4 Density and interpolation parameters     
+  5 Output peaks                             
+  6 Page templfit (General fit information2)Eu-152_h=15cm.sp
+  7 Beginning and Ending energies                30.00   2525.81
+  8 NACML (information only)                Salted-U235-3.7_Bkg_7200s-0005.n42
+  9 Beginning and Ending energies                25.98   3220.88
+ 10 Err**2 [Data], [Err2]                   Data
+ 11 Err smoothing None, 5pt, 17pt, hofx     5pt
+ 12 alphawl (err2=err2+(alpha*err2)**2)     0.01
+ 13 err2=max(alphaw2,err2)  alphaw2         1
+ 14 Numerical Derivative Check              N
+ 15 Edit the nuclide properties             N
+ 16 IFIT DAT-CNM 1, DAT-CNM-PKS 2           1
+ 17 Suppress most robmin writing            Y
+ 18 Density, penalty, and interpolation parameters
+ 19                                          
+ 20 Enter rho (moles/cc) manually           N
+ 21 Interpolate in EffX, EffY               N
+ 22 Interpolate in EgyX, EgyY               N
+ 23 ALAM,CLAM penalty for cons 11 and 12    1e-4 1e-2
+ 24 TimeRes penalty Cons(77)~1e-10          1e-10
+ 25 Peak Output parameters                   
+ 26                                          
+ 27  Tpl Pks Table EgyBeg,EgyEnd min counts 0,4000,1
+ 28  Cascade peaks  min counts              0
+ 29  Random sum peaks min counts            0
+ 30 Open the TplPks.txt file                N

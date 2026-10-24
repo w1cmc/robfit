@@ -1,0 +1,23 @@
+           3
+          17
+         100
+  1 Page PEAKFIT                             
+  2                                          
+  3 Peak Fitting                             
+  4 Page (Fitting details)                   
+  5                                          
+  6 Peak fitting options                     
+  7 CML or SP file                          PLANCHETB.+ML
+  8 Begc Endc given by Energy E or Chn C    E
+  9 Beginning and Ending Energies            50.0  3000.0
+ 10 Weight Data or Err2                     Data
+ 11 alphaw1 (err2=err2+(alpha*err2)**2)     0.01
+ 12 alphaw2 err2=max(alphaw2,err2)          1.0
+ 13 Peak search cutoff (sigma)              3.0
+ 14 Fit type (1=single, 2=multi)            1
+ 15 Use existing peak locations             N
+ 16 Fit skew parameter                      N
+ 17 Edit peaks after fit                    N
+ 18 Suppress robmin output                  Y
+ 19 Page (Peak locations)                    
+ 20                                          
