@@ -23,6 +23,10 @@ extern "C" {
 /*
  * Peak structure - represents a single fitted peak
  * All values are in channel units unless noted
+ *
+ * NOTE: This structure is passed to Fortran as an array of 22 doubles.
+ * The logical flags are stored as doubles (0.0 = false, nonzero = true).
+ * This layout matches the Fortran bridge expectations.
  */
 typedef struct {
     double hgt, hgt_err;      /* Peak height (counts) */
@@ -33,9 +37,10 @@ typedef struct {
     double skw, skw_err;      /* Skewness parameter */
     double jmp, jmp_err;      /* Jump/step parameter */
     double area, area_err;    /* Peak area (counts) */
-    int pvary;                /* Include in current fit region */
-    int vhgt, vloc, vwth;     /* Vary height/location/width */
-    int vskw, vjmp;           /* Vary skewness/jump */
+    /* Flags stored as doubles for Fortran interop */
+    double pvary;             /* Include in current fit region (0=no, 1=yes) */
+    double vhgt, vloc, vwth;  /* Vary height/location/width */
+    double vskw, vjmp;        /* Vary skewness/jump */
 } peakfit_peak_t;
 
 /*
@@ -96,6 +101,16 @@ double peakfit_chn_to_egy(double channel);
 double peakfit_egy_to_chn(double energy);
 
 /*
+ * Get peak width (sigma) at a channel from resolution calibration
+ */
+double peakfit_chn_to_wth(double channel);
+
+/*
+ * Set the channel range for fitting
+ */
+void peakfit_set_range(int ibeg, int iend);
+
+/*
  * Perform peak fitting
  *
  * peaks: array of peak structures
@@ -105,13 +120,14 @@ double peakfit_egy_to_chn(double energy);
  *   - On input: number of initial peaks
  *   - On output: may change if peaks are added/removed
  * max_peaks: maximum size of peaks array
- * config: fitting configuration
+ * ibeg, iend: channel range for fitting
  * result: fit results (output)
  *
  * Returns: 0 on success, negative on error
  */
 int peakfit_fit(peakfit_peak_t *peaks, int *n_peaks, int max_peaks,
-                const peakfit_config_t *config, peakfit_result_t *result);
+                int ibeg, int iend, 
+                double *chi_sq, int *converged, int *iterations);
 
 /*
  * Search for peaks in the residuals of the current fit
