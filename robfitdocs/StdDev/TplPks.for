@@ -293,6 +293,7 @@ C  Documentation in \public_html\Fittery\robfit\TemplFit\TplPeaks.docx
      3 VaryTResCal,VARYTEFF,VaryTAtt,VaryTSkew,VaryTJump,VaryTescape 
       COMMON /DOUBLE/DUM(20)     
       COMMON /INTVALS/IDUMx(20)      
+      LOGICAL LDUM
       COMMON/LOGICVALS/LDUM(9),LBAT,LDUM2(30)  
       DATA R2PI/2.5066282746310005D0/
       

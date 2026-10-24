@@ -2,7 +2,7 @@
       IMPLICIT REAL*8 (A-H,O-Z)  
       INCLUDE 'STRUCTURES.FOR' 
       RECORD /Nuclides/Nuclide(:)
-ci    ALLOCATABLE:: Nuclide      
+      ALLOCATABLE:: Nuclide      
       
 C      CHARACTER*256 CTEMP      
       CHARACTER*256 NAPMLSP,FNAME,NASTR,NANUC
@@ -17,7 +17,7 @@ c      CHARACTER*34 CTEST
       DIMENSION XS(:) !CNM, not data but a large file
       EQUIVALENCE (ICRLF(1),CRLF),(ICRLF(1),CR),(ICRLF(2),CLF)
 C      DATA ICRLF/13,10/      
-CI    ALLOCATABLE XS,FS 
+      ALLOCATABLE XS,FS 
       
       COMMON /FITTEDCONS/EgyCal(6),ResCal(6),FITEFF(6),SKEW(6,3),
      2 ATTNEX(8,3),ESCAPE(3),THETACAS,TRAN,LEGY(6),LRES(6),LEFF(6),

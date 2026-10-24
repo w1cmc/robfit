@@ -7,7 +7,7 @@
        
       INCLUDE 'STRUCTURES.FOR'
       RECORD /Tpk/Pks(:)
-CI    ALLOCATABLE Pks
+      ALLOCATABLE Pks
       
       COMMON /TFIT/EGYCAL(6),RESCAL(6),DUMB(66),LDUM2(6),VRESCAL(6),
      2 LVCONS(66)     

@@ -6,7 +6,7 @@ C if ldum(6) sets it to false <-- only difference with chntotpl0
       INCLUDE 'STRUCTURES.FOR'  
       RECORD /Nuclides/Nuclide(:)
       DIMENSION PFA(1)
-CI    ALLOCATABLE:: Nuclide  
+      ALLOCATABLE:: Nuclide  
       CHARACTER*256 FNAME,NASTR 
      
       LOGICAL EX,LDUM,LDALLOCN,LPARS,LDUM2

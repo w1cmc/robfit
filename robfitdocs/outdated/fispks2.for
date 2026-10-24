@@ -5,7 +5,7 @@
 c     2 'STRUCTURES.FOR'
       LOGICAL LPfcall,LIPKS,LDUM,LDUM2,EX
       RECORD /Tpk/Pks(:)      
-CI    ALLOCATABLE PKS
+      ALLOCATABLE PKS
       COMMON/LOGICVALS/LDUM(11),LIPKS,LDUM2(28)      
       SAVE Pks,NFpks,LPfcall
       DATA LPfcall/.true./

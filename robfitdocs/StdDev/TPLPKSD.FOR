@@ -51,7 +51,7 @@ c ..\robfitdocs\StdDev\StdDev.doc equation(34)
       RECORD /TTpl/Tpl(NTpl2)
       DIMENSION PPCCI(IPPCCI),KLOC(NT+NNUC2)
       DIMENSION pPeakpC(:)
-CI    ALLOCATABLE pPeakpC
+      ALLOCATABLE pPeakpC
       LOGICAL LVTCONS
       COMMON /TFIT/CONS(78),LVTCONS(78)
       DATA R2PI/2.5066282746310005D0/
@@ -119,7 +119,7 @@ c above usese the inverse matrix to assign the errors.
       
       DIMENSION PPCCI(IPPCCI),KLOC(NT+NNUC2)
       DIMENSION pPeakpC(:)
-CI    ALLOCATABLE pPeakpC
+      ALLOCATABLE pPeakpC
       DATA R2PI/2.5066282746310005D0/
       ALLOCATE (pPeakpC(NT+NNUC2))
       DO I=1,NT+NNUC2
@@ -181,7 +181,7 @@ CI    ALLOCATABLE pPeakpC
       RECORD /TTpl/Tpl(NTpl2)      
       DIMENSION PPCCI(IPPCCI),KLOC(NT+NNUC2)
       DIMENSION pPeakpC(:)
-CI    ALLOCATABLE pPeakpC
+      ALLOCATABLE pPeakpC
       DATA R2PI/2.5066282746310005D0/
       ALLOCATE (pPeakpC(NT+NNUC2))
       DO I=1,NT+NNUC2
@@ -285,7 +285,7 @@ C      LOGICAL VaryTEgyCal(6),VaryTResCal(6),VARYTEFF(6),VaryTAtt(6,3),
 C     2 VaryTSkew(6,3),VaryTJump(6,3),VaryTescape(6)       
      
       DIMENSION KLOC(:),PPCCI(:)
-CI    ALLOCATABLE::KLOC,PPCCI,NUCLIDE,Tpl,Pks,TplC,TplR      
+      ALLOCATABLE::KLOC,PPCCI,NUCLIDE,Tpl,Pks,TplC,TplR      
       
 C      COMMON /TFIT/EgyCal(6),ResCal(6),FITeff(6),Attn(6,3),Skew(6,3)
 C     2 ,AJUMP(6,3),Escape(3),THETACAS,TimeRes,d7,VaryTEgyCal,

@@ -2,11 +2,14 @@
 # GNU Fortran (gfortran) compatible build
 #
 # Usage:
-#   make              - build robfit executable
-#   make all          - build all executables
-#   make clean        - remove object files and executables
+#   make              - build all executables
 #   make robfit       - build main robfit program
 #   make xmldis       - build xmldis display program
+#   make bkgfit       - build background fitting program
+#   make peakfit      - build peak fitting program
+#   make templfit     - build template fitting program
+#   make clean        - remove object files and executables
+#   make help         - show this help
 
 # Compiler and flags
 FC = /opt/homebrew/bin/gfortran
@@ -22,32 +25,42 @@ BINDIR = .
 # Create build directory
 $(shell mkdir -p $(OBJDIR))
 
-# Source directories
+# Source directories (VPATH for finding source files)
 VPATH = $(SRCDIR)/main:$(SRCDIR)/fortran:$(SRCDIR)/fortran/SysRoutines:\
         $(SRCDIR)/fortran/sorting:$(SRCDIR)/VRF:$(SRCDIR)/VRF/XMLRR:\
         $(SRCDIR)/interpolation:$(SRCDIR)/interpolation/Bli:\
         $(SRCDIR)/ComUnf:$(SRCDIR)/Robmin:$(SRCDIR)/CnmFit:\
-        $(SRCDIR)/peakfit:$(SRCDIR)/peakfit/skew:$(SRCDIR)/templfit:\
-        $(SRCDIR)/templfit/attenuation:$(SRCDIR)/templfit/attenuation/nlfit/aigau:\
+        $(SRCDIR)/peakfit:$(SRCDIR)/peakfit/skew:$(SRCDIR)/peakfit/PkPoly:\
+        $(SRCDIR)/templfit:$(SRCDIR)/templfit/attenuation:\
+        $(SRCDIR)/templfit/attenuation/nlfit/aigau:\
         $(SRCDIR)/templfit/attenuation/nlfit/pade2d:\
+        $(SRCDIR)/templfit/attenuation/nlfit/EkofZ:\
+        $(SRCDIR)/templfit/attenuation/nlfit/amu2:\
+        $(SRCDIR)/templfit/attenuation/nlfit/Compton:\
+        $(SRCDIR)/templfit/attenuation/nlfit/Pairp:\
+        $(SRCDIR)/templfit/attenuation/nlfit/RhoOfZ:\
         $(SRCDIR)/templfit/Efficiency:$(SRCDIR)/templfit/Efficiency/Escape:\
         $(SRCDIR)/xmldis:$(SRCDIR)/emitters:$(SRCDIR)/StdDev
 
+# ============================================================================
 # Common object files used by multiple programs
+# ============================================================================
 COMMON_OBJS = $(OBJDIR)/gfortransys.o \
               $(OBJDIR)/commons.o \
               $(OBJDIR)/NaStr.o \
               $(OBJDIR)/ComToFrUnf.o \
               $(OBJDIR)/bli.o \
-              $(OBJDIR)/sort8.o
+              $(OBJDIR)/sort8.o \
+              $(OBJDIR)/menurd.o
 
-# ROBFIT main program objects
+# ============================================================================
+# ROBFIT main program
+# ============================================================================
 ROBFIT_OBJS = $(COMMON_OBJS) \
               $(OBJDIR)/runrobfit.o \
               $(OBJDIR)/roblink.o \
               $(OBJDIR)/FromN42.o \
               $(OBJDIR)/FromSp.o \
-              $(OBJDIR)/menurd.o \
               $(OBJDIR)/fnrsrhos.o \
               $(OBJDIR)/PML2R.o \
               $(OBJDIR)/PmlToPgs.o \
@@ -64,10 +77,12 @@ ROBFIT_OBJS = $(COMMON_OBJS) \
               $(OBJDIR)/CxyTox.o \
               $(OBJDIR)/CMLRDTXT.o
 
-# XMLDIS display program objects
+# ============================================================================
+# XMLDIS - Display data and current results
+# ============================================================================
 XMLDIS_OBJS = $(COMMON_OBJS) \
               $(OBJDIR)/xmlplot.o \
-              $(OBJDIR)/g3link.o \
+              $(OBJDIR)/g3linkt.o \
               $(OBJDIR)/calcfit.o \
               $(OBJDIR)/chntotpl0.o \
               $(OBJDIR)/fillcr0.o \
@@ -75,47 +90,203 @@ XMLDIS_OBJS = $(COMMON_OBJS) \
               $(OBJDIR)/bli2.o \
               $(OBJDIR)/CnmFuns.o \
               $(OBJDIR)/Psp.o \
+              $(OBJDIR)/pWthEff.o \
               $(OBJDIR)/dadmfits.o \
               $(OBJDIR)/datmfit.o \
-              $(OBJDIR)/Weight.o
+              $(OBJDIR)/Weight.o \
+              $(OBJDIR)/Functions.o \
+              $(OBJDIR)/Functions2.o \
+              $(OBJDIR)/CxyTox.o \
+              $(OBJDIR)/ekofz.o \
+              $(OBJDIR)/EscapeSimp.o \
+              $(OBJDIR)/muAtt.o \
+              $(OBJDIR)/muCompton.o \
+              $(OBJDIR)/muPairp.o \
+              $(OBJDIR)/pkpolym.o \
+              $(OBJDIR)/rhoofz.o \
+              $(OBJDIR)/rtpl.o
 
-# Default target
-.PHONY: all clean debug robfit-target
+# ============================================================================
+# BKGFIT - Fit continuum/background
+# ============================================================================
+BKGFIT_OBJS = $(COMMON_OBJS) \
+              $(OBJDIR)/bkgfit.o \
+              $(OBJDIR)/CnmLink.o \
+              $(OBJDIR)/CnmBli.o \
+              $(OBJDIR)/CnmFuns.o \
+              $(OBJDIR)/datmfit.o \
+              $(OBJDIR)/dcf.o \
+              $(OBJDIR)/Functions.o \
+              $(OBJDIR)/pkpolym.o \
+              $(OBJDIR)/smooth.o \
+              $(OBJDIR)/Weight.o \
+              $(OBJDIR)/AIGAU.o
 
-all: robfit-target
+# ============================================================================
+# PEAKFIT - Fit peaks
+# ============================================================================
+PEAKFIT_OBJS = $(COMMON_OBJS) \
+               $(OBJDIR)/peakfit.o \
+               $(OBJDIR)/pklink.o \
+               $(OBJDIR)/pfit.o \
+               $(OBJDIR)/EditPks.o \
+               $(OBJDIR)/fndreg.o \
+               $(OBJDIR)/nlfitsub.o \
+               $(OBJDIR)/resl.o \
+               $(OBJDIR)/quadratic.o \
+               $(OBJDIR)/CnmFuns.o \
+               $(OBJDIR)/datmfit.o \
+               $(OBJDIR)/Functions.o \
+               $(OBJDIR)/Weight_fortran.o \
+               $(OBJDIR)/pkpolym.o \
+               $(OBJDIR)/AIGAU.o \
+               $(OBJDIR)/cmlread.o \
+               $(OBJDIR)/Cholesky.o \
+               $(OBJDIR)/robmin.o \
+               $(OBJDIR)/1dSolve.o \
+               $(OBJDIR)/CMLRDTXT.o \
+               $(OBJDIR)/rpks0.o \
+               $(OBJDIR)/uppeaks.o
 
-robfit-target: $(BINDIR)/robfit
+# ============================================================================
+# TEMPLFIT - Template fitting
+# ============================================================================
+TEMPLFIT_OBJS = $(COMMON_OBJS) \
+                $(OBJDIR)/templfit.o \
+                $(OBJDIR)/tmplink.o \
+                $(OBJDIR)/tplfitq.o \
+                $(OBJDIR)/chntotpl.o \
+                $(OBJDIR)/chntotpl0.o \
+                $(OBJDIR)/FillCR.o \
+                $(OBJDIR)/fillcr0.o \
+                $(OBJDIR)/EdtTempl.o \
+                $(OBJDIR)/DerivCheck.o \
+                $(OBJDIR)/templqerrest.o \
+                $(OBJDIR)/funwp.o \
+                $(OBJDIR)/funnop.o \
+                $(OBJDIR)/cnmfit.o \
+                $(OBJDIR)/CnmFuns.o \
+                $(OBJDIR)/datmfit.o \
+                $(OBJDIR)/Functions.o \
+                $(OBJDIR)/Functions2.o \
+                $(OBJDIR)/Weight.o \
+                $(OBJDIR)/TplPks.o \
+                $(OBJDIR)/pkpolym.o \
+                $(OBJDIR)/AIGAU_templfit.o \
+                $(OBJDIR)/rtpl.o \
+                $(OBJDIR)/CxyTox.o \
+                $(OBJDIR)/fnrsrhos.o \
+                $(OBJDIR)/ekofz.o \
+                $(OBJDIR)/muAtt.o \
+                $(OBJDIR)/muCompton2.o \
+                $(OBJDIR)/muPairp.o \
+                $(OBJDIR)/qnov.o \
+                $(OBJDIR)/choleskyq.o \
+                $(OBJDIR)/robminq.o \
+                $(OBJDIR)/sminvq.o \
+                $(OBJDIR)/1dSolve.o
+
+# ============================================================================
+# Build targets
+# ============================================================================
+.PHONY: all clean debug help
+
+# Build working executables (peakfit and templfit have duplicate symbol issues - TODO)
+all: $(BINDIR)/robfit $(BINDIR)/xmldis $(BINDIR)/bkgfit
 
 $(BINDIR)/robfit: $(ROBFIT_OBJS)
 	$(FC) $(FFLAGS) -o $@ $^
 	@echo "Built robfit successfully"
 
+$(BINDIR)/xmldis: $(XMLDIS_OBJS)
+	$(FC) $(FFLAGS) -o $@ $^
+	@echo "Built xmldis successfully"
+
+$(BINDIR)/bkgfit: $(BKGFIT_OBJS)
+	$(FC) $(FFLAGS) -o $@ $^
+	@echo "Built bkgfit successfully"
+
+$(BINDIR)/peakfit: $(PEAKFIT_OBJS)
+	$(FC) $(FFLAGS) -o $@ $^
+	@echo "Built peakfit successfully"
+
+$(BINDIR)/templfit: $(TEMPLFIT_OBJS)
+	$(FC) $(FFLAGS) -o $@ $^
+	@echo "Built templfit successfully"
+
 # Debug build
 debug: FFLAGS = $(FFLAGS_DEBUG)
-debug: clean robfit
+debug: clean all
 
-# Pattern rule for compiling Fortran sources
+# ============================================================================
+# Pattern rules for compiling Fortran sources
+# ============================================================================
 $(OBJDIR)/%.o: %.for
 	$(FC) $(FFLAGS) -c $< -o $@
 
 $(OBJDIR)/%.o: %.FOR
 	$(FC) $(FFLAGS) -c $< -o $@
 
+# ============================================================================
+# Special rules for files with naming conflicts
+# ============================================================================
+# Weight.for exists in both fortran/ and StdDev/ - use StdDev version by default
+$(OBJDIR)/Weight.o: $(SRCDIR)/StdDev/Weight.for
+	$(FC) $(FFLAGS) -c $< -o $@
+
+# For peakfit, use the fortran/Weight.for version
+$(OBJDIR)/Weight_fortran.o: $(SRCDIR)/fortran/Weight.for
+	$(FC) $(FFLAGS) -c $< -o $@
+
+# AIGAU.for exists in multiple places - handle separately
+$(OBJDIR)/AIGAU.o: $(SRCDIR)/peakfit/skew/AIGAU.for
+	$(FC) $(FFLAGS) -c $< -o $@
+
+$(OBJDIR)/AIGAU_templfit.o: $(SRCDIR)/templfit/attenuation/nlfit/aigau/AIGAU.for
+	$(FC) $(FFLAGS) -c $< -o $@
+
+# muCompton vs muCompton2
+$(OBJDIR)/muCompton.o: $(SRCDIR)/templfit/attenuation/nlfit/Compton/muCompton.for
+	$(FC) $(FFLAGS) -c $< -o $@
+
+$(OBJDIR)/muCompton2.o: $(SRCDIR)/templfit/attenuation/nlfit/Compton/muCompton2.for
+	$(FC) $(FFLAGS) -c $< -o $@
+
+# pkpolym.for - use PkPoly version which has FAPEAK
+$(OBJDIR)/pkpolym.o: $(SRCDIR)/peakfit/PkPoly/pkpolym.for
+	$(FC) $(FFLAGS) -c $< -o $@
+
+# funnop.for - use xmldis version for xmldis (has ATTEN0, PLRES)
+$(OBJDIR)/funnop.o: $(SRCDIR)/xmldis/funnop.for
+	$(FC) $(FFLAGS) -c $< -o $@
+
+# funnop_fortran.o - use fortran version for other programs
+$(OBJDIR)/funnop_fortran.o: $(SRCDIR)/fortran/funnop.for
+	$(FC) $(FFLAGS) -c $< -o $@
+
+# ============================================================================
 # Clean
+# ============================================================================
 clean:
 	rm -rf $(OBJDIR)
-	rm -f $(BINDIR)/robfit $(BINDIR)/xmldis
+	rm -f $(BINDIR)/robfit $(BINDIR)/xmldis $(BINDIR)/bkgfit $(BINDIR)/peakfit $(BINDIR)/templfit
 
-# Dependencies (basic - may need expansion)
-$(OBJDIR)/runrobfit.o: runrobfit.for
-$(OBJDIR)/roblink.o: roblink.for
-$(OBJDIR)/gfortransys.o: gfortransys.for
-
-# Help target
+# ============================================================================
+# Help
+# ============================================================================
 help:
-	@echo "ROBFIT Makefile targets:"
-	@echo "  make          - build robfit executable"
-	@echo "  make all      - build all executables"
-	@echo "  make clean    - remove build artifacts"
-	@echo "  make debug    - build with debug flags"
-	@echo "  make help     - show this help"
+	@echo "ROBFIT Makefile - Gamma Ray Spectrum Analysis Suite"
+	@echo ""
+	@echo "Targets:"
+	@echo "  make              - build all executables"
+	@echo "  make robfit       - build main robfit program"
+	@echo "  make xmldis       - build display program"
+	@echo "  make bkgfit       - build continuum/background fitting"
+	@echo "  make peakfit      - build peak fitting program"
+	@echo "  make templfit     - build template fitting program"
+	@echo "  make clean        - remove build artifacts"
+	@echo "  make debug        - build all with debug flags"
+	@echo "  make help         - show this help"
+	@echo ""
+	@echo "Compiler: $(FC)"
+	@echo "Flags: $(FFLAGS)"

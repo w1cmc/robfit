@@ -79,6 +79,7 @@ c        print*,'egytoeff0',egytoeff0
 
       COMMON /DOUBLE/DUM(8),GEB,DUM2(11)
 
+      LOGICAL LDUM
       COMMON/LOGICVALS/LDUM(40)  
       DATA E511/510.9989/!{keV}{in Meyerhof --> 511.006 keV}      
       DATA R2/1.414213562373095D0/      
@@ -315,6 +316,7 @@ C        ENDIF
       COMMON /FITTEDCONS/EgyCal(6),ResCal(6),FITEFF(6),SKEW(6,3),
      2 ATTNEX(8,3),ESCAPE(3),THETACAS,TRAN,PCAP,LEGY(6),LRES(6),
      3 LEFF(6),LSKEW(6,3),LATT(8,3),LESCAPE(3),LCAS,LRAN,LPCAP
+      LOGICAL LDUM
       COMMON/LOGICVALS/LDUM(40) 
       COMMON /DOUBLE/DUM(8),GEB,DUM2(11)
       DATA E511/510.9989/!{keV}{in Meyerhof --> 511.006 keV}

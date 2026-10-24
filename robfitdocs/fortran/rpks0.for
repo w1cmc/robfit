@@ -4,7 +4,7 @@
       LOGICAL EXPKS,LINQUIRE
       INCLUDE 'STRUCTURES.FOR'
       RECORD /Tpk/Pks(:)      
-CI    ALLOCATABLE Pks      
+      ALLOCATABLE Pks      
       COMMON /NAMES/NACML,NADUM(5)
       NAFPKS=NASTR('FittedPks.unf',ILW,EXPKS)
       IF(EXPKS)RETURN

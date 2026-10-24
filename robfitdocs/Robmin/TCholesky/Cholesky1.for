@@ -1,7 +1,7 @@
       SUBROUTINE Cholesky1(AP,API,N,IFL,IFJ,LINV)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION AP((N*(N+1))/2),API((N*(N+1))/2),APT(:)
-CI    ALLOCATABLE APT            
+      ALLOCATABLE APT            
       DIMENSION G(2,2),PROD(2,2) 
       LOGICAL LINV
       ND=(N*(N+1))/2

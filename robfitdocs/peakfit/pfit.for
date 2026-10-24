@@ -17,7 +17,7 @@ C     2   Skw,SkwErr,Jmp,JmpERR,Area,AreaErr
 C        LOGICAL Pvary,VHGT,VLOC,VWth,VSkw,VJmp
 C      END STRUCTURE
       
-CI    ALLOCATABLE PKS
+      ALLOCATABLE PKS
 c      COMMON /TFIT/EgyCal(6),RESCAL(6),DUM2(24),SKEW(6),DUM3(30),
 c     2 LVCONS(72)
 C     LOGICAL LVCONS 

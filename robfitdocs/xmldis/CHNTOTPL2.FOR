@@ -7,7 +7,7 @@ C if ldum(6) re-initializes the random and cascade paks
       INCLUDE 'STRUCTURES.FOR'
       RECORD /Nuclides/Nuclide(:)
       DIMENSION PFA(1)
-CI    ALLOCATABLE:: Nuclide,MDANUC,AMDA  
+      ALLOCATABLE:: Nuclide,MDANUC,AMDA  
       CHARACTER*256 FNAME,NASTR 
      
       LOGICAL EX,LDUM,LDALLOCN,LPARS,LDUM2

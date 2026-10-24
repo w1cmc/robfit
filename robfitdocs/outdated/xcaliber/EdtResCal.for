@@ -13,6 +13,7 @@
      2 LVCONS(66)     
       COMMON /NAMES/NACML,NADUM(5)      
       COMMON /INTVALS/IDUM(20)      
+      LOGICAL LDUM
       COMMON/LOGICVALS/LDUM(20)      
       COMMON /DOUBLE/DUM(20)
       NAFPKS=NASTR('Wpks.edt',ILFPKS,EX)

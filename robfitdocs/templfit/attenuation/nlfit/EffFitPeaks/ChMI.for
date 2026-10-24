@@ -2,7 +2,7 @@
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION AP((N*(N+1))/2),API((N*(N+1))/2)
       DIMENSION B(:),X(:),Y(:),APIT(:,:),KU(:,:)
-CI    ALLOCATABLE B,X,Y,APIT,KU
+      ALLOCATABLE B,X,Y,APIT,KU
 C     PRESS 1986 P32 EQN 2.3.6
       SAVE NT,KU
       DATA NT/0/

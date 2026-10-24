@@ -71,7 +71,7 @@ C      LOGICAL EXNUC,LFND
 C      REAL*4 R4
 C      CHARACTER*256 NAPMLSP,NASTR,NANUC,FNAME
 C      RECORD /Nuclides/Nuclide(:)
-CI     ALLOCATABLE:: Nuclide   
+C      ALLOCATABLE:: Nuclide   
          
       
 C      ILPML=LENTRIM(NAPMLSP)
@@ -90,4 +90,3 @@ C      CLOSE(2)
 C      DEALLOCATE(Nuclide)
 C      RETURN
 C      END
-

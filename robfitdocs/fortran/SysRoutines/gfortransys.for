@@ -232,3 +232,28 @@ C     gfortran has FLUSH as an intrinsic
         RETURN
       ENDIF
       END
+
+      SUBROUTINE GETDAT(YEAR, MONTH, DAY)
+C     Replacement for Intel Fortran GETDAT intrinsic
+C     Returns current date as integers
+      INTEGER YEAR, MONTH, DAY
+      INTEGER VALUES(8)
+      CALL DATE_AND_TIME(VALUES=VALUES)
+      YEAR = VALUES(1)
+      MONTH = VALUES(2)
+      DAY = VALUES(3)
+      RETURN
+      END
+
+      SUBROUTINE GETTIM_SUB(HOUR, MINUTE, SECOND, HSECOND)
+C     Replacement for Intel Fortran GETTIM intrinsic
+C     Returns current time as integers  
+      INTEGER HOUR, MINUTE, SECOND, HSECOND
+      INTEGER VALUES(8)
+      CALL DATE_AND_TIME(VALUES=VALUES)
+      HOUR = VALUES(5)
+      MINUTE = VALUES(6)
+      SECOND = VALUES(7)
+      HSECOND = VALUES(8) / 10
+      RETURN
+      END

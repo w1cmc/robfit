@@ -20,7 +20,7 @@ CW change REAL*16 to REAL*8 in tplfit.for
       CHARACTER*256 NACMLSP
       CHARACTER*20 CBAT
       REAL*4 DAT(:),WT(:)
-CI    ALLOCATABLE DAT,WT     
+      ALLOCATABLE DAT,WT     
 
 C      EQUIVALENCE (LDUM(1),LDUM2(1)) 
       

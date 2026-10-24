@@ -29,7 +29,7 @@ C      INTEGER FSYSTEM
       DIMENSION PPCCI(:)
       INCLUDE 'STRUCTURES.FOR'
       RECORD /Nuclides/Nuclide(:)  
-CI    ALLOCATABLE:: NUCLIDE,PPCCI
+      ALLOCATABLE:: NUCLIDE,PPCCI
       NARFIT=NAINDIR('Rfit.txt',ILRFIT)
       FNAME=NASTR('Nuclides.unf',ILFN,EX)
       IF(.NOT.EX)THEN
@@ -84,7 +84,7 @@ C      print*,'torfit 52 narfit ',narfit
       INCLUDE 'STRUCTURES.FOR'
       RECORD /Nuclides/Nuclide(:)  
       DIMENSION PPCCI(:)
-CI    ALLOCATABLE:: NUCLIDE,PPCCI
+      ALLOCATABLE:: NUCLIDE,PPCCI
       LOGICAL LEGY,LRES,LEFF,LATT,LSKEW,LESCAPE,LCAS,LRAN
       COMMON /FITTEDCONS/EgyCal(6),ResCal(6),FITEFF(6),SKEW(6,3),
      2 ATTNEX(8,3),ESCAPE(3),THETACAS,TRAN,LEGY(6),LRES(6),LEFF(6),
@@ -354,7 +354,7 @@ C      READ(*,*)ITEST
       LOGICAL EXPKS 
       INCLUDE 'STRUCTURES.FOR'
       RECORD /Tpk/Pks(:)
-CI    ALLOCATABLE:: PKS
+      ALLOCATABLE:: PKS
       
       NARFIT=NAINDIR('Rfit.txt',ILRFIT)
        
@@ -394,9 +394,10 @@ C <!-- Hgt HgtErr Loc LocErr Wth WthErr Skw SkwErr Jmp JmpErr Area AreaErr -->
       LOGICAL EXPKS,EX 
       INCLUDE 'STRUCTURES.FOR'
       RECORD /Tpk/Pks(:)
-CI    ALLOCATABLE:: PKS
+      ALLOCATABLE:: PKS
       COMMON /DOUBLE/DUM(20)
       COMMON /INTVALS/IDUM(20)
+      LOGICAL LDUM
       COMMON/LOGICVALS/LDUM(40)
       
       NAFPKS=NASTR('FittedPks.unf',ILW,EXPKS)
@@ -478,7 +479,7 @@ C <!-- Hgt HgtErr Loc LocErr Wth WthErr Skw SkwErr Jmp JmpErr Area AreaErr -->
       CHARACTER*256 FNAME,NASTR,NARFIT,NAINDIR
       DIMENSION XS(:)
       REAL*4 FS(:)
-CI    ALLOCATABLE:: XS,FS      
+      ALLOCATABLE:: XS,FS      
       LOGICAL EX
       NARFIT=NAINDIR('Rfit.txt',ILRFIT)
 
@@ -523,7 +524,7 @@ C        CALL MAOPEN(1,'temp.txt','Stream_LF')
       IMPLICIT REAL*8 (A-H,O-Z)
       CHARACTER*256 FNAME,NASTR,NAPML
       DIMENSION XS(:),FS(:)
-CI    ALLOCATABLE:: XS,FS      
+      ALLOCATABLE:: XS,FS      
       LOGICAL EX
       COMMON /DOUBLE/DUM(20)
       ILPML=LENTRIM(NAPML)

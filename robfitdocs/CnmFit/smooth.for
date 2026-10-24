@@ -4,7 +4,7 @@
       DIMENSION XP(N),F(N),ERR(N),C(0:3),A(0:6),
      2 AH(0:5),AHH(0:2),B(0:3),BH(0:2),BHH(0:1)
       DIMENSION X(:)
-CI    ALLOCATABLE X
+      ALLOCATABLE X
       DATA NCOEF/4/
       ALLOCATE(X(N))
       DO I=1,N

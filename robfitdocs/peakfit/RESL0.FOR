@@ -13,7 +13,7 @@ C      REAL*4 DAT(IBEGPKF-IENDPKF+1),WT(IBEGPKF-IENDPKF+1),ALR(MAXLR)
       LOGICAL LALLOC,EX
 
       REAL*4 RDUM,ORIGDAT(:)
-CI    ALLOCATABLE ORIGDAT  
+      ALLOCATABLE ORIGDAT  
       DIMENSION FDIFF(101),FCOUNT(101),PFA(1),ILR(MAXLR)
       INCLUDE 'STRUCTURES.FOR'
       RECORD /Tpk/Pks(NPKSM) 
@@ -132,7 +132,7 @@ C in this same region.
       CHARACTER*256 FNAME,NASTR
       LOGICAL EX
       
-ci    allocatable FDIFF,AIDAT 
+      ALLOCATABLE FDIFF,AIDAT 
       DIMENSION FDIFF(:),AIDAT(:)
       DIMENSION PFA(1),ILR(MAXLR)
       RECORD /Tpk/Pks(NPKSM) !Structure with current peaks (used by poly)
@@ -224,7 +224,7 @@ C in this same region.
       CHARACTER*256 FNAME,NASTR
       LOGICAL EX
       
-ci    allocatable FDIFF,AIDAT 
+      ALLOCATABLE FDIFF,AIDAT 
       DIMENSION FDIFF(:)
       DIMENSION PFA(1),CLR(MAXLR)
       RECORD /Tpk/Pks(NPKSM) !Structure with current peaks (used by poly)

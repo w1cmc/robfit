@@ -3,7 +3,7 @@
       DIMENSION X(n),y(n),y2(n)
       INTEGER i,k
       DIMENSION u(:)
-CI      ALLOCATABLE::U
+      ALLOCATABLE::U
       ALLOCATE(u(n+1))
       if (yp1.gt..99e30) then
 c *** natural boundary condition with second derivative zero at origin      
