@@ -8,6 +8,7 @@
  */
 
 #include <curses.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -134,7 +135,7 @@ static int load_config(void) {
             
             /* Trim trailing whitespace from label */
             char *lend = label + strlen(label) - 1;
-            while (lend >= label && (*lend == ' ' || *lend == '\n' || *lend == '\r')) *lend-- = '\0';
+            while (lend >= label && isspace((unsigned char)*lend)) *lend-- = '\0';
             
             /* Rest is value */
             if (strlen(p) > 40) {
@@ -142,10 +143,10 @@ static int load_config(void) {
                 value[255] = '\0';
                 /* Trim trailing whitespace */
                 char *end = value + strlen(value) - 1;
-                while (end > value && (*end == ' ' || *end == '\n' || *end == '\r')) *end-- = '\0';
+                while (end > value && isspace((unsigned char)*end)) *end-- = '\0';
                 /* Trim leading whitespace */
                 char *start = value;
-                while (*start == ' ') start++;
+                while (isspace((unsigned char)*start)) start++;
                 if (start != value) memmove(value, start, strlen(start) + 1);
             }
             
