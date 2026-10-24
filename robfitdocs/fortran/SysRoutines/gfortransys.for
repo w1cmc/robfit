@@ -258,9 +258,10 @@ C     Returns current time as integers
       RETURN
       END
 
-      FUNCTION QSQRT(X)
+      REAL*16 FUNCTION QSQRT(X)
 C     Quad-precision square root
-      IMPLICIT REAL*16 (A-H,O-Z)
+C     Uses the intrinsic SQRT which gfortran extends for REAL*16
+      REAL*16 X
       QSQRT = SQRT(X)
       RETURN
       END

@@ -18,10 +18,13 @@ INCLUDES = -I$(SRCDIR)/fortran
 FFLAGS = -fdec-structure -fallow-argument-mismatch -std=legacy -O2 $(INCLUDES)
 FFLAGS_DEBUG = -fdec-structure -fallow-argument-mismatch -std=legacy -g -fcheck=all -fbacktrace $(INCLUDES)
 
-# C compiler and flags (for ncurses menu)
+# C compiler and flags (for ncurses menu and API)
 CC = cc
-CFLAGS = -O2 -Wall
+CFLAGS = -O2 -Wall -Iinclude
 LDFLAGS_CURSES = -lncurses
+
+# Fortran flags for C interop (free-form F90)
+FFLAGS_F90 = -O2 -fallow-argument-mismatch
 
 # Directories
 SRCDIR = robfitdocs
@@ -192,9 +195,32 @@ TEMPLFIT_OBJS = $(OBJDIR)/gfortransys.o \
                 $(OBJDIR)/1dSolve.o
 
 # ============================================================================
+# Peakfit library objects (for C API)
+# ============================================================================
+PEAKFIT_LIB_OBJS = $(OBJDIR)/gfortransys.o \
+                   $(OBJDIR)/commons.o \
+                   $(OBJDIR)/NaStr.o \
+                   $(OBJDIR)/ComToFrUnf.o \
+                   $(OBJDIR)/datmfit.o \
+                   $(OBJDIR)/Functions.o \
+                   $(OBJDIR)/Weight_fortran.o \
+                   $(OBJDIR)/CnmFuns.o \
+                   $(OBJDIR)/nlfitsub.o \
+                   $(OBJDIR)/fndreg.o \
+                   $(OBJDIR)/resl.o \
+                   $(OBJDIR)/pkpolym.o \
+                   $(OBJDIR)/AIGAU_skew.o \
+                   $(OBJDIR)/Cholesky.o \
+                   $(OBJDIR)/robmin.o \
+                   $(OBJDIR)/1dSolve.o \
+                   $(OBJDIR)/bli.o \
+                   $(OBJDIR)/sort8.o \
+                   $(OBJDIR)/peakfit_bridge.o
+
+# ============================================================================
 # Build targets
 # ============================================================================
-.PHONY: all clean debug help
+.PHONY: all clean debug help test_api
 
 all: $(BINDIR)/robfit_menu $(BINDIR)/xmldis $(BINDIR)/bkgfit $(BINDIR)/peakfit $(BINDIR)/templfit
 
@@ -202,6 +228,19 @@ all: $(BINDIR)/robfit_menu $(BINDIR)/xmldis $(BINDIR)/bkgfit $(BINDIR)/peakfit $
 $(BINDIR)/robfit_menu: robfit_menu.c
 	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS_CURSES)
 	@echo "Built robfit_menu successfully"
+
+# Peakfit C API library
+$(BINDIR)/libpeakfit.a: $(PEAKFIT_LIB_OBJS)
+	ar rcs $@ $^
+	@echo "Built libpeakfit.a successfully"
+
+# Test program for C API
+$(BINDIR)/test_peakfit_api: test_peakfit_api.c $(BINDIR)/libpeakfit.a
+	$(CC) $(CFLAGS) -o $@ $< -L$(BINDIR) -lpeakfit -L/opt/homebrew/lib/gcc/current -lgfortran -lquadmath
+	@echo "Built test_peakfit_api successfully"
+
+test_api: $(BINDIR)/test_peakfit_api
+	./test_peakfit_api
 
 # Legacy Fortran menu driver
 $(BINDIR)/robfit: $(ROBFIT_OBJS)
@@ -322,6 +361,10 @@ $(OBJDIR)/Weight_fortran.o: $(SRCDIR)/fortran/Weight.for
 
 # AIGAU.for - multiple versions exist
 $(OBJDIR)/AIGAU_skew.o: $(SRCDIR)/peakfit/skew/AIGAU.for
+	$(FC) $(FFLAGS) -c $< -o $@
+
+# Peakfit C API bridge (uses ISO_C_BINDING)
+$(OBJDIR)/peakfit_bridge.o: $(SRCDIR)/peakfit/peakfit_bridge.for
 	$(FC) $(FFLAGS) -c $< -o $@
 
 $(OBJDIR)/AIGAU_templfit.o: $(SRCDIR)/templfit/attenuation/nlfit/aigau/AIGAU.for
