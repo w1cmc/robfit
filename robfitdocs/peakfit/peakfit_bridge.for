@@ -20,6 +20,10 @@ C ----------------------------------------------------------------------
 C ----------------------------------------------------------------------
 C Load spectrum and related files
 C Returns number of channels, or negative on error
+C
+C Note: This requires that the spectrum has been processed by xmldis
+C or robfit first to create the dat.unf file. The .+ML file contains
+C the spectrum data but in XML format that needs parsing.
 C ----------------------------------------------------------------------
       INTEGER FUNCTION PEAKFIT_LOAD_F(FILENAME, FLEN) 
      &    BIND(C, NAME='peakfit_load_spectrum')
@@ -44,17 +48,18 @@ C     Convert C string to Fortran
         NACMLSP(I:I) = FILENAME(I)
       END DO
       
-C     Try to load common values file
+C     Try to load common values file (calibrations etc)
       CALL UNFTOCOM(EX)
       IF (.NOT. EX) THEN
         PEAKFIT_LOAD_F = -2  ! File error
         RETURN
       END IF
       
-C     Check for data file
+C     Check for data file - this must be created by xmldis or robfit first
       NADATUNF = NASTR('DAT.UNF', ILDAT, EX)
       IF (.NOT. EX) THEN
-        PEAKFIT_LOAD_F = -4  ! No data
+C       dat.unf doesn't exist - user needs to run xmldis first
+        PEAKFIT_LOAD_F = -4  ! No data file
         RETURN
       END IF
       
@@ -369,6 +374,7 @@ C ----------------------------------------------------------------------
 C     Set range and cutoff
       IBEGPKF = IBEG
       IENDPKF = IEND
+      IFIT = 1  ! Use raw data
       CUTOFF = CUTOFF_VAL
       
       NFPKS = N_PEAKS

@@ -326,7 +326,13 @@ static void do_load_spectrum(void) {
     int nchans = peakfit_load_spectrum(filename, strlen(filename));
     
     if (nchans < 0) {
-        draw_status("Error loading spectrum (code %d)", nchans);
+        if (nchans == -4) {
+            draw_status("No dat.unf file - run xmldis first to process spectrum");
+        } else if (nchans == -2) {
+            draw_status("Cannot read COM.UNF - check file exists");
+        } else {
+            draw_status("Error loading spectrum (code %d)", nchans);
+        }
         return;
     }
     
