@@ -1,0 +1,83 @@
+# ROBFIT Configuration
+# Copy to robfit.ini and edit as needed
+
+[spectrum]
+# Primary spectrum file (.+ML, .n42, or .sp format)
+file = PLANCHETB.+ML
+
+# Optional error squared file
+err2_file = 
+
+# Is spectrum energy-calibrated?
+energy_calibrated = yes
+
+[display]
+# Channel range for analysis
+channel_begin = 1
+channel_end = 16109
+
+# Energy range (keV) - used when energy_calibrated = yes
+energy_begin = 0.29
+energy_end = 3287.24
+
+# Y-axis settings
+y_scale = log          ; log or linear
+y_min = 0.01
+y_max = 1e8
+
+# What to display
+view_data = yes
+view_template = yes
+view_continuum = no
+view_peaks = no
+view_residuals = no
+
+# Nuclides of interest (comma-separated)
+nuclides = U235
+
+[fitting]
+# Background/continuum fitting range (keV)
+continuum_begin = 0.29
+continuum_end = 3220.60
+
+# Peak fitting range (keV)
+peak_begin = 0.29
+peak_end = 3220.80
+
+# Template fitting range (keV)
+template_begin = 0.09
+template_end = 3221.00
+
+# Use log interpolation in weights
+log_weights = no
+
+[calibration]
+# Energy calibration file (optional)
+energy_file = 
+
+# Efficiency calibration file (optional)
+efficiency_file = 
+
+[error]
+# Error estimation parameters
+alpha_w1 = 0.01
+alpha_w2 = 1
+
+# Error smoothing: none, 5pt, 17pt, or hofx
+smoothing = 5pt
+
+# Error source: data, fit, or err2
+source = data
+
+[peak_table]
+# Parameters for peak table generation
+energy_begin = 3000
+energy_end = 0
+min_counts = 10
+
+[output]
+# Write output to .sp file
+write_sp = no
+
+# Additional plot files (comma-separated)
+plot_files = 

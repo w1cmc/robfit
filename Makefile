@@ -20,8 +20,11 @@ FFLAGS_DEBUG = -fdec-structure -fallow-argument-mismatch -std=legacy -g -fcheck=
 
 # C compiler and flags (for ncurses menu and API)
 CC = cc
-CFLAGS = -O2 -Wall -Iinclude
+CFLAGS = -O2 -Wall -Iinclude -Ilib
 LDFLAGS_CURSES = -lncurses
+
+# Config library objects
+CONFIG_OBJS = $(OBJDIR)/ini.o $(OBJDIR)/config.o
 
 # Fortran flags for C interop (free-form F90)
 FFLAGS_F90 = -O2 -fallow-argument-mismatch
@@ -224,9 +227,16 @@ PEAKFIT_LIB_OBJS = $(OBJDIR)/gfortransys.o \
 
 all: $(BINDIR)/robfit_menu $(BINDIR)/xmldis $(BINDIR)/bkgfit $(BINDIR)/peakfit $(BINDIR)/peakfit_curses $(BINDIR)/templfit
 
+# Config library
+$(OBJDIR)/ini.o: lib/ini.c lib/ini.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJDIR)/config.o: lib/config.c lib/config.h lib/ini.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
 # ncurses menu driver (recommended)
-$(BINDIR)/robfit_menu: robfit_menu.c
-	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS_CURSES)
+$(BINDIR)/robfit_menu: robfit_menu.c $(CONFIG_OBJS)
+	$(CC) $(CFLAGS) -o $@ $< $(CONFIG_OBJS) $(LDFLAGS_CURSES)
 	@echo "Built robfit_menu successfully"
 
 # Peakfit C API library
