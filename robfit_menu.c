@@ -80,18 +80,289 @@ static int run_command(const char *cmd, const char *arg) {
 }
 
 /*
- * Handle roblink (configuration) - for now just run robfit with option 1
+ * Configuration item structure
+ */
+typedef struct {
+    char label[45];
+    char value[256];
+    int editable;  /* 0=label only, 1=text, 2=Y/N toggle */
+} ConfigItem;
+
+static ConfigItem g_config[16];
+static int g_config_count = 0;
+
+/*
+ * Load configuration from robfit.mnu
+ */
+static int load_config(void) {
+    FILE *f;
+    char line[512];
+    int counts[20], n_counts = 0, total_items = 0;
+    int i;
+    
+    f = fopen("robfit.mnu", "r");
+    if (!f) f = fopen("Robfit.mnu", "r");
+    if (!f) return -1;
+    
+    /* Read counts until we hit 100 */
+    while (n_counts < 20 && fgets(line, sizeof(line), f)) {
+        int val;
+        if (sscanf(line, "%d", &val) == 1) {
+            counts[n_counts++] = val;
+            if (val == 100) break;
+            total_items += val;
+        }
+    }
+    
+    /* Read config items */
+    g_config_count = 0;
+    for (i = 0; i < total_items && i < 16; i++) {
+        if (!fgets(line, sizeof(line), f)) break;
+        
+        int idx;
+        char label[45] = "", value[256] = "";
+        
+        /* Parse: index, 40-char label, rest is value */
+        if (sscanf(line, "%d", &idx) == 1) {
+            /* Skip the index and space */
+            char *p = line;
+            while (*p && (*p == ' ' || (*p >= '0' && *p <= '9'))) p++;
+            
+            /* Copy up to 40 chars for label */
+            strncpy(label, p, 40);
+            label[40] = '\0';
+            
+            /* Rest is value */
+            if (strlen(p) > 40) {
+                strncpy(value, p + 40, 255);
+                value[255] = '\0';
+                /* Trim trailing whitespace */
+                char *end = value + strlen(value) - 1;
+                while (end > value && (*end == ' ' || *end == '\n' || *end == '\r')) *end-- = '\0';
+                /* Trim leading whitespace */
+                char *start = value;
+                while (*start == ' ') start++;
+                if (start != value) memmove(value, start, strlen(start) + 1);
+            }
+            
+            strncpy(g_config[g_config_count].label, label, 44);
+            strncpy(g_config[g_config_count].value, value, 255);
+            
+            /* Determine if editable and type */
+            if (strstr(label, "Page") || strlen(value) == 0) {
+                g_config[g_config_count].editable = 0;  /* Not editable */
+            } else if (strcmp(value, "Y") == 0 || strcmp(value, "N") == 0) {
+                g_config[g_config_count].editable = 2;  /* Y/N toggle */
+            } else {
+                g_config[g_config_count].editable = 1;  /* Text edit */
+            }
+            g_config_count++;
+        }
+    }
+    
+    fclose(f);
+    return 0;
+}
+
+/*
+ * Save configuration to robfit.mnu
+ */
+static int save_config(void) {
+    FILE *f;
+    int i;
+    
+    f = fopen("robfit.mnu", "w");
+    if (!f) return -1;
+    
+    /* Write header - assume simple 3/10/100 structure */
+    fprintf(f, "           3\n");
+    fprintf(f, "          10\n");
+    fprintf(f, "         100\n");
+    
+    /* Write items */
+    for (i = 0; i < g_config_count; i++) {
+        fprintf(f, "%3d %-40s%s\n", i + 1, g_config[i].label, g_config[i].value);
+    }
+    
+    fclose(f);
+    return 0;
+}
+
+/*
+ * Handle roblink (configuration) - curses-based config editor
  */
 static int handle_roblink(const char *datafile) {
-    endwin();
-    printf("\n=== Configuration ===\n");
-    printf("Current data file: %s\n", datafile);
-    printf("\nConfiguration editing not yet implemented in curses UI.\n");
-    printf("Press Enter to continue...");
-    fflush(stdout);
-    getchar();
-    refresh();
-    return 0;
+    WINDOW *win;
+    int ch, selected = 0;
+    int editing = 0;
+    char edit_buf[256];
+    int edit_pos = 0;
+    int win_height, win_width;
+    int i;
+    
+    (void)datafile;  /* May use later */
+    
+    if (load_config() < 0) {
+        endwin();
+        printf("\nCannot open robfit.mnu configuration file.\n");
+        printf("Press Enter to continue...");
+        fflush(stdout);
+        getchar();
+        refresh();
+        return 0;
+    }
+    
+    /* Find first editable item */
+    selected = 0;
+    while (selected < g_config_count && g_config[selected].editable == 0) {
+        selected++;
+    }
+    if (selected >= g_config_count) selected = 0;
+    
+    win_height = g_config_count + 6;
+    win_width = 78;
+    win = newwin(win_height, win_width, (LINES - win_height) / 2, (COLS - win_width) / 2);
+    keypad(win, TRUE);
+    
+    while (1) {
+        werase(win);
+        box(win, 0, 0);
+        wattron(win, A_BOLD);
+        mvwprintw(win, 1, (win_width - 20) / 2, "ROBFIT Configuration");
+        wattroff(win, A_BOLD);
+        
+        /* Draw items */
+        for (i = 0; i < g_config_count; i++) {
+            int y = i + 3;
+            
+            if (i == selected && !editing) {
+                wattron(win, A_REVERSE);
+            }
+            
+            if (g_config[i].editable == 0) {
+                /* Section header */
+                wattron(win, A_BOLD);
+                mvwprintw(win, y, 2, "%-40s", g_config[i].label);
+                wattroff(win, A_BOLD);
+            } else {
+                mvwprintw(win, y, 2, "%-40s", g_config[i].label);
+                if (editing && i == selected) {
+                    mvwprintw(win, y, 43, "[%-30s]", edit_buf);
+                } else {
+                    mvwprintw(win, y, 43, " %-30s", g_config[i].value);
+                }
+            }
+            
+            if (i == selected && !editing) {
+                wattroff(win, A_REVERSE);
+            }
+        }
+        
+        /* Help line */
+        if (editing) {
+            mvwprintw(win, win_height - 2, 2, "Enter=save, Esc=cancel");
+        } else {
+            mvwprintw(win, win_height - 2, 2, "Enter=edit, Space=toggle Y/N, S=save & exit, Q=quit");
+        }
+        
+        wrefresh(win);
+        ch = wgetch(win);
+        
+        if (editing) {
+            switch (ch) {
+                case '\n':
+                case '\r':
+                    strncpy(g_config[selected].value, edit_buf, 255);
+                    editing = 0;
+                    break;
+                case 27:  /* ESC */
+                    editing = 0;
+                    break;
+                case KEY_BACKSPACE:
+                case 127:
+                case 8:
+                    if (edit_pos > 0) {
+                        edit_buf[--edit_pos] = '\0';
+                    }
+                    break;
+                default:
+                    if (ch >= 32 && ch < 127 && edit_pos < 250) {
+                        edit_buf[edit_pos++] = ch;
+                        edit_buf[edit_pos] = '\0';
+                    }
+                    break;
+            }
+        } else {
+            switch (ch) {
+                case KEY_UP:
+                case 'k':
+                    {
+                        int tries = g_config_count;
+                        do {
+                            selected = (selected - 1 + g_config_count) % g_config_count;
+                        } while (g_config[selected].editable == 0 && --tries > 0);
+                    }
+                    break;
+                    
+                case KEY_DOWN:
+                case 'j':
+                    {
+                        int tries = g_config_count;
+                        do {
+                            selected = (selected + 1) % g_config_count;
+                        } while (g_config[selected].editable == 0 && --tries > 0);
+                    }
+                    break;
+                    
+                case '\n':
+                case '\r':
+                    if (g_config[selected].editable == 1) {
+                        strncpy(edit_buf, g_config[selected].value, 255);
+                        edit_pos = strlen(edit_buf);
+                        editing = 1;
+                    } else if (g_config[selected].editable == 2) {
+                        /* Toggle Y/N */
+                        if (strcmp(g_config[selected].value, "Y") == 0) {
+                            strcpy(g_config[selected].value, "N");
+                        } else {
+                            strcpy(g_config[selected].value, "Y");
+                        }
+                    }
+                    break;
+                    
+                case ' ':
+                    /* Toggle Y/N */
+                    if (g_config[selected].editable == 2) {
+                        if (strcmp(g_config[selected].value, "Y") == 0) {
+                            strcpy(g_config[selected].value, "N");
+                        } else {
+                            strcpy(g_config[selected].value, "Y");
+                        }
+                    }
+                    break;
+                    
+                case 's':
+                case 'S':
+                    save_config();
+                    /* Update the global datafile if changed */
+                    if (strlen(g_config[5].value) > 0) {
+                        strncpy(g_datafile, g_config[5].value, MAX_PATH - 1);
+                    }
+                    delwin(win);
+                    touchwin(stdscr);
+                    refresh();
+                    return 0;
+                    
+                case 'q':
+                case 'Q':
+                case 27:
+                    delwin(win);
+                    touchwin(stdscr);
+                    refresh();
+                    return 0;
+            }
+        }
+    }
 }
 
 /*
