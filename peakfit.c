@@ -1,13 +1,13 @@
 /*
- * peakfit_curses.c - Curses-based peak fitting interface
+ * peakfit.c - Peak fitting program with curses UI
  *
- * This is a modern replacement for the Fortran menu-driven peakfit.
- * It uses the C API (libpeakfit.a) for physics and curses for UI.
+ * Uses the C API (libpeakfit.a) for physics calculations and
+ * ncurses for user interface.
  *
  * Usage:
- *   peakfit_curses [spectrum.+ML]
+ *   peakfit [spectrum.+ML]
  *
- * If no file is specified, prompts for one interactively.
+ * If no file is specified, reads from robfit.ini or prompts interactively.
  */
 
 #include <stdio.h>

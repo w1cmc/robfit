@@ -140,34 +140,8 @@ BKGFIT_OBJS = $(OBJDIR)/gfortransys.o \
               $(OBJDIR)/AIGAU_skew.o
 
 # ============================================================================
-# PEAKFIT - Fit peaks (from peakfit.vfproj + missing dependencies)
+# PEAKFIT library objects (for C API / curses UI)
 # ============================================================================
-PEAKFIT_OBJS = $(OBJDIR)/gfortransys.o \
-               $(OBJDIR)/commons.o \
-               $(OBJDIR)/NaStr.o \
-               $(OBJDIR)/menurd.o \
-               $(OBJDIR)/sort8.o \
-               $(OBJDIR)/bli.o \
-               $(OBJDIR)/ComToFrUnf.o \
-               $(OBJDIR)/datmfit.o \
-               $(OBJDIR)/Functions.o \
-               $(OBJDIR)/Weight_fortran.o \
-               $(OBJDIR)/CnmFuns.o \
-               $(OBJDIR)/cmlread.o \
-               $(OBJDIR)/peakfit.o \
-               $(OBJDIR)/pklink_ini.o \
-               $(OBJDIR)/config_module.o \
-               $(OBJDIR)/pfit.o \
-               $(OBJDIR)/EditPks.o \
-               $(OBJDIR)/fndreg.o \
-               $(OBJDIR)/nlfitsub.o \
-               $(OBJDIR)/resl.o \
-               $(OBJDIR)/pkpolym.o \
-               $(OBJDIR)/AIGAU_skew.o \
-               $(OBJDIR)/Cholesky.o \
-               $(OBJDIR)/robmin.o \
-               $(OBJDIR)/1dSolve.o \
-               $(OBJDIR)/peakfit_stubs.o
 
 # ============================================================================
 # TEMPLFIT - Template fitting (from Templfit.vfproj)
@@ -243,7 +217,7 @@ PEAKFIT_LIB_OBJS = $(OBJDIR)/gfortransys.o \
 # ============================================================================
 .PHONY: all clean debug help test_api test_config
 
-all: $(BINDIR)/robfit_menu $(BINDIR)/xmldis $(BINDIR)/bkgfit $(BINDIR)/peakfit $(BINDIR)/peakfit_curses $(BINDIR)/templfit
+all: $(BINDIR)/robfit_menu $(BINDIR)/xmldis $(BINDIR)/bkgfit $(BINDIR)/peakfit $(BINDIR)/templfit
 
 # Config library
 $(OBJDIR)/ini.o: lib/ini.c lib/ini.h
@@ -268,10 +242,10 @@ $(BINDIR)/libpeakfit.a: $(PEAKFIT_LIB_OBJS)
 	ar rcs $@ $^
 	@echo "Built libpeakfit.a successfully"
 
-# Curses-based peakfit (modern UI)
-$(BINDIR)/peakfit_curses: peakfit_curses.c $(BINDIR)/libpeakfit.a $(CONFIG_OBJS)
+# Peakfit - curses-based peak fitting UI with C API
+$(BINDIR)/peakfit: peakfit.c $(BINDIR)/libpeakfit.a $(CONFIG_OBJS)
 	$(CC) $(CFLAGS) -o $@ $< $(CONFIG_OBJS) -L$(BINDIR) -lpeakfit -L/opt/homebrew/lib/gcc/current -lgfortran -lquadmath $(LDFLAGS_CURSES)
-	@echo "Built peakfit_curses successfully"
+	@echo "Built peakfit successfully"
 
 # Test program for C API
 $(BINDIR)/test_peakfit_api: test_peakfit_api.c $(BINDIR)/libpeakfit.a
@@ -309,10 +283,6 @@ $(BINDIR)/xmldis: $(XMLDIS_OBJS) $(CONFIG_OBJS) $(NUCLIDE_OBJS)
 $(BINDIR)/bkgfit: $(BKGFIT_OBJS) $(CONFIG_OBJS)
 	$(FC) $(FFLAGS) -o $@ $^
 	@echo "Built bkgfit successfully"
-
-$(BINDIR)/peakfit: $(PEAKFIT_OBJS) $(CONFIG_OBJS)
-	$(FC) $(FFLAGS) -o $@ $^
-	@echo "Built peakfit successfully"
 
 $(BINDIR)/templfit: $(TEMPLFIT_OBJS) $(CONFIG_OBJS) $(NUCLIDE_OBJS)
 	$(FC) $(FFLAGS) -o $@ $^
@@ -469,7 +439,7 @@ $(OBJDIR)/rtpl_xml.o: $(SRCDIR)/emitters/rtpl_xml.for $(OBJDIR)/nuclides_module.
 # ============================================================================
 clean:
 	rm -rf $(OBJDIR)
-	rm -f $(BINDIR)/robfit $(BINDIR)/robfit_menu $(BINDIR)/xmldis $(BINDIR)/bkgfit $(BINDIR)/peakfit $(BINDIR)/templfit
+	rm -f $(BINDIR)/robfit $(BINDIR)/robfit_menu $(BINDIR)/xmldis $(BINDIR)/bkgfit $(BINDIR)/peakfit $(BINDIR)/templfit $(BINDIR)/peakfit_curses
 
 # ============================================================================
 # Help
@@ -499,7 +469,7 @@ help:
 	@echo "  make robfit       - build legacy Fortran menu driver"
 	@echo "  make xmldis       - build display program"
 	@echo "  make bkgfit       - build continuum/background fitting"
-	@echo "  make peakfit      - build peak fitting program"
+	@echo "  make peakfit      - build peak fitting program (curses UI)"
 	@echo "  make templfit     - build template fitting program"
 	@echo "  make clean        - remove build artifacts"
 	@echo "  make debug        - build all with debug flags"
