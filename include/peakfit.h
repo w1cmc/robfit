@@ -54,28 +54,6 @@ typedef struct {
 } peakfit_calibration_t;
 
 /*
- * Fitting configuration
- */
-typedef struct {
-    int ibeg, iend;           /* Channel range for fitting */
-    int fit_type;             /* 1=data, 2=data-background, etc. */
-    double alpha_w1;          /* Error inflation: err² += (α₁·err)² */
-    double alpha_w2;          /* Minimum error: err² = max(α₂, err²) */
-    double cutoff;            /* Peak search threshold (sigma) */
-    int max_peaks;            /* Maximum peaks to find automatically */
-} peakfit_config_t;
-
-/*
- * Fit results
- */
-typedef struct {
-    double chi_squared;       /* Chi-squared of fit */
-    int n_peaks;              /* Number of peaks in fit */
-    int converged;            /* 1 if fit converged */
-    int iterations;           /* Number of iterations used */
-} peakfit_result_t;
-
-/*
  * Initialize the peak fitting system
  * Must be called before any other functions
  * Returns: 0 on success, negative on error
