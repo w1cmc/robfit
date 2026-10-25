@@ -132,10 +132,6 @@ static int run_command(const char *cmd) {
     printf("\n--- Running: %s ---\n\n", full_cmd);
     status = system(full_cmd);
     
-    printf("\n--- Press Enter to continue ---");
-    fflush(stdout);
-    getchar();
-    
     refresh();  /* Return to curses mode */
     return WEXITSTATUS(status);
 }
@@ -460,9 +456,6 @@ static int handle_rebin(void) {
         system(cmd);
     }
     
-    printf("\nPress Enter to continue...");
-    fflush(stdout);
-    getchar();
     refresh();
     return 0;
 }
