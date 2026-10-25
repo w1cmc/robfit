@@ -159,6 +159,13 @@ C *** ILE+2
       WRITE(1)IBEGCNM,IENDCNM
       WRITE(1)(FIT(I),I=IBEGCNM,IENDCNM) 
       CLOSE(1) 
+C *** DATMFIT (peakfit, templfit) subtracts the continuum read from
+C *** FittedCnm.unf, so write the same fit under that name as well
+      FNAME=NASTR('FittedCnm.unf',ilcnm,ex)
+      OPEN(1,FILE=FNAME,FORM='UNFORMATTED')
+      WRITE(1)IBEGCNM,IENDCNM
+      WRITE(1)(FIT(I),I=IBEGCNM,IENDCNM)
+      CLOSE(1)
       DEALLOCATE(XI,FI,ERR,ERR2,FIT)   
       CALL COMTOUNF(EX) 
       RETURN
