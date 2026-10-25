@@ -12,7 +12,7 @@
           Date="2024-01-15">
 
   <!-- Cesium-137: Common calibration source, 661.66 keV -->
-  <Nuclide Name="Cs137" Z="55" A="137" HalfLife="30.17y">
+  <Nuclide Element="Cs" A="137" HalfLife="30.17y">
     <!-- L X-rays -->
     <Line E="4.466"   I="0.0036"    Type="XLa1"/>
     <Line E="4.827"   I="0.00226"   Type="XLb1"/>
@@ -28,7 +28,7 @@
   </Nuclide>
 
   <!-- Cobalt-60: Dual gamma calibration source -->
-  <Nuclide Name="Co60" Z="27" A="60" HalfLife="5.271y">
+  <Nuclide Element="Co" A="60" HalfLife="5.271y">
     <Line E="1173.228" I="0.9985" Type="P" dE="0.003"/>
     <Line E="1332.492" I="0.9998" Type="P" dE="0.004"/>
     <!-- Sum peak (cascade summing) -->
@@ -36,14 +36,14 @@
   </Nuclide>
 
   <!-- Cobalt-57: Low energy calibration -->
-  <Nuclide Name="Co57" Z="27" A="57" HalfLife="271.8d">
+  <Nuclide Element="Co" A="57" HalfLife="271.8d">
     <Line E="14.413"  I="0.0916" Type="P"/>
     <Line E="122.061" I="0.8560" Type="P" dE="0.001"/>
     <Line E="136.474" I="0.1068" Type="P"/>
   </Nuclide>
 
   <!-- Americium-241: Low energy, many lines -->
-  <Nuclide Name="Am241" Z="95" A="241" HalfLife="432.2y">
+  <Nuclide Element="Am" A="241" HalfLife="432.2y">
     <!-- L X-rays from Np-237 daughter -->
     <Line E="13.946"  I="0.1309"  Type="XLa1" Origin="Np237"/>
     <Line E="17.751"  I="0.1893"  Type="XLb1" Origin="Np237"/>
@@ -55,7 +55,7 @@
   </Nuclide>
 
   <!-- Holmium-166m: Metastable isomer -->
-  <Nuclide Name="Ho166" Isomer="true" Z="67" A="166" HalfLife="1200y">
+  <Nuclide Element="Ho" A="166" Isomer="true" HalfLife="1200y">
     <Line E="80.574"  I="0.1136" Type="P"/>
     <Line E="184.411" I="0.726"  Type="P"/>
     <Line E="280.459" I="0.297"  Type="P"/>
@@ -68,14 +68,16 @@
   </Nuclide>
 
   <!-- Yttrium-88: High energy calibration -->
-  <Nuclide Name="Y88" Z="39" A="88" HalfLife="106.6d">
+  <Nuclide Element="Y" A="88" HalfLife="106.6d">
     <Line E="898.042"  I="0.937" Type="P"/>
     <Line E="1836.063" I="0.992" Type="P"/>
   </Nuclide>
 
-  <!-- Electron-positron annihilation -->
-  <Nuclide Name="e+e-" HalfLife="0s">
+  <!-- Non-nuclide emission sources -->
+  
+  <!-- Electron-positron annihilation (pair production, positron emitters) -->
+  <Source Name="Annihilation" Description="e+ e- annihilation radiation">
     <Line E="511.0" I="2.0" Type="A"/>
-  </Nuclide>
+  </Source>
 
 </Nuclides>

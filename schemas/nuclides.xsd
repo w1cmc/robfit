@@ -23,16 +23,30 @@
   <xs:complexType name="NuclidesType">
     <xs:sequence>
       <xs:element name="Nuclide" type="NuclideType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="Source" type="SourceType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
     
     <!-- Library version -->
     <xs:attribute name="Version" type="xs:string" use="optional"/>
     
     <!-- Primary data source -->
-    <xs:attribute name="Source" type="xs:string" use="optional"/>
+    <xs:attribute name="DataSource" type="xs:string" use="optional"/>
     
     <!-- Date library was generated/updated -->
     <xs:attribute name="Date" type="xs:date" use="optional"/>
+  </xs:complexType>
+  
+  <!-- Non-nuclide emission sources (annihilation, cosmic rays, backgrounds) -->
+  <xs:complexType name="SourceType">
+    <xs:sequence>
+      <xs:element name="Line" type="LineType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    
+    <!-- Source identifier -->
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    
+    <!-- Description of the source -->
+    <xs:attribute name="Description" type="xs:string" use="optional"/>
   </xs:complexType>
 
   <!-- Individual nuclide entry -->
@@ -41,8 +55,11 @@
       <xs:element name="Line" type="LineType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
     
-    <!-- Nuclide identifier (e.g., "Cs137", "Co60", "Ho166") -->
-    <xs:attribute name="Name" type="NuclideNameType" use="required"/>
+    <!-- Element symbol (validated against periodic table) -->
+    <xs:attribute name="Element" type="ElementType" use="required"/>
+    
+    <!-- Mass number -->
+    <xs:attribute name="A" type="MassNumberType" use="required"/>
     
     <!-- Metastable state indicator -->
     <xs:attribute name="Isomer" type="xs:boolean" default="false"/>
@@ -50,15 +67,17 @@
     <!-- Half-life with unit -->
     <xs:attribute name="HalfLife" type="HalfLifeType" use="optional"/>
     
-    <!-- Atomic number -->
-    <xs:attribute name="Z" type="xs:positiveInteger" use="optional"/>
-    
-    <!-- Mass number -->
-    <xs:attribute name="A" type="xs:positiveInteger" use="optional"/>
-    
     <!-- Reference to data source if different from library default -->
     <xs:attribute name="Source" type="xs:string" use="optional"/>
   </xs:complexType>
+  
+  <!-- Mass number (1-300 covers all known isotopes) -->
+  <xs:simpleType name="MassNumberType">
+    <xs:restriction base="xs:positiveInteger">
+      <xs:minInclusive value="1"/>
+      <xs:maxInclusive value="300"/>
+    </xs:restriction>
+  </xs:simpleType>
 
   <!-- Emission line -->
   <xs:complexType name="LineType">
@@ -81,10 +100,127 @@
     <xs:attribute name="dI" type="xs:decimal" use="optional"/>
   </xs:complexType>
 
-  <!-- Nuclide identifier pattern: Element + Mass number -->
-  <xs:simpleType name="NuclideNameType">
+  <!-- Element symbols (Z=1-118) -->
+  <xs:simpleType name="ElementType">
     <xs:restriction base="xs:string">
-      <xs:pattern value="[A-Z][a-z]?[0-9]{1,3}"/>
+      <xs:enumeration value="H"/>   <!-- 1 -->
+      <xs:enumeration value="He"/>  <!-- 2 -->
+      <xs:enumeration value="Li"/>  <!-- 3 -->
+      <xs:enumeration value="Be"/>  <!-- 4 -->
+      <xs:enumeration value="B"/>   <!-- 5 -->
+      <xs:enumeration value="C"/>   <!-- 6 -->
+      <xs:enumeration value="N"/>   <!-- 7 -->
+      <xs:enumeration value="O"/>   <!-- 8 -->
+      <xs:enumeration value="F"/>   <!-- 9 -->
+      <xs:enumeration value="Ne"/>  <!-- 10 -->
+      <xs:enumeration value="Na"/>  <!-- 11 -->
+      <xs:enumeration value="Mg"/>  <!-- 12 -->
+      <xs:enumeration value="Al"/>  <!-- 13 -->
+      <xs:enumeration value="Si"/>  <!-- 14 -->
+      <xs:enumeration value="P"/>   <!-- 15 -->
+      <xs:enumeration value="S"/>   <!-- 16 -->
+      <xs:enumeration value="Cl"/>  <!-- 17 -->
+      <xs:enumeration value="Ar"/>  <!-- 18 -->
+      <xs:enumeration value="K"/>   <!-- 19 -->
+      <xs:enumeration value="Ca"/>  <!-- 20 -->
+      <xs:enumeration value="Sc"/>  <!-- 21 -->
+      <xs:enumeration value="Ti"/>  <!-- 22 -->
+      <xs:enumeration value="V"/>   <!-- 23 -->
+      <xs:enumeration value="Cr"/>  <!-- 24 -->
+      <xs:enumeration value="Mn"/>  <!-- 25 -->
+      <xs:enumeration value="Fe"/>  <!-- 26 -->
+      <xs:enumeration value="Co"/>  <!-- 27 -->
+      <xs:enumeration value="Ni"/>  <!-- 28 -->
+      <xs:enumeration value="Cu"/>  <!-- 29 -->
+      <xs:enumeration value="Zn"/>  <!-- 30 -->
+      <xs:enumeration value="Ga"/>  <!-- 31 -->
+      <xs:enumeration value="Ge"/>  <!-- 32 -->
+      <xs:enumeration value="As"/>  <!-- 33 -->
+      <xs:enumeration value="Se"/>  <!-- 34 -->
+      <xs:enumeration value="Br"/>  <!-- 35 -->
+      <xs:enumeration value="Kr"/>  <!-- 36 -->
+      <xs:enumeration value="Rb"/>  <!-- 37 -->
+      <xs:enumeration value="Sr"/>  <!-- 38 -->
+      <xs:enumeration value="Y"/>   <!-- 39 -->
+      <xs:enumeration value="Zr"/>  <!-- 40 -->
+      <xs:enumeration value="Nb"/>  <!-- 41 -->
+      <xs:enumeration value="Mo"/>  <!-- 42 -->
+      <xs:enumeration value="Tc"/>  <!-- 43 -->
+      <xs:enumeration value="Ru"/>  <!-- 44 -->
+      <xs:enumeration value="Rh"/>  <!-- 45 -->
+      <xs:enumeration value="Pd"/>  <!-- 46 -->
+      <xs:enumeration value="Ag"/>  <!-- 47 -->
+      <xs:enumeration value="Cd"/>  <!-- 48 -->
+      <xs:enumeration value="In"/>  <!-- 49 -->
+      <xs:enumeration value="Sn"/>  <!-- 50 -->
+      <xs:enumeration value="Sb"/>  <!-- 51 -->
+      <xs:enumeration value="Te"/>  <!-- 52 -->
+      <xs:enumeration value="I"/>   <!-- 53 -->
+      <xs:enumeration value="Xe"/>  <!-- 54 -->
+      <xs:enumeration value="Cs"/>  <!-- 55 -->
+      <xs:enumeration value="Ba"/>  <!-- 56 -->
+      <xs:enumeration value="La"/>  <!-- 57 -->
+      <xs:enumeration value="Ce"/>  <!-- 58 -->
+      <xs:enumeration value="Pr"/>  <!-- 59 -->
+      <xs:enumeration value="Nd"/>  <!-- 60 -->
+      <xs:enumeration value="Pm"/>  <!-- 61 -->
+      <xs:enumeration value="Sm"/>  <!-- 62 -->
+      <xs:enumeration value="Eu"/>  <!-- 63 -->
+      <xs:enumeration value="Gd"/>  <!-- 64 -->
+      <xs:enumeration value="Tb"/>  <!-- 65 -->
+      <xs:enumeration value="Dy"/>  <!-- 66 -->
+      <xs:enumeration value="Ho"/>  <!-- 67 -->
+      <xs:enumeration value="Er"/>  <!-- 68 -->
+      <xs:enumeration value="Tm"/>  <!-- 69 -->
+      <xs:enumeration value="Yb"/>  <!-- 70 -->
+      <xs:enumeration value="Lu"/>  <!-- 71 -->
+      <xs:enumeration value="Hf"/>  <!-- 72 -->
+      <xs:enumeration value="Ta"/>  <!-- 73 -->
+      <xs:enumeration value="W"/>   <!-- 74 -->
+      <xs:enumeration value="Re"/>  <!-- 75 -->
+      <xs:enumeration value="Os"/>  <!-- 76 -->
+      <xs:enumeration value="Ir"/>  <!-- 77 -->
+      <xs:enumeration value="Pt"/>  <!-- 78 -->
+      <xs:enumeration value="Au"/>  <!-- 79 -->
+      <xs:enumeration value="Hg"/>  <!-- 80 -->
+      <xs:enumeration value="Tl"/>  <!-- 81 -->
+      <xs:enumeration value="Pb"/>  <!-- 82 -->
+      <xs:enumeration value="Bi"/>  <!-- 83 -->
+      <xs:enumeration value="Po"/>  <!-- 84 -->
+      <xs:enumeration value="At"/>  <!-- 85 -->
+      <xs:enumeration value="Rn"/>  <!-- 86 -->
+      <xs:enumeration value="Fr"/>  <!-- 87 -->
+      <xs:enumeration value="Ra"/>  <!-- 88 -->
+      <xs:enumeration value="Ac"/>  <!-- 89 -->
+      <xs:enumeration value="Th"/>  <!-- 90 -->
+      <xs:enumeration value="Pa"/>  <!-- 91 -->
+      <xs:enumeration value="U"/>   <!-- 92 -->
+      <xs:enumeration value="Np"/>  <!-- 93 -->
+      <xs:enumeration value="Pu"/>  <!-- 94 -->
+      <xs:enumeration value="Am"/>  <!-- 95 -->
+      <xs:enumeration value="Cm"/>  <!-- 96 -->
+      <xs:enumeration value="Bk"/>  <!-- 97 -->
+      <xs:enumeration value="Cf"/>  <!-- 98 -->
+      <xs:enumeration value="Es"/>  <!-- 99 -->
+      <xs:enumeration value="Fm"/>  <!-- 100 -->
+      <xs:enumeration value="Md"/>  <!-- 101 -->
+      <xs:enumeration value="No"/>  <!-- 102 -->
+      <xs:enumeration value="Lr"/>  <!-- 103 -->
+      <xs:enumeration value="Rf"/>  <!-- 104 -->
+      <xs:enumeration value="Db"/>  <!-- 105 -->
+      <xs:enumeration value="Sg"/>  <!-- 106 -->
+      <xs:enumeration value="Bh"/>  <!-- 107 -->
+      <xs:enumeration value="Hs"/>  <!-- 108 -->
+      <xs:enumeration value="Mt"/>  <!-- 109 -->
+      <xs:enumeration value="Ds"/>  <!-- 110 -->
+      <xs:enumeration value="Rg"/>  <!-- 111 -->
+      <xs:enumeration value="Cn"/>  <!-- 112 -->
+      <xs:enumeration value="Nh"/>  <!-- 113 -->
+      <xs:enumeration value="Fl"/>  <!-- 114 -->
+      <xs:enumeration value="Mc"/>  <!-- 115 -->
+      <xs:enumeration value="Lv"/>  <!-- 116 -->
+      <xs:enumeration value="Ts"/>  <!-- 117 -->
+      <xs:enumeration value="Og"/>  <!-- 118 -->
     </xs:restriction>
   </xs:simpleType>
 
