@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Example modernized emitter file for Cs-137
+  Validates against emitter.xsd
+-->
+<Emitter xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="emitter.xsd"
+         Nuclide="Cs137"
+         Isomer="false"
+         HalfLife="30.17y"
+         MeasurementTime="15m"
+         DataSource="NNDC/ENSDF"
+         DataDate="2024-01-15">
+
+  <!-- L X-rays from Cs-137 -->
+  <Line Energy="3.954"   Intensity="0.000143"  Type="XLl"  Origin="Cs137"/>
+  <Line Energy="4.331"   Intensity="0.000064"  Type="XLh"  Origin="Cs137"/>
+  <Line Energy="4.451"   Intensity="0.0004"    Type="XLa2" Origin="Cs137"/>
+  <Line Energy="4.466"   Intensity="0.0036"    Type="XLa1" Origin="Cs137"/>
+  <Line Energy="4.827"   Intensity="0.00226"   Type="XLb1" Origin="Cs137"/>
+  <Line Energy="4.852"   Intensity="0.00023"   Type="XLb4" Origin="Cs137"/>
+  <Line Energy="4.927"   Intensity="0.00039"   Type="XLb3" Origin="Cs137"/>
+  <Line Energy="4.994"   Intensity="0.00003"   Type="XLb6" Origin="Cs137"/>
+  <Line Energy="5.156"   Intensity="0.00074"   Type="XLb2" Origin="Cs137"/>
+  <Line Energy="5.531"   Intensity="0.00033"   Type="XLg1" Origin="Cs137"/>
+  <Line Energy="5.797"   Intensity="0.000065"  Type="XLg2" Origin="Cs137"/>
+  <Line Energy="5.809"   Intensity="0.000093"  Type="XLg3" Origin="Cs137"/>
+
+  <!-- L X-rays from Ba-137m (daughter) -->
+  <Line Energy="4.8815"  Intensity="0.0089965" Type="XLl"  Origin="Ba137m"/>
+
+  <!-- K X-rays from Cs-137 -->
+  <Line Energy="31.452"  Intensity="0.00000263" Type="XKa3" Origin="Cs137"/>
+  <Line Energy="31.817"  Intensity="0.0204"     Type="XKa2" Origin="Cs137"/>
+  <Line Energy="32.194"  Intensity="0.0376"     Type="XKa1" Origin="Cs137"/>
+  <Line Energy="36.304"  Intensity="0.00352"    Type="XKb3" Origin="Cs137"/>
+  <Line Energy="36.378"  Intensity="0.0068"     Type="XKb1" Origin="Cs137"/>
+  <Line Energy="36.652"  Intensity="0.000079"   Type="XKb5" Origin="Cs137"/>
+  <Line Energy="37.255"  Intensity="0.00215"    Type="XKb2" Origin="Cs137"/>
+  <Line Energy="37.349"  Intensity="0.000481"   Type="XKb4" Origin="Cs137"/>
+
+  <!-- K X-rays from Ba-137m (daughter) -->
+  <Line Energy="31.8174" Intensity="0.0195082"  Type="XKa2" Origin="Ba137m"/>
+  <Line Energy="32.1939" Intensity="0.035986"   Type="XKa1" Origin="Ba137m"/>
+  <Line Energy="36.4457" Intensity="0.0106064"  Type="XKb1" Origin="Ba137m"/>
+  <Line Energy="37.3317" Intensity="0.0026516"  Type="XKb2" Origin="Ba137m"/>
+
+  <!-- The main gamma line from Ba-137m -->
+  <Line Energy="661.657" Intensity="0.851353"   Type="P"    Origin="Ba137m"
+        EnergyUnc="0.003" IntensityUnc="0.0006"/>
+
+</Emitter>

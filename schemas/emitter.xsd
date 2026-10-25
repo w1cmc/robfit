@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+
+  <xs:annotation>
+    <xs:documentation>
+      ROBFIT Emitter Schema
+      
+      Defines the structure for nuclide emission line files (.pgs).
+      These files contain gamma-ray and X-ray energies and intensities
+      for specific isotopes, used in template fitting for nuclide
+      identification and quantification.
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- Root element -->
+  <xs:element name="Emitter" type="EmitterType"/>
+
+  <!-- Emitter type definition -->
+  <xs:complexType name="EmitterType">
+    <xs:sequence>
+      <xs:element name="Line" type="LineType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    
+    <!-- Nuclide identifier (e.g., "Cs137", "Co60", "Ho166") -->
+    <xs:attribute name="Nuclide" type="NuclideType" use="required"/>
+    
+    <!-- Metastable state indicator -->
+    <xs:attribute name="Isomer" type="xs:boolean" default="false"/>
+    
+    <!-- Half-life with unit -->
+    <xs:attribute name="HalfLife" type="HalfLifeType" use="optional"/>
+    
+    <!-- Measurement or acquisition time -->
+    <xs:attribute name="MeasurementTime" type="DurationType" use="optional"/>
+    
+    <!-- Reference to data source (e.g., "ENSDF", "NNDC") -->
+    <xs:attribute name="DataSource" type="xs:string" use="optional"/>
+    
+    <!-- Date of data retrieval or last update -->
+    <xs:attribute name="DataDate" type="xs:date" use="optional"/>
+  </xs:complexType>
+
+  <!-- Emission line type definition -->
+  <xs:complexType name="LineType">
+    <!-- Energy in keV -->
+    <xs:attribute name="Energy" type="EnergyType" use="required"/>
+    
+    <!-- Intensity (probability per decay, 0.0 to 1.0+) -->
+    <xs:attribute name="Intensity" type="IntensityType" use="required"/>
+    
+    <!-- Line type: gamma, X-ray, annihilation, etc. -->
+    <xs:attribute name="Type" type="LineTypeEnum" use="required"/>
+    
+    <!-- Originating nuclide (may differ from parent for decay products) -->
+    <xs:attribute name="Origin" type="NuclideType" use="optional"/>
+    
+    <!-- Uncertainty in energy (keV) -->
+    <xs:attribute name="EnergyUnc" type="xs:decimal" use="optional"/>
+    
+    <!-- Uncertainty in intensity -->
+    <xs:attribute name="IntensityUnc" type="xs:decimal" use="optional"/>
+  </xs:complexType>
+
+  <!-- Nuclide identifier pattern: Element + Mass number -->
+  <xs:simpleType name="NuclideType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Z][a-z]?[0-9]{1,3}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Energy in keV (positive decimal) -->
+  <xs:simpleType name="EnergyType">
+    <xs:restriction base="xs:decimal">
+      <xs:minExclusive value="0"/>
+      <xs:maxInclusive value="20000"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Intensity (can exceed 1.0 for summed lines) -->
+  <xs:simpleType name="IntensityType">
+    <xs:restriction base="xs:decimal">
+      <xs:minInclusive value="0"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Half-life with unit suffix -->
+  <xs:simpleType name="HalfLifeType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]+\.?[0-9]*(s|m|h|d|y|ms|us|ns)"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Duration/time with unit suffix -->
+  <xs:simpleType name="DurationType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]+\.?[0-9]*(s|m|h|d)"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Emission line types -->
+  <xs:simpleType name="LineTypeEnum">
+    <xs:restriction base="xs:string">
+      <!-- Gamma rays -->
+      <xs:enumeration value="G"/>      <!-- Generic gamma -->
+      <xs:enumeration value="P"/>      <!-- Photopeak gamma -->
+      
+      <!-- X-rays (K-shell) -->
+      <xs:enumeration value="XKa1"/>
+      <xs:enumeration value="XKa2"/>
+      <xs:enumeration value="XKa3"/>
+      <xs:enumeration value="XKb1"/>
+      <xs:enumeration value="XKb2"/>
+      <xs:enumeration value="XKb3"/>
+      <xs:enumeration value="XKb4"/>
+      <xs:enumeration value="XKb5"/>
+      
+      <!-- X-rays (L-shell) -->
+      <xs:enumeration value="XLa1"/>
+      <xs:enumeration value="XLa2"/>
+      <xs:enumeration value="XLb1"/>
+      <xs:enumeration value="XLb2"/>
+      <xs:enumeration value="XLb3"/>
+      <xs:enumeration value="XLb4"/>
+      <xs:enumeration value="XLb6"/>
+      <xs:enumeration value="XLg1"/>
+      <xs:enumeration value="XLg2"/>
+      <xs:enumeration value="XLg3"/>
+      <xs:enumeration value="XLl"/>
+      <xs:enumeration value="XLh"/>
+      
+      <!-- Annihilation -->
+      <xs:enumeration value="A"/>      <!-- 511 keV annihilation -->
+      
+      <!-- Sum peaks -->
+      <xs:enumeration value="S"/>      <!-- Sum peak -->
+      
+      <!-- Escape peaks -->
+      <xs:enumeration value="SE"/>     <!-- Single escape -->
+      <xs:enumeration value="DE"/>     <!-- Double escape -->
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>
