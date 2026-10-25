@@ -66,6 +66,7 @@ static void do_set_range(void);
 static void do_add_peak(void);
 static void do_find_peaks(void);
 static void do_fit_peaks(void);
+static void do_fit_all(void);
 static void do_clear_peaks(void);
 static void do_show_peak_details(void);
 static void do_remove_peak(void);
@@ -144,6 +145,10 @@ int main(int argc, char *argv[]) {
         case 'G':
             if (g_spectrum_loaded && g_num_peaks > 0) do_fit_peaks();
             break;
+        case 'p':
+        case 'P':
+            if (g_spectrum_loaded) do_fit_all();
+            break;
         case 'c':
         case 'C':
             if (g_num_peaks > 0) do_clear_peaks();
@@ -221,6 +226,7 @@ static void draw_menu(void) {
     mvprintw(row++, 4, "[A] Add peak manually");
     mvprintw(row++, 4, "[F] Find peaks automatically");
     mvprintw(row++, 4, "[G] Go - fit peaks");
+    mvprintw(row++, 4, "[P] Full automatic fit (find + fit, 5 passes)");
     mvprintw(row++, 4, "[D] Show peak details");
     mvprintw(row++, 4, "[X] Remove a peak");
     mvprintw(row++, 4, "[C] Clear all peaks");
@@ -480,6 +486,42 @@ static void do_find_peaks(void) {
         sort_peaks();
         draw_status("Found %d peaks", found);
     }
+}
+
+/*
+ * Full automatic fit (the Fortran PFIT loop) over the current range,
+ * starting from the current peak list.
+ */
+static void do_fit_all(void) {
+    double chi_sq;
+    int n0 = g_num_peaks;
+    int result;
+
+    /* The Fortran routines print progress on stdout; leave curses
+       while they run */
+    endwin();
+    printf("\n--- Full fit of channels %d-%d from %d peaks ---\n",
+           g_ibeg, g_iend, n0);
+    fflush(stdout);
+    result = peakfit_fit_all(g_peaks, &g_num_peaks, MAX_PEAKS,
+                             g_ibeg, g_iend, &chi_sq);
+    refresh();
+
+    if (result == -6) {
+        g_num_peaks = MAX_PEAKS;
+        sort_peaks();
+        draw_status("Found more than %d peaks; kept %d. Narrow the range.",
+                    MAX_PEAKS, MAX_PEAKS);
+        return;
+    }
+    if (result != 0) {
+        draw_status("Full fit failed (error %d)", result);
+        return;
+    }
+    g_chi_squared = chi_sq;
+    sort_peaks();
+    draw_status("Full fit: %d peaks (was %d), chi-squared = %.2f (%.2f/channel)",
+                g_num_peaks, n0, chi_sq, chi_sq / (g_iend - g_ibeg + 1));
 }
 
 static void do_fit_peaks(void) {
