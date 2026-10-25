@@ -121,6 +121,8 @@ C***    MOVE BACK TO LEAVE NL+JB=NDAT
       FUNCTION ChnToCnmS(XT)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION XS(:),FS(:),FPPS(:)
+      REAL*4 FS4(:)
+      ALLOCATABLE:: FS4
       LOGICAL LDUM,EX
       CHARACTER*256 NACNM,NASTR
       COMMON/LOGICVALS/LDUM(40)
@@ -142,7 +144,11 @@ C***    MOVE BACK TO LEAVE NL+JB=NDAT
         READ(2,ERR=27,END=27)NCNMSP
         IF(NCNMSP.GT.0)THEN
           ALLOCATE(XS(NCNMSP),FS(NCNMSP),FPPS(NCNMSP))
-          READ(2)(xs(i),fs(i),i=1,NCNMSP)
+C         CnmValues.unf stores FI as REAL*4 (see CnmBli.for)
+          ALLOCATE(FS4(NCNMSP))
+          READ(2)(xs(i),fs4(i),i=1,NCNMSP)
+          FS=FS4
+          DEALLOCATE(FS4)
         ENDIF 
         CLOSE(2)
         YP1=(FS(2)-FS(1))/(XS(2)-XS(1))
