@@ -5,7 +5,7 @@
  * terminal UI using ncurses.
  *
  * Configuration is stored in robfit.ini (INI format).
- * Legacy .mnu files are generated on-the-fly when launching Fortran programs.
+ * All Fortran programs now read directly from robfit.ini.
  */
 
 #include <curses.h>
@@ -44,7 +44,6 @@ static int handle_rebin(const char *datafile);
 static int handle_stop(const char *datafile);
 static void draw_menu(WINDOW *win, MenuItem *items, int n_items, int selected);
 static int get_datafile_basename(const char *path, char *base, size_t len);
-static void generate_mnu_files(void);
 
 /* Menu items */
 static MenuItem menu_items[] = {
@@ -60,286 +59,6 @@ static MenuItem menu_items[] = {
     {"Quit",         "Exit ROBFIT",                              NULL, handle_stop},
 };
 static const int n_menu_items = sizeof(menu_items) / sizeof(menu_items[0]);
-
-/*
- * Generate legacy .mnu files for Fortran programs
- */
-static void generate_robfit_mnu(void) {
-    FILE *f = fopen("robfit.mnu", "w");
-    if (!f) return;
-    
-    const char *spectrum = config_get(g_cfg, "spectrum", "file", "NONE");
-    const char *err2 = config_get(g_cfg, "spectrum", "err2_file", "NONE");
-    const char *egy_file = config_get(g_cfg, "calibration", "energy_file", "NONE");
-    const char *eff_file = config_get(g_cfg, "calibration", "efficiency_file", "NONE");
-    int log_wt = config_get_bool(g_cfg, "fitting", "log_weights", 0);
-    int restore = config_get_bool(g_cfg, "fitting", "restore_unf", 0);
-    int write_sp = config_get_bool(g_cfg, "output", "write_sp", 0);
-    
-    fprintf(f, "           3\n");
-    fprintf(f, "          10\n");
-    fprintf(f, "         100\n");
-    fprintf(f, "  1 %-40s\n", "Page ROBFIT");
-    fprintf(f, "  2 %-40s\n", "");
-    fprintf(f, "  3 %-40s\n", "Fitting information");
-    fprintf(f, "  4 %-40s\n", "Page (Fitting details)");
-    fprintf(f, "  5 %-40s\n", "");
-    fprintf(f, "  6 %-40s%s\n", "NACML common values", spectrum);
-    fprintf(f, "  7 %-40s%s\n", "NASP file containing the data", spectrum);
-    fprintf(f, "  8 %-40s%s\n", "Err2 file name  name.sp", err2[0] ? err2 : "NONE");
-    fprintf(f, "  9 %-40s%s\n", "Egy linear interpolation file", egy_file[0] ? egy_file : "NONE");
-    fprintf(f, " 10 %-40s%s\n", "Eff linear interplation file", eff_file[0] ? eff_file : "NONE");
-    fprintf(f, " 11 %-40s%s\n", "Log interpolation in the weights", log_wt ? "Y" : "N");
-    fprintf(f, " 12 %-40s%s\n", "restore nastr*.unf files", restore ? "Y" : "N");
-    fprintf(f, " 13 %-40s%s\n", "Put data into an SP file NASP", write_sp ? "Y" : "N");
-    
-    fclose(f);
-}
-
-static void generate_xmldis_mnu(void) {
-    FILE *f = fopen("xmldis.mnu", "w");
-    if (!f) return;
-    
-    const char *spectrum = config_get(g_cfg, "spectrum", "file", "NONE");
-    int energy_cal = config_get_bool(g_cfg, "spectrum", "energy_calibrated", 1);
-    double e_begin = config_get_double(g_cfg, "display", "energy_begin", 0.0);
-    double e_end = config_get_double(g_cfg, "display", "energy_end", 3000.0);
-    double y_min = config_get_double(g_cfg, "display", "y_min", 0.01);
-    double y_max = config_get_double(g_cfg, "display", "y_max", 1e8);
-    const char *y_scale = config_get(g_cfg, "display", "y_scale", "log");
-    int view_data = config_get_bool(g_cfg, "display", "view_data", 1);
-    int view_tpl = config_get_bool(g_cfg, "display", "view_template", 1);
-    int view_cnm = config_get_bool(g_cfg, "display", "view_continuum", 0);
-    int view_pks = config_get_bool(g_cfg, "display", "view_peaks", 0);
-    int view_res = config_get_bool(g_cfg, "display", "view_residuals", 0);
-    const char *nuclides = config_get(g_cfg, "display", "nuclides", "");
-    double alpha1 = config_get_double(g_cfg, "error", "alpha_w1", 0.01);
-    double alpha2 = config_get_double(g_cfg, "error", "alpha_w2", 1.0);
-    const char *smoothing = config_get(g_cfg, "error", "smoothing", "5pt");
-    const char *err_src = config_get(g_cfg, "error", "source", "data");
-    
-    /* Parse nuclides list */
-    char nuc1[32] = "NONE", nuc2[32] = "NONE", nuc3[32] = "NONE";
-    if (nuclides[0]) {
-        char *copy = strdup(nuclides);
-        char *tok = strtok(copy, ",");
-        if (tok) { while(isspace((unsigned char)*tok)) tok++; strncpy(nuc1, tok, 31); }
-        tok = strtok(NULL, ",");
-        if (tok) { while(isspace((unsigned char)*tok)) tok++; strncpy(nuc2, tok, 31); }
-        tok = strtok(NULL, ",");
-        if (tok) { while(isspace((unsigned char)*tok)) tok++; strncpy(nuc3, tok, 31); }
-        free(copy);
-    }
-    
-    /* Header */
-    fprintf(f, "           6\n");
-    fprintf(f, "          11\n");
-    fprintf(f, "          11\n");
-    fprintf(f, "          15\n");
-    fprintf(f, "           8\n");
-    fprintf(f, "         100\n");
-    
-    /* Page 1 - Menu structure */
-    fprintf(f, "  1 %-40s\n", "Page FSPDIS");
-    fprintf(f, "  2 %-40s\n", "");
-    fprintf(f, "  3 %-40s\n", "General information");
-    fprintf(f, "  4 %-40s\n", "General Viewing information");
-    fprintf(f, "  5 %-40s\n", "Output/Special Viewing options");
-    fprintf(f, "  6 %-40s\n", "Err**2 options");
-    
-    /* Page 2 - General information */
-    fprintf(f, "  7 %-40s\n", "Page FSPDIS1 (General information)");
-    fprintf(f, "  8 %-40s\n", "");
-    fprintf(f, "  9 %-40s%s\n", "NACMLSP file with fit data", spectrum);
-    fprintf(f, " 10 %-40s%c\n", "Energy calibrated", energy_cal ? 'E' : 'C');
-    fprintf(f, " 11 %-40s%10.2f%10.2f\n", "Data Beg/End in Egy", e_begin, e_end);
-    fprintf(f, " 12 %-40s%10.2f%10.2f\n", "CnmFit Beg/End in Egy", e_begin, e_end);
-    fprintf(f, " 13 %-40s%10.2f%10.2f\n", "PeakFit Beg/End in Egy", e_begin, e_end);
-    fprintf(f, " 14 %-40s%10.2f%10.2f\n", "TplFit Beg/End in Egy", e_begin, e_end);
-    fprintf(f, " 15 %-40s%d\n", "Vertical axis = COUNTS * SCALE FACTOR", 1);
-    fprintf(f, " 16 %-40s%.2g,%.2g\n", "Desired min and max Y scale", y_min, y_max);
-    fprintf(f, " 17 %-40s%s\n", "Log or linear Y scale", 
-            (y_scale[0] == 'l' || y_scale[0] == 'L') ? "Log" : "Lin");
-    
-    /* Page 3 - Viewing options */
-    fprintf(f, " 18 %-40s\n", "Page FSPDIS2 (General Viewing options)");
-    fprintf(f, " 19 %-40s\n", "");
-    fprintf(f, " 20 %-40s%c\n", "View the data (Y/N)", view_data ? 'Y' : 'N');
-    fprintf(f, " 21 %-40s%c\n", "View the tpl (Y/N)", view_tpl ? 'Y' : 'N');
-    fprintf(f, " 22 %-40s%c\n", "View the tpl+peaks", 'N');
-    fprintf(f, " 23 %-40s%c\n", "View the Cnm  (Y/N)", view_cnm ? 'Y' : 'N');
-    fprintf(f, " 24 %-40s%c\n", "View the peaks (Y/N)", view_pks ? 'Y' : 'N');
-    fprintf(f, " 25 %-40s%c\n", "View the residuals (Y/N)", view_res ? 'Y' : 'N');
-    fprintf(f, " 26 %-40s%s\n", "Nuclide of interest1 (K-40)[coin]", nuc1);
-    fprintf(f, " 27 %-40s%s\n", "Nuclide of interest2", nuc2);
-    fprintf(f, " 28 %-40s%s\n", "Nuclide of interest3", nuc3);
-    
-    /* Page 4 - Special options */
-    fprintf(f, " 29 %-40s\n", "Page Special output/viewing options");
-    fprintf(f, " 30 %-40s%c\n", "", 'N');
-    fprintf(f, " 31 %-40s%c\n", "Interpolate Cnm with splines", 'N');
-    fprintf(f, " 32 %-40s%c\n", "View CnmStdDev", 'N');
-    fprintf(f, " 33 %-40s%s\n", "Tpl Pks Table EgyBeg,EgyEnd min counts", 
-            config_get(g_cfg, "peak_table", "params", "3000,0,10"));
-    fprintf(f, " 34 %-40s%c\n", "View the Widths", 'N');
-    fprintf(f, " 35 %-40s%c\n", "View the efficiencys", 'N');
-    fprintf(f, " 36 %-40s%c\n", "View Attn1", 'N');
-    fprintf(f, " 37 %-40s%c\n", "View Attn2", 'N');
-    fprintf(f, " 38 %-40s%c\n", "View Attn3", 'N');
-    fprintf(f, " 39 %-40s%c\n", "View Chn Master.cml - Current.Cml", 'N');
-    fprintf(f, " 40 %-40s%c\n", "Output fit.sp file", 'N');
-    fprintf(f, " 41 %-40s%s\n", "Plot name.sp", "NONE");
-    fprintf(f, " 42 %-40s%s\n", "Plot name.sp", "NONE");
-    fprintf(f, " 43 %-40s%s\n", "Plot name.sp", "NONE");
-    
-    /* Page 5 - Error options */
-    fprintf(f, " 44 %-40s\n", "Page Err**2");
-    fprintf(f, " 45 %-40s\n", "");
-    fprintf(f, " 46 %-40s%.4g\n", "alphawl (err2=err2+(alpha*err2)**2)", alpha1);
-    fprintf(f, " 47 %-40s%.4g\n", "err2=max(alphaw2,err2)  alphaw2", alpha2);
-    fprintf(f, " 48 %-40s%c\n", "View Err2", 'N');
-    fprintf(f, " 49 %-40s%s\n", "Err2 = Data, Fit ,Err2", 
-            (err_src[0] == 'f' || err_src[0] == 'F') ? "Fit" : "Data");
-    fprintf(f, " 50 %-40s%s\n", "Data-->Err smooth No, 5pt, 17pt, hofx", smoothing);
-    fprintf(f, " 51 %-40s%c\n", "Make TplFit with No Plot", 'Y');
-    
-    fclose(f);
-}
-
-static void generate_bkgfit_mnu(void) {
-    FILE *f = fopen("bkgfit.mnu", "w");
-    if (!f) return;
-    
-    const char *spectrum = config_get(g_cfg, "spectrum", "file", "NONE");
-    
-    fprintf(f, "           4\n");
-    fprintf(f, "          10\n");
-    fprintf(f, "           5\n");
-    fprintf(f, "         100\n");
-    fprintf(f, "  1 %-40s\n", "Page bkgfit");
-    fprintf(f, "  2 %-40s\n", "");
-    fprintf(f, "  3 %-40s\n", "Spectrum and fit information");
-    fprintf(f, "  4 %-40s\n", "Page");
-    fprintf(f, "  5 %-40s\n", "");
-    fprintf(f, "  6 %-40s%s\n", "Name of Spectrum file", spectrum);
-    fprintf(f, "  7 %-40s\n", "Background fit region");
-    fprintf(f, "  8 %-40s%.2f\n", "Beg Energy", 
-            config_get_double(g_cfg, "fitting", "continuum_begin", 0.0));
-    fprintf(f, "  9 %-40s%.2f\n", "End Energy",
-            config_get_double(g_cfg, "fitting", "continuum_end", 3000.0));
-    fprintf(f, " 10 %-40s%c\n", "Subtract existing background", 'N');
-    fprintf(f, " 11 %-40s%c\n", "Write background to file", 'N');
-    fprintf(f, " 12 %-40s%c\n", "Plot result", 'Y');
-    fprintf(f, " 13 %-40s%.2g\n", "Alpha weight", 
-            config_get_double(g_cfg, "error", "alpha_w1", 0.01));
-    fprintf(f, " 14 %-40s%d\n", "Polynomial order", 
-            config_get_int(g_cfg, "fitting", "poly_order", 5));
-    
-    fclose(f);
-}
-
-static void generate_peakfit_mnu(void) {
-    FILE *f = fopen("peakfit.mnu", "w");
-    if (!f) return;
-    
-    const char *spectrum = config_get(g_cfg, "spectrum", "file", "NONE");
-    
-    fprintf(f, "           4\n");
-    fprintf(f, "          10\n");
-    fprintf(f, "           5\n");
-    fprintf(f, "         100\n");
-    fprintf(f, "  1 %-40s\n", "Page peakfit");
-    fprintf(f, "  2 %-40s\n", "");
-    fprintf(f, "  3 %-40s\n", "Peak fitting information");
-    fprintf(f, "  4 %-40s\n", "Page");
-    fprintf(f, "  5 %-40s\n", "");
-    fprintf(f, "  6 %-40s%s\n", "Name of Spectrum file", spectrum);
-    fprintf(f, "  7 %-40s\n", "Peak fit region");
-    fprintf(f, "  8 %-40s%.2f\n", "Beg Energy",
-            config_get_double(g_cfg, "fitting", "peak_begin", 0.0));
-    fprintf(f, "  9 %-40s%.2f\n", "End Energy",
-            config_get_double(g_cfg, "fitting", "peak_end", 3000.0));
-    fprintf(f, " 10 %-40s%.1f\n", "Peak search cutoff (sigma)",
-            config_get_double(g_cfg, "fitting", "peak_cutoff", 3.0));
-    fprintf(f, " 11 %-40s%c\n", "Fit peak widths", 'N');
-    fprintf(f, " 12 %-40s%c\n", "Fit peak skew", 'N');
-    fprintf(f, " 13 %-40s%c\n", "Plot result", 'Y');
-    fprintf(f, " 14 %-40s%d\n", "Max iterations",
-            config_get_int(g_cfg, "fitting", "max_iterations", 100));
-    
-    fclose(f);
-}
-
-static void generate_templfit_mnu(void) {
-    FILE *f = fopen("templfit.mnu", "w");
-    if (!f) return;
-    
-    const char *spectrum = config_get(g_cfg, "spectrum", "file", "NONE");
-    
-    fprintf(f, "           5\n");
-    fprintf(f, "          10\n");
-    fprintf(f, "          10\n");
-    fprintf(f, "          10\n");
-    fprintf(f, "         100\n");
-    fprintf(f, "  1 %-40s\n", "Page templfit");
-    fprintf(f, "  2 %-40s\n", "");
-    fprintf(f, "  3 %-40s\n", "Template fitting");
-    fprintf(f, "  4 %-40s\n", "Nuclide selection");
-    fprintf(f, "  5 %-40s\n", "Fitting options");
-    fprintf(f, "  6 %-40s\n", "Page (Template fitting)");
-    fprintf(f, "  7 %-40s\n", "");
-    fprintf(f, "  8 %-40s%s\n", "Name of Spectrum file", spectrum);
-    fprintf(f, "  9 %-40s%.2f\n", "Beg Energy",
-            config_get_double(g_cfg, "fitting", "template_begin", 0.0));
-    fprintf(f, " 10 %-40s%.2f\n", "End Energy",
-            config_get_double(g_cfg, "fitting", "template_end", 3000.0));
-    fprintf(f, " 11 %-40s%c\n", "Subtract background first", 'Y');
-    fprintf(f, " 12 %-40s%c\n", "Write results to file", 'Y');
-    fprintf(f, " 13 %-40s%c\n", "Plot result", 'Y');
-    fprintf(f, " 14 %-40s%d\n", "Max iterations",
-            config_get_int(g_cfg, "fitting", "max_iterations", 100));
-    fprintf(f, " 15 %-40s%.4g\n", "Convergence tolerance",
-            config_get_double(g_cfg, "fitting", "tolerance", 1e-6));
-    
-    /* Page 2 - Nuclides */
-    fprintf(f, " 16 %-40s\n", "Page (Nuclide selection)");
-    fprintf(f, " 17 %-40s\n", "");
-    const char *nuclides = config_get(g_cfg, "display", "nuclides", "");
-    fprintf(f, " 18 %-40s%s\n", "Nuclides to fit (comma-separated)", nuclides);
-    fprintf(f, " 19 %-40s%s\n", "Template library path", 
-            config_get(g_cfg, "fitting", "template_library", "."));
-    fprintf(f, " 20 %-40s%c\n", "Use efficiency correction", 'Y');
-    fprintf(f, " 21 %-40s%c\n", "Use attenuation correction", 'N');
-    fprintf(f, " 22 %-40s%c\n", "Use cascade summing correction", 'N');
-    fprintf(f, " 23 %-40s%c\n", "Use escape peak correction", 'N');
-    fprintf(f, " 24 %-40s\n", "");
-    fprintf(f, " 25 %-40s\n", "");
-    
-    /* Page 3 - Options */
-    fprintf(f, " 26 %-40s\n", "Page (Fitting options)");
-    fprintf(f, " 27 %-40s\n", "");
-    fprintf(f, " 28 %-40s%.4g\n", "Alpha weight 1",
-            config_get_double(g_cfg, "error", "alpha_w1", 0.01));
-    fprintf(f, " 29 %-40s%.4g\n", "Alpha weight 2",
-            config_get_double(g_cfg, "error", "alpha_w2", 1.0));
-    fprintf(f, " 30 %-40s%s\n", "Error smoothing", 
-            config_get(g_cfg, "error", "smoothing", "5pt"));
-    fprintf(f, " 31 %-40s%c\n", "Verbose output", 'N');
-    fprintf(f, " 32 %-40s%c\n", "Debug mode", 'N');
-    fprintf(f, " 33 %-40s\n", "");
-    fprintf(f, " 34 %-40s\n", "");
-    fprintf(f, " 35 %-40s\n", "");
-    
-    fclose(f);
-}
-
-static void generate_mnu_files(void) {
-    generate_robfit_mnu();
-    generate_xmldis_mnu();
-    generate_bkgfit_mnu();
-    generate_peakfit_mnu();
-    generate_templfit_mnu();
-}
 
 /*
  * Create default config if robfit.ini doesn't exist
@@ -406,9 +125,6 @@ static void create_default_config(const char *spectrum_file) {
 static int run_command(const char *cmd, const char *arg) {
     char full_cmd[MAX_PATH * 2];
     int status;
-    
-    /* Generate .mnu files before running legacy Fortran */
-    generate_mnu_files();
     
     endwin();  /* Temporarily exit curses mode */
     
@@ -654,7 +370,6 @@ static int handle_config(const char *datafile) {
                 case 's':
                 case 'S':
                     config_save(g_cfg, g_ini_file);
-                    generate_mnu_files();
                     delwin(win);
                     touchwin(stdscr);
                     refresh();
@@ -742,9 +457,6 @@ static int handle_calibration(const char *datafile) {
  */
 static int handle_rebin(const char *datafile) {
     char input[64];
-    
-    /* Generate .mnu files before running */
-    generate_mnu_files();
     
     endwin();
     printf("\n=== Rebin Spectrum ===\n");
@@ -876,9 +588,6 @@ int main(int argc, char *argv[]) {
         /* Update config with command-line spectrum */
         config_set(g_cfg, "spectrum", "file", g_datafile);
     }
-    
-    /* Generate .mnu files for legacy programs */
-    generate_mnu_files();
     
     /* Initialize curses */
     mainwin = initscr();

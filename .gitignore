@@ -26,11 +26,7 @@ build/
 *.out
 
 # Generated menu files (created from robfit.ini at runtime)
-robfit.mnu
-xmldis.mnu
-bkgfit.mnu
-peakfit.mnu
-templfit.mnu
+# Legacy .mnu files (no longer used - programs read robfit.ini directly)
 
 # User configuration (generated from defaults if missing)
 robfit.ini
