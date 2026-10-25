@@ -103,6 +103,7 @@ static void create_default_config(const char *spectrum_file) {
     
     config_set(g_cfg, "calibration", "energy_file", "");
     config_set(g_cfg, "calibration", "efficiency_file", "");
+    config_set(g_cfg, "calibration", "nuclides_file", "nuclides.xml");
     
     config_set_double(g_cfg, "error", "alpha_w1", 0.01);
     config_set_double(g_cfg, "error", "alpha_w2", 1.0);

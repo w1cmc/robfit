@@ -6,11 +6,12 @@ C instead of individual .pgs files.
 C
       SUBROUTINE RTPL()
       use nuclides_module
+      use config_module
       IMPLICIT REAL*8 (A-H,O-Z)
       INCLUDE 'STRUCTURES.FOR'
       RECORD /TTpl0/Tpl0(:)
       RECORD /Nuclides/Nuclide(:)
-      CHARACTER*256 NACMLSP,NANUC,NASTR,FNAME
+      CHARACTER*256 NACMLSP,NANUC,NASTR,FNAME,NUCLIDES_FILE
       LOGICAL LPRINT,LDUM,LDUM2,LBAT,EX
       COMMON /NAMES/NACMLSP     
       COMMON /INTVALS/IDUM(4),NNUC,NTPL,IDUM2(16)
@@ -18,10 +19,19 @@ C
       COMMON /DOUBLE/ABEGE,AENDE,DUM(18)      
       ALLOCATABLE Tpl0,NUCLIDE  
 
+C --- Get nuclides.xml path from config (default: nuclides.xml) ---
+      IF (.NOT. config_load('robfit.ini')) THEN
+        NUCLIDES_FILE = 'nuclides.xml'
+      ELSE
+        NUCLIDES_FILE = config_get_string('calibration', 
+     &                    'nuclides_file', 'nuclides.xml')
+        CALL config_free()
+      ENDIF
+
 C --- Load nuclide emission library ---
-      IF (.NOT. nuclides_load('nuclides.xml')) THEN
-        PRINT*, 'ERROR: Could not load nuclides.xml'
-        PRINT*, 'Make sure nuclides.xml is in the current directory'
+      IF (.NOT. nuclides_load(TRIM(NUCLIDES_FILE))) THEN
+        PRINT*, 'ERROR: Could not load ', TRIM(NUCLIDES_FILE)
+        PRINT*, 'Set calibration.nuclides_file in robfit.ini'
         RETURN
       ENDIF
 

@@ -219,6 +219,8 @@ static const char *get_key_comment(const char *section, const char *key)
             return "Energy calibration file";
         if (strcasecmp(key, "efficiency_file") == 0)
             return "Efficiency calibration file";
+        if (strcasecmp(key, "nuclides_file") == 0)
+            return "Nuclide emission library (XML)";
     }
     return NULL;
 }
