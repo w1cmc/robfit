@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           vc:minVersion="1.1"
            elementFormDefault="qualified"
            attributeFormDefault="unqualified">
 
@@ -73,6 +75,7 @@
     
     <!-- Unique name for this nuclide (e.g., "Cs137", "Ba137m") -->
     <!-- Used as target for Line/@Origin references -->
+    <!-- Must start with Element + A (e.g., "Cs" + "137" = "Cs137") -->
     <xs:attribute name="Name" type="xs:string" use="required"/>
     
     <!-- Element symbol (validated against periodic table) -->
@@ -89,6 +92,9 @@
     
     <!-- Reference to data source if different from library default -->
     <xs:attribute name="Source" type="xs:string" use="optional"/>
+    
+    <!-- XSD 1.1: Name must start with Element concatenated with A -->
+    <xs:assert test="starts-with(@Name, concat(@Element, string(@A)))"/>
   </xs:complexType>
   
   <!-- Mass number (1-300 covers all known isotopes) -->
