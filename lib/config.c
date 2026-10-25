@@ -109,19 +109,148 @@ void config_free(RobfitConfig *cfg)
     free(cfg);
 }
 
+/* Section descriptions for config file comments */
+static const char *get_section_comment(const char *section)
+{
+    if (strcasecmp(section, "spectrum") == 0)
+        return "# Spectrum file settings";
+    if (strcasecmp(section, "display") == 0)
+        return "# Display and plotting options";
+    if (strcasecmp(section, "fitting") == 0)
+        return "# Fitting parameters for peak, background, and template fitting";
+    if (strcasecmp(section, "calibration") == 0)
+        return "# Calibration files (energy, efficiency)";
+    if (strcasecmp(section, "error") == 0)
+        return "# Error weighting and smoothing options";
+    if (strcasecmp(section, "output") == 0)
+        return "# Output options";
+    if (strcasecmp(section, "peak_table") == 0)
+        return "# Peak table generation parameters";
+    return NULL;
+}
+
+/* Key descriptions for config file comments */
+static const char *get_key_comment(const char *section, const char *key)
+{
+    /* [spectrum] section */
+    if (strcasecmp(section, "spectrum") == 0) {
+        if (strcasecmp(key, "file") == 0)
+            return "Spectrum data file (.+ML format)";
+        if (strcasecmp(key, "energy_calibrated") == 0)
+            return "Use energy (yes) or channel (no) mode";
+        if (strcasecmp(key, "err2_file") == 0)
+            return "Optional error-squared file";
+    }
+    /* [fitting] section */
+    if (strcasecmp(section, "fitting") == 0) {
+        if (strcasecmp(key, "peak_begin") == 0)
+            return "Start of peak fitting range (keV or channel)";
+        if (strcasecmp(key, "peak_end") == 0)
+            return "End of peak fitting range (keV or channel)";
+        if (strcasecmp(key, "peak_cutoff") == 0)
+            return "Peak detection threshold (sigma above background)";
+        if (strcasecmp(key, "peak_fit_type") == 0)
+            return "Fit type: 1=data-pks, 2=data-cnm-pks, 3=data-cnm-tpl-pks";
+        if (strcasecmp(key, "edit_peaks") == 0)
+            return "Interactive peak editing before fit";
+        if (strcasecmp(key, "deriv_check") == 0)
+            return "Enable derivative checking (debug)";
+        if (strcasecmp(key, "debug") == 0)
+            return "Enable debug output";
+        if (strcasecmp(key, "poly_order") == 0)
+            return "Polynomial order for background fitting";
+        if (strcasecmp(key, "continuum_begin") == 0)
+            return "Start of continuum fitting range";
+        if (strcasecmp(key, "continuum_end") == 0)
+            return "End of continuum fitting range";
+        if (strcasecmp(key, "template_begin") == 0)
+            return "Start of template fitting range";
+        if (strcasecmp(key, "template_end") == 0)
+            return "End of template fitting range";
+        if (strcasecmp(key, "max_iterations") == 0)
+            return "Maximum fitting iterations";
+        if (strcasecmp(key, "tolerance") == 0)
+            return "Convergence tolerance";
+    }
+    /* [error] section */
+    if (strcasecmp(section, "error") == 0) {
+        if (strcasecmp(key, "source") == 0)
+            return "Error weighting source: 'data' or 'fit'";
+        if (strcasecmp(key, "alpha_w1") == 0)
+            return "Alpha weight 1: err2 = err2 + (alpha_w1 * err2)^2";
+        if (strcasecmp(key, "alpha_w2") == 0)
+            return "Alpha weight 2: err2 = max(alpha_w2, err2)";
+        if (strcasecmp(key, "smoothing") == 0)
+            return "Error smoothing: 'No', '5pt', '17pt', or 'hofx'";
+    }
+    /* [display] section */
+    if (strcasecmp(section, "display") == 0) {
+        if (strcasecmp(key, "energy_begin") == 0)
+            return "Display range start (keV)";
+        if (strcasecmp(key, "energy_end") == 0)
+            return "Display range end (keV)";
+        if (strcasecmp(key, "y_scale") == 0)
+            return "Y-axis scale: 'log' or 'linear'";
+        if (strcasecmp(key, "y_min") == 0)
+            return "Y-axis minimum";
+        if (strcasecmp(key, "y_max") == 0)
+            return "Y-axis maximum";
+        if (strcasecmp(key, "view_data") == 0)
+            return "Show data points";
+        if (strcasecmp(key, "view_template") == 0)
+            return "Show template fit";
+        if (strcasecmp(key, "view_continuum") == 0)
+            return "Show continuum/background";
+        if (strcasecmp(key, "view_peaks") == 0)
+            return "Show fitted peaks";
+        if (strcasecmp(key, "nuclides") == 0)
+            return "Nuclides to display (comma-separated)";
+    }
+    /* [output] section */
+    if (strcasecmp(section, "output") == 0) {
+        if (strcasecmp(key, "plot_results") == 0)
+            return "Plot results after fitting";
+        if (strcasecmp(key, "write_sp") == 0)
+            return "Write output .SP file";
+    }
+    /* [calibration] section */
+    if (strcasecmp(section, "calibration") == 0) {
+        if (strcasecmp(key, "energy_file") == 0)
+            return "Energy calibration file";
+        if (strcasecmp(key, "efficiency_file") == 0)
+            return "Efficiency calibration file";
+    }
+    return NULL;
+}
+
 int config_save(const RobfitConfig *cfg, const char *filename)
 {
     FILE *f = fopen(filename, "w");
     if (!f) return -1;
     
     fprintf(f, "# ROBFIT Configuration\n");
-    fprintf(f, "# Generated automatically - edit with care\n\n");
+    fprintf(f, "# Edit values as needed; comments describe each setting\n\n");
     
     for (int i = 0; i < cfg->num_sections; i++) {
         const ConfigSection *sec = &cfg->sections[i];
+        
+        /* Write section comment if available */
+        const char *sec_comment = get_section_comment(sec->name);
+        if (sec_comment) {
+            fprintf(f, "%s\n", sec_comment);
+        }
+        
         fprintf(f, "[%s]\n", sec->name);
+        
         for (int j = 0; j < sec->num_entries; j++) {
             const ConfigEntry *ent = &sec->entries[j];
+            
+            /* Write key comment if available */
+            const char *key_comment = get_key_comment(sec->name, ent->key);
+            if (key_comment) {
+                fprintf(f, "# %s\n", key_comment);
+            }
+            
             fprintf(f, "%s = %s\n", ent->key, ent->value);
         }
         fprintf(f, "\n");
