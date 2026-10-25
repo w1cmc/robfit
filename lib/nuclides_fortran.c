@@ -12,6 +12,43 @@
 static NuclideLibrary *g_lib = NULL;
 
 /*
+ * Normalize a nuclide name for lookup:
+ * - Strip [Xm], [Xh], [Xd] half-life annotations
+ * - Map "e+e-" to "Annihilation"
+ * - Trim trailing whitespace
+ *
+ * buf must be at least NUC_MAX_NAME bytes.
+ * Returns pointer to buf.
+ */
+static char *normalize_nuclide_name(char *buf, const char *name, int name_len) {
+    int len = name_len;
+    if (len >= NUC_MAX_NAME) len = NUC_MAX_NAME - 1;
+    memcpy(buf, name, len);
+    buf[len] = '\0';
+    
+    /* Trim trailing spaces */
+    while (len > 0 && buf[len-1] == ' ') {
+        buf[--len] = '\0';
+    }
+    
+    /* Strip [Xm], [Xh], [Xd], [Xy] annotations (half-life info) */
+    char *bracket = strchr(buf, '[');
+    if (bracket) {
+        *bracket = '\0';
+        len = bracket - buf;
+    }
+    
+    /* Map common aliases */
+    if (strcasecmp(buf, "e+e-") == 0 || 
+        strcasecmp(buf, "e+ e-") == 0 ||
+        strcasecmp(buf, "511") == 0) {
+        strcpy(buf, "Annihilation");
+    }
+    
+    return buf;
+}
+
+/*
  * Load nuclide library.
  * filename: null-terminated C string
  * Returns: 1 on success, 0 on failure
@@ -72,17 +109,8 @@ int nuclide_get_name_f(int index, char *name, int name_len) {
 int nuclide_find_index_f(const char *name, int name_len) {
     if (!g_lib || !name) return 0;
     
-    /* Make null-terminated copy */
     char buf[NUC_MAX_NAME];
-    int len = name_len;
-    if (len >= NUC_MAX_NAME) len = NUC_MAX_NAME - 1;
-    memcpy(buf, name, len);
-    buf[len] = '\0';
-    
-    /* Trim trailing spaces */
-    while (len > 0 && buf[len-1] == ' ') {
-        buf[--len] = '\0';
-    }
+    normalize_nuclide_name(buf, name, name_len);
     
     /* Use the public API to search */
     int count = nuclide_count(g_lib);
@@ -116,13 +144,8 @@ int nuclide_get_lines_f(const char *name, int name_len,
                         char *types, int max_lines) {
     if (!g_lib || !name || !energies || !intensities || !types) return 0;
     
-    /* Make null-terminated copy of name */
     char buf[NUC_MAX_NAME];
-    int len = name_len;
-    if (len >= NUC_MAX_NAME) len = NUC_MAX_NAME - 1;
-    memcpy(buf, name, len);
-    buf[len] = '\0';
-    while (len > 0 && buf[len-1] == ' ') buf[--len] = '\0';
+    normalize_nuclide_name(buf, name, name_len);
     
     const Nuclide *nuc = nuclide_find(g_lib, buf);
     if (!nuc) return 0;
@@ -147,11 +170,7 @@ int nuclide_line_count_f(const char *name, int name_len) {
     if (!g_lib || !name) return 0;
     
     char buf[NUC_MAX_NAME];
-    int len = name_len;
-    if (len >= NUC_MAX_NAME) len = NUC_MAX_NAME - 1;
-    memcpy(buf, name, len);
-    buf[len] = '\0';
-    while (len > 0 && buf[len-1] == ' ') buf[--len] = '\0';
+    normalize_nuclide_name(buf, name, name_len);
     
     const Nuclide *nuc = nuclide_find(g_lib, buf);
     return nuc ? nuc->num_lines : 0;

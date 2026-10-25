@@ -21,8 +21,8 @@ C      INTEGER FSYSTEM
       COMMAND='plot'
       ILC=4
       DO IT=1,3
-        IF(NASPS(IT).NE.'NONE')THEN
-          ISP=LENTRIM(NASPS(IT))
+        ISP=LENTRIM(NASPS(IT))
+        IF(NASPS(IT).NE.'NONE'.AND.ISP.GT.0)THEN
           DO I=1,6
             OEGYCAL(I)=EGYCAL(I)
           ENDDO  

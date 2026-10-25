@@ -145,6 +145,14 @@ NuclideLibrary *nuclide_load(const char *filename) {
         parse_nuclide(lib, nuc_node);
     }
     
+    /* Also parse <Source> elements (e.g., Annihilation) */
+    for (nuc_node = mxmlFindElement(root, root, "Source", NULL, NULL, MXML_DESCEND_FIRST);
+         nuc_node != NULL;
+         nuc_node = mxmlFindElement(nuc_node, root, "Source", NULL, NULL, MXML_DESCEND_NONE)) {
+        
+        parse_nuclide(lib, nuc_node);
+    }
+    
     mxmlDelete(tree);
     
     printf("nuclide_load: Loaded %d nuclides from %s\n", lib->num_nuclides, filename);

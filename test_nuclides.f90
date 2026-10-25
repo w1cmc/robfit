@@ -62,6 +62,24 @@ program test_nuclides
           intensities(i), ', Type=', types(i)
   end do
 
+  ! Test name normalization - looking up with [Xm] annotation
+  print *
+  print *, 'Testing name normalization:'
+  nlines = nuclides_get_lines('Cs137[15m]', 0.0d0, 1000.0d0, &
+                               energies, intensities, types, 500)
+  print '(A,I3)', ' Cs137[15m] -> lines found: ', nlines
+  
+  nlines = nuclides_get_lines('Cd109[4m]', 0.0d0, 1000.0d0, &
+                               energies, intensities, types, 500)
+  print '(A,I3)', ' Cd109[4m] -> lines found: ', nlines
+  
+  nlines = nuclides_get_lines('e+e-', 0.0d0, 1000.0d0, &
+                               energies, intensities, types, 500)
+  print '(A,I3)', ' e+e- -> lines found: ', nlines
+  if (nlines > 0) then
+    print '(A,F10.3,A)', '   First line: ', energies(1), ' keV (should be ~511)'
+  endif
+
   ! Clean up
   call nuclides_free()
   print *
