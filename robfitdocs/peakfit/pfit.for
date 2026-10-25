@@ -41,8 +41,6 @@ C     LOGICAL LVCONS
       DO I=1,NFPKS
         PRINT*,PKS(I).LOC,PKS(I).WTH
       ENDDO  
-      READ(*,*)ITEST
-      IF(ITEST.EQ.0)STOP
       NDAT=IENDPKF-IBEGPKF+1
       ITM=5
       LERR2=.FALSE.
