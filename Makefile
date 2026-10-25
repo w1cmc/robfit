@@ -29,6 +29,15 @@ CONFIG_OBJS = $(OBJDIR)/ini.o $(OBJDIR)/config.o $(OBJDIR)/config_fortran.o
 # Config module (Fortran)
 CONFIG_MOD = $(OBJDIR)/config_module.o
 
+# Nuclide library objects (C + mxml)
+MXML_OBJS = $(OBJDIR)/mxml-attr.o $(OBJDIR)/mxml-file.o $(OBJDIR)/mxml-get.o \
+            $(OBJDIR)/mxml-index.o $(OBJDIR)/mxml-node.o $(OBJDIR)/mxml-options.o \
+            $(OBJDIR)/mxml-private.o $(OBJDIR)/mxml-search.o $(OBJDIR)/mxml-set.o
+NUCLIDE_OBJS = $(MXML_OBJS) $(OBJDIR)/nuclides.o $(OBJDIR)/nuclides_fortran.o
+
+# Nuclide module (Fortran)
+NUCLIDE_MOD = $(OBJDIR)/nuclides_module.o
+
 # Fortran flags for C interop (free-form F90)
 FFLAGS_F90 = -O2 -fallow-argument-mismatch
 
@@ -278,6 +287,14 @@ $(BINDIR)/test_config_f: test_config.f90 $(CONFIG_MOD) $(CONFIG_OBJS)
 test_config: $(BINDIR)/test_config_f
 	./test_config_f
 
+# Nuclide library (test)
+test_nuclides_bin: test_nuclides.f90 $(NUCLIDE_MOD) $(NUCLIDE_OBJS)
+	$(FC) $(FFLAGS_F90) -I$(OBJDIR) -o test_nuclides $< $(NUCLIDE_MOD) $(NUCLIDE_OBJS)
+	@echo "Built test_nuclides successfully"
+
+test_nuclides: test_nuclides_bin
+	./test_nuclides
+
 # Legacy Fortran menu driver
 $(BINDIR)/robfit: $(ROBFIT_OBJS)
 	$(FC) $(FFLAGS) -o $@ $^
@@ -450,6 +467,22 @@ clean:
 
 # ============================================================================
 # Help
+# ============================================================================
+# Mini-XML library (for nuclides.xml parsing)
+# ============================================================================
+$(OBJDIR)/mxml-%.o: lib/mxml-%.c lib/config.h include/mxml.h include/mxml-private.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Nuclide library
+$(OBJDIR)/nuclides.o: lib/nuclides.c include/nuclides.h include/mxml.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJDIR)/nuclides_fortran.o: lib/nuclides_fortran.c include/nuclides.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJDIR)/nuclides_module.o: lib/nuclides_module.f90
+	$(FC) $(FFLAGS_F90) -c $< -o $@ -J$(OBJDIR)
+
 # ============================================================================
 help:
 	@echo "ROBFIT Makefile - Gamma Ray Spectrum Analysis Suite"
