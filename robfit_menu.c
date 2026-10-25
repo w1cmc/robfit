@@ -27,21 +27,20 @@ typedef struct {
     const char *label;
     const char *description;
     const char *command;      /* NULL if not a simple command */
-    int (*handler)(const char *datafile);  /* Custom handler, or NULL */
+    int (*handler)(void);     /* Custom handler, or NULL */
 } MenuItem;
 
 /* Global state */
-static char g_datafile[MAX_PATH] = "";
 static char g_program_dir[MAX_PATH] = ".";
 static char g_ini_file[MAX_PATH] = "robfit.ini";
 static RobfitConfig *g_cfg = NULL;
 
 /* Forward declarations */
-static int run_command(const char *cmd, const char *arg);
-static int handle_config(const char *datafile);
-static int handle_calibration(const char *datafile);
-static int handle_rebin(const char *datafile);
-static int handle_stop(const char *datafile);
+static int run_command(const char *cmd);
+static int handle_config(void);
+static int handle_calibration(void);
+static int handle_rebin(void);
+static int handle_stop(void);
 static void draw_menu(WINDOW *win, MenuItem *items, int n_items, int selected);
 static int get_datafile_basename(const char *path, char *base, size_t len);
 
@@ -120,19 +119,15 @@ static void create_default_config(const char *spectrum_file) {
 }
 
 /*
- * Run an external command with the datafile as argument
+ * Run an external command (programs read config from robfit.ini)
  */
-static int run_command(const char *cmd, const char *arg) {
+static int run_command(const char *cmd) {
     char full_cmd[MAX_PATH * 2];
     int status;
     
     endwin();  /* Temporarily exit curses mode */
     
-    if (arg && strlen(arg) > 0) {
-        snprintf(full_cmd, sizeof(full_cmd), "%s/%s \"%s\"", g_program_dir, cmd, arg);
-    } else {
-        snprintf(full_cmd, sizeof(full_cmd), "%s/%s", g_program_dir, cmd);
-    }
+    snprintf(full_cmd, sizeof(full_cmd), "%s/%s", g_program_dir, cmd);
     
     printf("\n--- Running: %s ---\n\n", full_cmd);
     status = system(full_cmd);
@@ -183,7 +178,7 @@ static const int n_config_fields = sizeof(config_fields) / sizeof(config_fields[
 /*
  * Handle configuration editing
  */
-static int handle_config(const char *datafile) {
+static int handle_config(void) {
     WINDOW *win;
     int ch, selected = 0;
     int editing = 0;
@@ -194,8 +189,6 @@ static int handle_config(const char *datafile) {
     int i;
     int max_visible;
     int scroll_offset = 0;
-    
-    (void)datafile;
     
     /* Calculate window size with bounds checking */
     win_height = n_config_fields + 6;
@@ -310,11 +303,6 @@ static int handle_config(const char *datafile) {
                         } else {
                             config_set(g_cfg, f->section, f->key, edit_buf);
                         }
-                        /* Update global datafile if spectrum changed */
-                        if (strcmp(f->section, "spectrum") == 0 && 
-                            strcmp(f->key, "file") == 0) {
-                            strncpy(g_datafile, edit_buf, MAX_PATH - 1);
-                        }
                     }
                     editing = 0;
                     break;
@@ -382,7 +370,7 @@ static int handle_config(const char *datafile) {
                     config_free(g_cfg);
                     g_cfg = config_load(g_ini_file);
                     if (!g_cfg) {
-                        create_default_config(g_datafile);
+                        create_default_config("");
                     }
                     delwin(win);
                     touchwin(stdscr);
@@ -396,7 +384,7 @@ static int handle_config(const char *datafile) {
 /*
  * Handle calibration submenu
  */
-static int handle_calibration(const char *datafile) {
+static int handle_calibration(void) {
     WINDOW *subwin;
     int ch, selected = 0;
     const char *options[] = {"Width Cal (WthCal)", "Efficiency Cal (EffCal)", "Efficiency Cal 2 (EffCal2)", "Back"};
@@ -439,7 +427,7 @@ static int handle_calibration(const char *datafile) {
                 touchwin(stdscr);
                 refresh();
                 if (commands[selected]) {
-                    return run_command(commands[selected], datafile);
+                    return run_command(commands[selected]);
                 }
                 return 0;  /* Back */
             case 'q':
@@ -455,8 +443,9 @@ static int handle_calibration(const char *datafile) {
 /*
  * Handle rebin with parameter input
  */
-static int handle_rebin(const char *datafile) {
+static int handle_rebin(void) {
     char input[64];
+    const char *datafile = config_get(g_cfg, "spectrum", "file", "");
     
     endwin();
     printf("\n=== Rebin Spectrum ===\n");
@@ -481,8 +470,7 @@ static int handle_rebin(const char *datafile) {
 /*
  * Handle quit
  */
-static int handle_stop(const char *datafile) {
-    (void)datafile;
+static int handle_stop(void) {
     return -1;  /* Signal to exit */
 }
 
@@ -521,7 +509,7 @@ static void draw_menu(WINDOW *win, MenuItem *items, int n_items, int selected) {
     wattroff(win, A_BOLD);
     
     /* Data file */
-    get_datafile_basename(g_datafile, base, sizeof(base));
+    get_datafile_basename(config_get(g_cfg, "spectrum", "file", ""), base, sizeof(base));
     mvwprintw(win, 2, 2, "Data file: %s", base);
     
     /* Menu items */
@@ -565,28 +553,18 @@ int main(int argc, char *argv[]) {
         free(path_copy);
     }
     
-    /* Get datafile from command line if provided */
-    if (argc > 1) {
-        strncpy(g_datafile, argv[1], sizeof(g_datafile) - 1);
-    }
-    
     /* Load or create configuration */
     if (stat(g_ini_file, &st) == 0) {
         g_cfg = config_load(g_ini_file);
     }
     
     if (!g_cfg) {
-        /* Create default config */
-        const char *default_spectrum = g_datafile[0] ? g_datafile : "spectrum.+ML";
+        /* Create default config with command-line spectrum or placeholder */
+        const char *default_spectrum = (argc > 1) ? argv[1] : "spectrum.+ML";
         create_default_config(default_spectrum);
-    }
-    
-    /* Get spectrum file from config if not specified on command line */
-    if (!g_datafile[0]) {
-        strncpy(g_datafile, config_get(g_cfg, "spectrum", "file", ""), sizeof(g_datafile) - 1);
-    } else {
+    } else if (argc > 1) {
         /* Update config with command-line spectrum */
-        config_set(g_cfg, "spectrum", "file", g_datafile);
+        config_set(g_cfg, "spectrum", "file", argv[1]);
     }
     
     /* Initialize curses */
@@ -628,9 +606,9 @@ int main(int argc, char *argv[]) {
             case '\r':
                 /* Execute selected item */
                 if (menu_items[selected].handler) {
-                    result = menu_items[selected].handler(g_datafile);
+                    result = menu_items[selected].handler();
                 } else if (menu_items[selected].command) {
-                    result = run_command(menu_items[selected].command, g_datafile);
+                    result = run_command(menu_items[selected].command);
                 } else {
                     result = 0;
                 }
@@ -655,9 +633,9 @@ int main(int argc, char *argv[]) {
                         selected = idx;
                         /* Fall through to execute */
                         if (menu_items[selected].handler) {
-                            result = menu_items[selected].handler(g_datafile);
+                            result = menu_items[selected].handler();
                         } else if (menu_items[selected].command) {
-                            result = run_command(menu_items[selected].command, g_datafile);
+                            result = run_command(menu_items[selected].command);
                         }
                         if (result < 0) {
                             goto cleanup;
