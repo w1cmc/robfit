@@ -31,15 +31,47 @@
 
 Over ch 200–15900: median ratio 1.006, 5th–95th percentile 0.92–1.29. The high tail is in dense-peak regions (e.g. ch 1500), where the 2003 continuum was fitted alongside peaks and the 2026 one (fit mode 2, no peaks) rides higher.
 
-## Result: peak fit NOT YET TESTABLE
+## Result: peak fit runs end to end; does not yet reproduce 2003
 
-Driven through the `libpeakfit` C API in 400-ch windows:
-- `peakfit_fit` returns immediately (0 iterations, χ² = 0, all errors 0).
-- With raw data (bridge hardcodes `IFIT = 1`), `peakfit_find_peaks` places evenly spaced fake peaks on top of the background.
-- With `IFIT = 2` (data − continuum) it finds some real peaks (308, 398, 511 vs 2003's 310, 389/405, 512) but misses most.
-- Out-of-bounds in `resl.for:119` (`AIDATMF` index iend+1); segfaults without bounds checking.
-- `peakfit_set_calibration` is declared in `peakfit.h` but not implemented.
-- COMMON `/INTVALS/` is 20 ints in `peakfit_bridge.for` vs 22 in `commons.for` (linker warns).
+*Updated on branch `peakfit-bridge`, after the bridge fixes there.*
+
+`peakfit_fit_all` (the PFIT loop) over ch 300–15900, starting from no
+peaks, fit type 2 (data − continuum), 2003 resolution calibration set
+with `peakfit_set_calibration`, repeated (PFIT adds ≤ 50 peaks per call):
+
+| call | peaks | χ²/channel |
+|---:|---:|---:|
+| 1 | 50 | 5.14 |
+| 2 | 100 | 3.09 |
+| 3 | 150 | 2.97 |
+| 4 | 200 | 3.40 |
+| 5 | 250 | 2.83 |
+
+Against the 2003 list (277 peaks in that range), after 5 calls:
+
+- 57 of the 58 strong 2003 peaks (area/err > 20) are found; location
+  differences median +0.34 ch, 90% within 1.2 ch.
+- Only 151 of 277 are matched overall, and 118 of the 2026 peaks have
+  no 2003 counterpart.
+- Strong single lines are split in two: 609 keV (ch 4044) is fitted
+  as 4042.3 + 4049.4. The pair's area (370k) agrees with the net counts
+  (370–400k) and with 2003 (415k), but each peak alone does not.
+  Fitted widths are about 0.35× the 2003 widths.
+- The finder re-finds the same residual spot on later passes and PFIT
+  adds it again: stacks of zero-height peaks at one location
+  (e.g. five at 4260.96 in a 3800–4300 test). χ² can rise as peaks are
+  added (call 4).
+- Skew is fixed at 1.4 by default; with `peak_vary_skew = yes` it runs
+  to the 2.0 clamp and the 609 keV line is still split.
+
+Likely causes, to decide on before changing the physics code:
+1. Width definition: 2003 `W` ≈ FWHM (14–15 ch at 609 keV, as measured);
+   the 2026 fit's `Wth` converges near FWHM/3, and new peaks are seeded
+   from `ChnToWth`, so the resolution calibration and the model's width
+   parameter may not mean the same thing.
+2. PFIT has commented-out code that rejected a new peak within 1 channel
+   of an existing one; RESL21A only separates new finds from each other.
+3. There is no cleanup of zero-height peaks between passes.
 
 ## Bugs fixed while running this (uncommitted)
 
