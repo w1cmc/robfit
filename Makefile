@@ -143,7 +143,8 @@ PEAKFIT_OBJS = $(OBJDIR)/gfortransys.o \
                $(OBJDIR)/CnmFuns.o \
                $(OBJDIR)/cmlread.o \
                $(OBJDIR)/peakfit.o \
-               $(OBJDIR)/pklink.o \
+               $(OBJDIR)/pklink_ini.o \
+               $(OBJDIR)/config_module.o \
                $(OBJDIR)/pfit.o \
                $(OBJDIR)/EditPks.o \
                $(OBJDIR)/fndreg.o \
@@ -287,7 +288,7 @@ $(BINDIR)/bkgfit: $(BKGFIT_OBJS)
 	$(FC) $(FFLAGS) -o $@ $^
 	@echo "Built bkgfit successfully"
 
-$(BINDIR)/peakfit: $(PEAKFIT_OBJS)
+$(BINDIR)/peakfit: $(PEAKFIT_OBJS) $(CONFIG_OBJS)
 	$(FC) $(FFLAGS) -o $@ $^
 	@echo "Built peakfit successfully"
 
@@ -398,6 +399,10 @@ $(OBJDIR)/AIGAU_skew.o: $(SRCDIR)/peakfit/skew/AIGAU.for
 # Peakfit C API bridge (uses ISO_C_BINDING)
 $(OBJDIR)/peakfit_bridge.o: $(SRCDIR)/peakfit/peakfit_bridge.for
 	$(FC) $(FFLAGS) -c $< -o $@
+
+# Peakfit INI config loader (uses config_module and DEC structures)
+$(OBJDIR)/pklink_ini.o: $(SRCDIR)/peakfit/pklink_ini.for $(OBJDIR)/config_module.o
+	$(FC) $(FFLAGS) -I$(OBJDIR) -c $< -o $@
 
 $(OBJDIR)/AIGAU_templfit.o: $(SRCDIR)/templfit/attenuation/nlfit/aigau/AIGAU.for
 	$(FC) $(FFLAGS) -c $< -o $@

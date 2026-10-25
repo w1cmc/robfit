@@ -372,6 +372,10 @@ static void create_default_config(const char *spectrum_file) {
     config_set_double(g_cfg, "fitting", "template_begin", 0.0);
     config_set_double(g_cfg, "fitting", "template_end", 3000.0);
     config_set_double(g_cfg, "fitting", "peak_cutoff", 3.0);
+    config_set_int(g_cfg, "fitting", "peak_fit_type", 2);
+    config_set_bool(g_cfg, "fitting", "edit_peaks", 1);
+    config_set_bool(g_cfg, "fitting", "deriv_check", 0);
+    config_set_bool(g_cfg, "fitting", "debug", 0);
     config_set_int(g_cfg, "fitting", "poly_order", 5);
     config_set_int(g_cfg, "fitting", "max_iterations", 100);
     config_set_double(g_cfg, "fitting", "tolerance", 1e-6);
@@ -390,6 +394,7 @@ static void create_default_config(const char *spectrum_file) {
     config_set(g_cfg, "peak_table", "params", "3000,0,10");
     
     config_set_bool(g_cfg, "output", "write_sp", 0);
+    config_set_bool(g_cfg, "output", "plot_results", 1);
     config_set(g_cfg, "output", "plot_files", "");
     
     config_save(g_cfg, g_ini_file);
