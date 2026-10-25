@@ -44,6 +44,16 @@ typedef struct {
 } peakfit_peak_t;
 
 /*
+ * What the peaks are fitted on.  The values are the Fortran codes
+ * (peak_fit_type in robfit.ini, COMMON IFIT), so they start at 1.
+ */
+typedef enum {
+    PEAKFIT_FIT_DATA               = 1,  /* raw data */
+    PEAKFIT_FIT_DATA_MINUS_CNM     = 2,  /* data - continuum (bkgfit) */
+    PEAKFIT_FIT_DATA_MINUS_CNM_TPL = 3   /* data - continuum - template */
+} peakfit_fit_type_t;
+
+/*
  * Calibration parameters
  * Energy = sum(egy_cal[i] * channel^i) for i=0..5
  */
@@ -77,6 +87,19 @@ void peakfit_set_calibration(const peakfit_calibration_t *cal);
  * Get the current calibration (as loaded from COM.UNF or last set)
  */
 void peakfit_get_calibration(peakfit_calibration_t *cal);
+
+/*
+ * Override the fit type for later fit, find, fit_all and get_spectrum
+ * calls.  peakfit_load_spectrum sets it from peak_fit_type in
+ * robfit.ini, so call this after loading.
+ * Returns 0, or -5 if type is not one of peakfit_fit_type_t.
+ */
+int peakfit_set_fit_type(peakfit_fit_type_t type);
+
+/*
+ * Current fit type (from robfit.ini or the last peakfit_set_fit_type)
+ */
+peakfit_fit_type_t peakfit_get_fit_type(void);
 
 /*
  * Convert between channel and energy

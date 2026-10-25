@@ -126,6 +126,50 @@ C ----------------------------------------------------------------------
       END SUBROUTINE
 
 C ----------------------------------------------------------------------
+C Set / get the fit type (COMMON IFIT, normally set from peak_fit_type
+C by Pklink).  ENUM, BIND(C) gives the same integer kind as the C
+C compiler uses for peakfit_fit_type_t.
+C ----------------------------------------------------------------------
+      INTEGER(C_INT) FUNCTION PEAKFIT_SET_FIT_TYPE_F(ITYPE)
+     &    BIND(C, NAME='peakfit_set_fit_type')
+      USE, INTRINSIC :: ISO_C_BINDING
+      IMPLICIT NONE
+      ENUM, BIND(C)
+        ENUMERATOR :: PEAKFIT_FIT_DATA = 1
+        ENUMERATOR :: PEAKFIT_FIT_DATA_MINUS_CNM_TPL = 3
+      END ENUM
+      INTEGER(KIND(PEAKFIT_FIT_DATA)), VALUE :: ITYPE
+      INTEGER IBEGC, IENDC, IDUM(9), IBEGPKF, IENDPKF
+      INTEGER IDUM2(3), IFIT, IDUM3(3)
+      COMMON /INTVALS/IBEGC,IENDC,IDUM,IBEGPKF,IENDPKF,IDUM2,IFIT,IDUM3
+
+      IF (ITYPE .LT. PEAKFIT_FIT_DATA .OR.
+     &    ITYPE .GT. PEAKFIT_FIT_DATA_MINUS_CNM_TPL) THEN
+        PEAKFIT_SET_FIT_TYPE_F = -5
+        RETURN
+      END IF
+      IFIT = ITYPE
+      PEAKFIT_SET_FIT_TYPE_F = 0
+      RETURN
+      END FUNCTION
+
+      FUNCTION PEAKFIT_GET_FIT_TYPE_F() RESULT(ITYPE)
+     &    BIND(C, NAME='peakfit_get_fit_type')
+      USE, INTRINSIC :: ISO_C_BINDING
+      IMPLICIT NONE
+      ENUM, BIND(C)
+        ENUMERATOR :: PEAKFIT_FIT_DATA = 1
+      END ENUM
+      INTEGER(KIND(PEAKFIT_FIT_DATA)) :: ITYPE
+      INTEGER IBEGC, IENDC, IDUM(9), IBEGPKF, IENDPKF
+      INTEGER IDUM2(3), IFIT, IDUM3(3)
+      COMMON /INTVALS/IBEGC,IENDC,IDUM,IBEGPKF,IENDPKF,IDUM2,IFIT,IDUM3
+
+      ITYPE = IFIT
+      RETURN
+      END FUNCTION
+
+C ----------------------------------------------------------------------
 C Convert channel to energy
 C ----------------------------------------------------------------------
       REAL(C_DOUBLE) FUNCTION PEAKFIT_CHN_TO_EGY_F(CHN) 
