@@ -96,6 +96,36 @@ C ----------------------------------------------------------------------
       END SUBROUTINE
 
 C ----------------------------------------------------------------------
+C Set / get the energy, resolution and efficiency calibrations
+C (COMMON /FITTEDCONS/ EgyCal, ResCal, FITEFF).  peakfit_load_spectrum
+C sets them from COM.UNF; a set lasts until the next load and is not
+C written back to COM.UNF.
+C ----------------------------------------------------------------------
+      SUBROUTINE PEAKFIT_SET_CALIBRATION_F(CAL)
+     &    BIND(C, NAME='peakfit_set_calibration')
+      USE, INTRINSIC :: ISO_C_BINDING
+      IMPLICIT NONE
+      REAL(C_DOUBLE), DIMENSION(18), INTENT(IN) :: CAL
+      REAL*8 CONS(18), CREST(48)
+      LOGICAL LCONS(66)
+      COMMON /FITTEDCONS/CONS,CREST,LCONS
+      CONS = CAL
+      RETURN
+      END SUBROUTINE
+
+      SUBROUTINE PEAKFIT_GET_CALIBRATION_F(CAL)
+     &    BIND(C, NAME='peakfit_get_calibration')
+      USE, INTRINSIC :: ISO_C_BINDING
+      IMPLICIT NONE
+      REAL(C_DOUBLE), DIMENSION(18), INTENT(OUT) :: CAL
+      REAL*8 CONS(18), CREST(48)
+      LOGICAL LCONS(66)
+      COMMON /FITTEDCONS/CONS,CREST,LCONS
+      CAL = CONS
+      RETURN
+      END SUBROUTINE
+
+C ----------------------------------------------------------------------
 C Convert channel to energy
 C ----------------------------------------------------------------------
       REAL(C_DOUBLE) FUNCTION PEAKFIT_CHN_TO_EGY_F(CHN) 

@@ -90,9 +90,15 @@ int peakfit_init(void);
 int peakfit_load_spectrum(const char *filename, int filename_len);
 
 /*
- * Set calibration parameters
+ * Set calibration parameters (energy, resolution, efficiency).
+ * Lasts until the next peakfit_load_spectrum; not saved to COM.UNF.
  */
 void peakfit_set_calibration(const peakfit_calibration_t *cal);
+
+/*
+ * Get the current calibration (as loaded from COM.UNF or last set)
+ */
+void peakfit_get_calibration(peakfit_calibration_t *cal);
 
 /*
  * Convert between channel and energy
