@@ -113,7 +113,8 @@ XMLDIS_OBJS = $(OBJDIR)/gfortransys.o \
               $(OBJDIR)/muPairp.o \
               $(OBJDIR)/pkpolym.o \
               $(OBJDIR)/rhoofz.o \
-              $(OBJDIR)/rtpl.o
+              $(OBJDIR)/rtpl_xml.o \
+              $(OBJDIR)/nuclides_module.o
 
 # ============================================================================
 # BKGFIT - Fit continuum/background (from bkgfit.vfproj)
@@ -202,7 +203,8 @@ TEMPLFIT_OBJS = $(OBJDIR)/gfortransys.o \
                 $(OBJDIR)/funnop_xmldis.o \
                 $(OBJDIR)/pkpolym.o \
                 $(OBJDIR)/AIGAU_templfit.o \
-                $(OBJDIR)/rtpl.o \
+                $(OBJDIR)/rtpl_xml.o \
+                $(OBJDIR)/nuclides_module.o \
                 $(OBJDIR)/CxyTox.o \
                 $(OBJDIR)/ekofz.o \
                 $(OBJDIR)/muAtt.o \
@@ -300,7 +302,7 @@ $(BINDIR)/robfit: $(ROBFIT_OBJS)
 	$(FC) $(FFLAGS) -o $@ $^
 	@echo "Built robfit successfully"
 
-$(BINDIR)/xmldis: $(XMLDIS_OBJS) $(CONFIG_OBJS)
+$(BINDIR)/xmldis: $(XMLDIS_OBJS) $(CONFIG_OBJS) $(NUCLIDE_OBJS)
 	$(FC) $(FFLAGS) -o $@ $^
 	@echo "Built xmldis successfully"
 
@@ -312,7 +314,7 @@ $(BINDIR)/peakfit: $(PEAKFIT_OBJS) $(CONFIG_OBJS)
 	$(FC) $(FFLAGS) -o $@ $^
 	@echo "Built peakfit successfully"
 
-$(BINDIR)/templfit: $(TEMPLFIT_OBJS) $(CONFIG_OBJS)
+$(BINDIR)/templfit: $(TEMPLFIT_OBJS) $(CONFIG_OBJS) $(NUCLIDE_OBJS)
 	$(FC) $(FFLAGS) -o $@ $^
 	@echo "Built templfit successfully"
 
@@ -458,6 +460,10 @@ $(OBJDIR)/funnop_xmldis.o: $(SRCDIR)/xmldis/funnop.for
 $(OBJDIR)/fillcr0_xmldis.o: $(SRCDIR)/xmldis/fillcr0.for
 	$(FC) $(FFLAGS) -c $< -o $@
 
+# rtpl_xml.for - Template peak list using nuclides.xml (uses nuclides_module)
+$(OBJDIR)/rtpl_xml.o: $(SRCDIR)/emitters/rtpl_xml.for $(OBJDIR)/nuclides_module.o
+	$(FC) $(FFLAGS) -I$(OBJDIR) -c $< -o $@
+
 # ============================================================================
 # Clean
 # ============================================================================
@@ -470,7 +476,7 @@ clean:
 # ============================================================================
 # Mini-XML library (for nuclides.xml parsing)
 # ============================================================================
-$(OBJDIR)/mxml-%.o: lib/mxml-%.c lib/config.h include/mxml.h include/mxml-private.h
+$(OBJDIR)/mxml-%.o: lib/mxml-%.c include/mxml_config.h include/mxml.h include/mxml-private.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Nuclide library

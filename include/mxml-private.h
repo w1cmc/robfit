@@ -11,7 +11,7 @@
 
 #ifndef MXML_PRIVATE_H
 #  define MXML_PRIVATE_H
-#  include "config.h"
+#  include "mxml_config.h"
 #  include "mxml.h"
 #  include <locale.h>
 
