@@ -16,8 +16,24 @@
     </xs:documentation>
   </xs:annotation>
 
-  <!-- Root element -->
-  <xs:element name="Nuclides" type="NuclidesType"/>
+  <!-- Root element with key/keyref constraints -->
+  <xs:element name="Nuclides" type="NuclidesType">
+    <!-- Nuclide Name must be unique -->
+    <xs:key name="NuclideNameKey">
+      <xs:selector xpath="Nuclide"/>
+      <xs:field xpath="@Name"/>
+    </xs:key>
+    <!-- Source Name must be unique -->
+    <xs:key name="SourceNameKey">
+      <xs:selector xpath="Source"/>
+      <xs:field xpath="@Name"/>
+    </xs:key>
+    <!-- Line Origin must reference a Nuclide Name -->
+    <xs:keyref name="OriginRef" refer="NuclideNameKey">
+      <xs:selector xpath="Nuclide/Line|Source/Line"/>
+      <xs:field xpath="@Origin"/>
+    </xs:keyref>
+  </xs:element>
 
   <!-- Nuclides container -->
   <xs:complexType name="NuclidesType">
@@ -55,6 +71,10 @@
       <xs:element name="Line" type="LineType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
     
+    <!-- Unique name for this nuclide (e.g., "Cs137", "Ba137m") -->
+    <!-- Used as target for Line/@Origin references -->
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    
     <!-- Element symbol (validated against periodic table) -->
     <xs:attribute name="Element" type="ElementType" use="required"/>
     
@@ -91,6 +111,7 @@
     <xs:attribute name="Type" type="LineTypeEnum" use="required"/>
     
     <!-- Originating nuclide if different from parent (e.g., decay daughters) -->
+    <!-- Must reference a Nuclide/@Name in this library -->
     <xs:attribute name="Origin" type="xs:string" use="optional"/>
     
     <!-- Uncertainty in energy (keV) -->

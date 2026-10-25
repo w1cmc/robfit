@@ -4,31 +4,54 @@
   
   Contains gamma-ray and X-ray emission data for nuclides
   used in spectral analysis and template fitting.
+  
+  The Name attribute uniquely identifies each nuclide and is used
+  as the target for Origin references in Line elements.
 -->
 <Nuclides xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="nuclides.xsd"
           Version="1.0"
-          Source="NNDC/ENSDF"
+          DataSource="NNDC/ENSDF"
           Date="2024-01-15">
 
-  <!-- Cesium-137: Common calibration source, 661.66 keV -->
-  <Nuclide Element="Cs" A="137" HalfLife="30.17y">
+  <!-- ==================== Decay Daughters ==================== -->
+  <!-- These are referenced by Origin attributes in parent nuclides -->
+
+  <!-- Barium-137m: Daughter of Cs-137 -->
+  <Nuclide Name="Ba137m" Element="Ba" A="137" Isomer="true" HalfLife="2.55m">
+    <Line E="661.657" I="0.8513" Type="P" dE="0.003" dI="0.0006"/>
+  </Nuclide>
+
+  <!-- Neptunium-237: Daughter of Am-241 (long-lived) -->
+  <Nuclide Name="Np237" Element="Np" A="237" HalfLife="2.14e6y">
     <!-- L X-rays -->
-    <Line E="4.466"   I="0.0036"    Type="XLa1"/>
-    <Line E="4.827"   I="0.00226"   Type="XLb1"/>
-    <Line E="4.8815"  I="0.008997"  Type="XLl"   Origin="Ba137m"/>
-    <!-- K X-rays -->
-    <Line E="31.817"  I="0.0204"    Type="XKa2"/>
-    <Line E="32.194"  I="0.0376"    Type="XKa1"/>
-    <Line E="32.1939" I="0.03599"   Type="XKa1"  Origin="Ba137m"/>
-    <Line E="36.378"  I="0.0068"    Type="XKb1"/>
-    <Line E="36.4457" I="0.01061"   Type="XKb1"  Origin="Ba137m"/>
-    <!-- Main gamma -->
-    <Line E="661.657" I="0.8513"    Type="P"     Origin="Ba137m" dE="0.003" dI="0.0006"/>
+    <Line E="13.946"  I="0.1309" Type="XLa1"/>
+    <Line E="17.751"  I="0.1893" Type="XLb1"/>
+    <Line E="20.784"  I="0.0489" Type="XLg1"/>
+  </Nuclide>
+
+  <!-- ==================== Primary Nuclides ==================== -->
+
+  <!-- Cesium-137: Common calibration source, 661.66 keV -->
+  <Nuclide Name="Cs137" Element="Cs" A="137" HalfLife="30.17y">
+    <!-- L X-rays from Cs -->
+    <Line E="4.466"   I="0.0036"   Type="XLa1"/>
+    <Line E="4.827"   I="0.00226"  Type="XLb1"/>
+    <!-- L X-rays from Ba-137m daughter -->
+    <Line E="4.8815"  I="0.008997" Type="XLl"  Origin="Ba137m"/>
+    <!-- K X-rays from Cs -->
+    <Line E="31.817"  I="0.0204"   Type="XKa2"/>
+    <Line E="32.194"  I="0.0376"   Type="XKa1"/>
+    <!-- K X-rays from Ba-137m daughter -->
+    <Line E="32.1939" I="0.03599"  Type="XKa1" Origin="Ba137m"/>
+    <Line E="36.378"  I="0.0068"   Type="XKb1"/>
+    <Line E="36.4457" I="0.01061"  Type="XKb1" Origin="Ba137m"/>
+    <!-- Main gamma from Ba-137m -->
+    <Line E="661.657" I="0.8513"   Type="P"    Origin="Ba137m" dE="0.003" dI="0.0006"/>
   </Nuclide>
 
   <!-- Cobalt-60: Dual gamma calibration source -->
-  <Nuclide Element="Co" A="60" HalfLife="5.271y">
+  <Nuclide Name="Co60" Element="Co" A="60" HalfLife="5.271y">
     <Line E="1173.228" I="0.9985" Type="P" dE="0.003"/>
     <Line E="1332.492" I="0.9998" Type="P" dE="0.004"/>
     <!-- Sum peak (cascade summing) -->
@@ -36,14 +59,14 @@
   </Nuclide>
 
   <!-- Cobalt-57: Low energy calibration -->
-  <Nuclide Element="Co" A="57" HalfLife="271.8d">
+  <Nuclide Name="Co57" Element="Co" A="57" HalfLife="271.8d">
     <Line E="14.413"  I="0.0916" Type="P"/>
     <Line E="122.061" I="0.8560" Type="P" dE="0.001"/>
     <Line E="136.474" I="0.1068" Type="P"/>
   </Nuclide>
 
   <!-- Americium-241: Low energy, many lines -->
-  <Nuclide Element="Am" A="241" HalfLife="432.2y">
+  <Nuclide Name="Am241" Element="Am" A="241" HalfLife="432.2y">
     <!-- L X-rays from Np-237 daughter -->
     <Line E="13.946"  I="0.1309"  Type="XLa1" Origin="Np237"/>
     <Line E="17.751"  I="0.1893"  Type="XLb1" Origin="Np237"/>
@@ -55,7 +78,7 @@
   </Nuclide>
 
   <!-- Holmium-166m: Metastable isomer -->
-  <Nuclide Element="Ho" A="166" Isomer="true" HalfLife="1200y">
+  <Nuclide Name="Ho166m" Element="Ho" A="166" Isomer="true" HalfLife="1200y">
     <Line E="80.574"  I="0.1136" Type="P"/>
     <Line E="184.411" I="0.726"  Type="P"/>
     <Line E="280.459" I="0.297"  Type="P"/>
@@ -68,13 +91,13 @@
   </Nuclide>
 
   <!-- Yttrium-88: High energy calibration -->
-  <Nuclide Element="Y" A="88" HalfLife="106.6d">
+  <Nuclide Name="Y88" Element="Y" A="88" HalfLife="106.6d">
     <Line E="898.042"  I="0.937" Type="P"/>
     <Line E="1836.063" I="0.992" Type="P"/>
   </Nuclide>
 
-  <!-- Non-nuclide emission sources -->
-  
+  <!-- ==================== Non-Nuclide Sources ==================== -->
+
   <!-- Electron-positron annihilation (pair production, positron emitters) -->
   <Source Name="Annihilation" Description="e+ e- annihilation radiation">
     <Line E="511.0" I="2.0" Type="A"/>
