@@ -87,7 +87,8 @@ XMLDIS_OBJS = $(OBJDIR)/gfortransys.o \
               $(OBJDIR)/CnmFuns.o \
               $(OBJDIR)/Weight_StdDev.o \
               $(OBJDIR)/xmlplot.o \
-              $(OBJDIR)/g3linkt.o \
+              $(OBJDIR)/g3linkt_ini.o \
+              $(OBJDIR)/config_module.o \
               $(OBJDIR)/calcfit.o \
               $(OBJDIR)/chntotpl0.o \
               $(OBJDIR)/fillcr0.o \
@@ -118,7 +119,8 @@ BKGFIT_OBJS = $(OBJDIR)/gfortransys.o \
               $(OBJDIR)/datmfit.o \
               $(OBJDIR)/Functions.o \
               $(OBJDIR)/bkgfit.o \
-              $(OBJDIR)/CnmLink.o \
+              $(OBJDIR)/CnmLink_ini.o \
+              $(OBJDIR)/config_module.o \
               $(OBJDIR)/CnmBli.o \
               $(OBJDIR)/CnmFuns.o \
               $(OBJDIR)/dcf.o \
@@ -177,7 +179,8 @@ TEMPLFIT_OBJS = $(OBJDIR)/gfortransys.o \
                 $(OBJDIR)/TplPks.o \
                 $(OBJDIR)/qnov.o \
                 $(OBJDIR)/templfit.o \
-                $(OBJDIR)/tmplink.o \
+                $(OBJDIR)/tmplink_ini.o \
+                $(OBJDIR)/config_module.o \
                 $(OBJDIR)/tplfitq.o \
                 $(OBJDIR)/chntotpl.o \
                 $(OBJDIR)/chntotpl0.o \
@@ -280,11 +283,11 @@ $(BINDIR)/robfit: $(ROBFIT_OBJS)
 	$(FC) $(FFLAGS) -o $@ $^
 	@echo "Built robfit successfully"
 
-$(BINDIR)/xmldis: $(XMLDIS_OBJS)
+$(BINDIR)/xmldis: $(XMLDIS_OBJS) $(CONFIG_OBJS)
 	$(FC) $(FFLAGS) -o $@ $^
 	@echo "Built xmldis successfully"
 
-$(BINDIR)/bkgfit: $(BKGFIT_OBJS)
+$(BINDIR)/bkgfit: $(BKGFIT_OBJS) $(CONFIG_OBJS)
 	$(FC) $(FFLAGS) -o $@ $^
 	@echo "Built bkgfit successfully"
 
@@ -292,7 +295,7 @@ $(BINDIR)/peakfit: $(PEAKFIT_OBJS) $(CONFIG_OBJS)
 	$(FC) $(FFLAGS) -o $@ $^
 	@echo "Built peakfit successfully"
 
-$(BINDIR)/templfit: $(TEMPLFIT_OBJS)
+$(BINDIR)/templfit: $(TEMPLFIT_OBJS) $(CONFIG_OBJS)
 	$(FC) $(FFLAGS) -o $@ $^
 	@echo "Built templfit successfully"
 
@@ -402,6 +405,18 @@ $(OBJDIR)/peakfit_bridge.o: $(SRCDIR)/peakfit/peakfit_bridge.for
 
 # Peakfit INI config loader (uses config_module and DEC structures)
 $(OBJDIR)/pklink_ini.o: $(SRCDIR)/peakfit/pklink_ini.for $(OBJDIR)/config_module.o
+	$(FC) $(FFLAGS) -I$(OBJDIR) -c $< -o $@
+
+# XMLDIS INI config loader (uses config_module)
+$(OBJDIR)/g3linkt_ini.o: $(SRCDIR)/xmldis/g3linkt_ini.for $(OBJDIR)/config_module.o
+	$(FC) $(FFLAGS) -I$(OBJDIR) -c $< -o $@
+
+# BKGFIT INI config loader (uses config_module)
+$(OBJDIR)/CnmLink_ini.o: $(SRCDIR)/CnmFit/CnmLink_ini.for $(OBJDIR)/config_module.o
+	$(FC) $(FFLAGS) -I$(OBJDIR) -c $< -o $@
+
+# TEMPLFIT INI config loader (uses config_module)
+$(OBJDIR)/tmplink_ini.o: $(SRCDIR)/templfit/tmplink_ini.for $(OBJDIR)/config_module.o
 	$(FC) $(FFLAGS) -I$(OBJDIR) -c $< -o $@
 
 $(OBJDIR)/AIGAU_templfit.o: $(SRCDIR)/templfit/attenuation/nlfit/aigau/AIGAU.for
