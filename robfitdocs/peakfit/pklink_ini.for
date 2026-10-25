@@ -112,6 +112,15 @@ C LDUM(8) = Plot results
 
 C LDUM(36) = Debug mode
       LDUM(36) = config_get_bool('fitting', 'debug', .FALSE.)
+
+C LDUM(16-20) = which parameters of newly found peaks are varied
+C (VHGT,VLOC,VWTH,VSKW,VJMP in PFIT).  Defaults follow the old
+C peakfit.mnu: height, location and width varied; skew, jump fixed.
+      LDUM(16) = config_get_bool('fitting','peak_vary_height',.TRUE.)
+      LDUM(17) = config_get_bool('fitting','peak_vary_location',.TRUE.)
+      LDUM(18) = config_get_bool('fitting','peak_vary_width',.TRUE.)
+      LDUM(19) = config_get_bool('fitting','peak_vary_skew',.FALSE.)
+      LDUM(20) = config_get_bool('fitting','peak_vary_jump',.FALSE.)
       
 C --- Initialize peak array (no pre-defined peaks from config) ---
       Npks = 0

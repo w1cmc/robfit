@@ -91,6 +91,11 @@ static void create_default_config(const char *spectrum_file) {
     config_set_double(g_cfg, "fitting", "peak_cutoff", 3.0);
     config_set_int(g_cfg, "fitting", "peak_fit_type", 2);
     config_set_bool(g_cfg, "fitting", "edit_peaks", 1);
+    config_set_bool(g_cfg, "fitting", "peak_vary_height", 1);
+    config_set_bool(g_cfg, "fitting", "peak_vary_location", 1);
+    config_set_bool(g_cfg, "fitting", "peak_vary_width", 1);
+    config_set_bool(g_cfg, "fitting", "peak_vary_skew", 0);
+    config_set_bool(g_cfg, "fitting", "peak_vary_jump", 0);
     config_set_bool(g_cfg, "fitting", "deriv_check", 0);
     config_set_bool(g_cfg, "fitting", "debug", 0);
     config_set_int(g_cfg, "fitting", "poly_order", 5);
@@ -196,6 +201,9 @@ static ConfigField config_fields[] = {
     {"display", "view_peaks", "View peaks", 2},
     {"display", "nuclides", "Nuclides", 1},
     {"fitting", "peak_cutoff", "Peak search cutoff (sigma)", 3},
+    {"fitting", "peak_fit_type", "Peak fit: 1=data 2=-cnm 3=-cnm-tpl", 4},
+    {"fitting", "peak_vary_width", "Fit peak widths", 2},
+    {"fitting", "peak_vary_skew", "Fit peak skew", 2},
     {"fitting", "poly_order", "Background polynomial order", 4},
     {"fitting", "log_weights", "Log weight interpolation", 2},
     {"error", "alpha_w1", "Alpha weight 1", 3},

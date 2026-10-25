@@ -44,6 +44,18 @@ continuum_end = 3220.60
 peak_begin = 0.29
 peak_end = 3220.80
 
+# Peak search threshold (sigma) and what peakfit fits:
+# 1 = data, 2 = data - continuum, 3 = data - continuum - template
+peak_cutoff = 3.0
+peak_fit_type = 2
+
+# Parameters varied for newly found peaks
+peak_vary_height = yes
+peak_vary_location = yes
+peak_vary_width = yes
+peak_vary_skew = no
+peak_vary_jump = no
+
 # Template fitting range (keV)
 template_begin = 0.09
 template_end = 3221.00
