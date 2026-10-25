@@ -1,15 +1,15 @@
 # Executables
 *.exe
-robfit
-xmldis
-bkgfit
-peakfit
-templfit
-EgyCal
-WthCal
-libpeakfit.a
-robfit_menu
-robimport
+/robfit
+/xmldis
+/bkgfit
+/peakfit
+/templfit
+/EgyCal
+/WthCal
+/libpeakfit.a
+/robfit_menu
+/robimport
 
 # Fortran temporary/scratch files
 fort.*
