@@ -264,6 +264,8 @@ PEAKFIT_LIB_OBJS = $(OBJDIR)/gfortransys.o \
                    $(OBJDIR)/nlfitsub.o \
                    $(OBJDIR)/fndreg.o \
                    $(OBJDIR)/resl.o \
+                   $(OBJDIR)/pfit.o \
+                   $(OBJDIR)/uppeaks.o \
                    $(OBJDIR)/pkpolym.o \
                    $(OBJDIR)/AIGAU_skew.o \
                    $(OBJDIR)/Cholesky.o \

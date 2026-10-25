@@ -482,3 +482,168 @@ C ----------------------------------------------------------------------
       END IF
       RETURN
       END FUNCTION
+
+C ----------------------------------------------------------------------
+C Full automatic fit: the PFIT driver of the Fortran peakfit program.
+C
+C Starting from the C_PEAKS given (may be none), PFIT makes 5 passes:
+C each pass fits every peak region found by FNDREG, then searches the
+C residuals (RESL21A) and adds up to 10 new peaks.  Errors come from
+C NLERREST on the last pass.  Peaks are exchanged with PFIT through
+C <name>FittedPks.unf, as peakfit.for did.
+C
+C IBEG, IEND: channel range; 0 means the peak range from robfit.ini.
+C On return N_PEAKS is the number of peaks PFIT produced; if that is
+C more than MAX_PEAKS, only MAX_PEAKS are copied and -6 is returned.
+C CHI_SQ is sum((data - peaks)**2 * weight) over the range.
+C ----------------------------------------------------------------------
+      INTEGER FUNCTION PEAKFIT_FIT_ALL_F(C_PEAKS, N_PEAKS, MAX_PEAKS,
+     &    IBEG, IEND, CHI_SQ)
+     &    BIND(C, NAME='peakfit_fit_all')
+      USE, INTRINSIC :: ISO_C_BINDING
+      IMPLICIT NONE
+
+      REAL(C_DOUBLE), DIMENSION(22, *), INTENT(INOUT) :: C_PEAKS
+      INTEGER(C_INT), INTENT(INOUT) :: N_PEAKS
+      INTEGER(C_INT), VALUE :: MAX_PEAKS
+      INTEGER(C_INT), VALUE :: IBEG, IEND
+      REAL(C_DOUBLE), INTENT(OUT) :: CHI_SQ
+
+      INCLUDE 'STRUCTURES.FOR'
+      RECORD /Tpk/ PKS(:)
+      ALLOCATABLE PKS
+      REAL*4 DAT(:), WT(:)
+      ALLOCATABLE DAT, WT
+      CHARACTER*256 NASTR, NAFPKS
+      LOGICAL EX
+      INTEGER I, NF, ILW, IFITDAT
+      REAL*8 XT, FA, PFA(1)
+      INTEGER IBEGC, IENDC, IDUM(9), IBEGPKF, IENDPKF
+      INTEGER IDUM2(3), IFIT, IDUM3(3)
+      COMMON /INTVALS/IBEGC,IENDC,IDUM,IBEGPKF,IENDPKF,IDUM2,IFIT,IDUM3
+
+      CHI_SQ = 0
+      IF (N_PEAKS .LT. 0 .OR. N_PEAKS .GT. MAX_PEAKS) THEN
+        PEAKFIT_FIT_ALL_F = -5
+        RETURN
+      END IF
+      IF (IBEG .GT. 0) IBEGPKF = IBEG
+      IF (IEND .GT. 0) IENDPKF = IEND
+      IBEGPKF = MAX(IBEGPKF, IBEGC, 1)
+      IENDPKF = MIN(IENDPKF, IENDC)
+      IF (IENDPKF .LE. IBEGPKF) THEN
+        PEAKFIT_FIT_ALL_F = -5
+        RETURN
+      END IF
+
+      ALLOCATE(DAT(IBEGPKF:IENDPKF), WT(IBEGPKF:IENDPKF))
+      CALL WEIGHT(WT, IBEGPKF, IENDPKF)
+      CALL DATMFIT(DAT, IFITDAT(IFIT), IBEGPKF, IENDPKF)
+
+C     Hand the starting peaks to PFIT
+      ALLOCATE(PKS(MAX(1, N_PEAKS)))
+      DO I = 1, N_PEAKS
+        CALL CTOPK(C_PEAKS(1, I), PKS(I))
+      END DO
+      NAFPKS = NASTR('FittedPks.unf', ILW, EX)
+      OPEN(1, FILE=NAFPKS(:ILW), FORM='UNFORMATTED')
+      WRITE(1) N_PEAKS
+      IF (N_PEAKS .GT. 0) WRITE(1) (PKS(I), I = 1, N_PEAKS)
+      CLOSE(1)
+      DEALLOCATE(PKS)
+
+      CALL PFIT(DAT, WT)
+
+C     Collect PFIT's peaks
+      OPEN(1, FILE=NAFPKS(:ILW), FORM='UNFORMATTED', STATUS='OLD')
+      READ(1) NF
+      ALLOCATE(PKS(MAX(1, NF)))
+      IF (NF .GT. 0) READ(1) (PKS(I), I = 1, NF)
+      CLOSE(1)
+
+      DO I = IBEGPKF, IENDPKF
+        XT = I
+        FA = 0
+        IF (NF .GT. 0) CALL POLY(XT, PFA, 1, PKS, NF, FA, .FALSE.)
+        CHI_SQ = CHI_SQ + (DAT(I) - FA)**2 * WT(I)
+      END DO
+
+      DO I = 1, MIN(NF, MAX_PEAKS)
+        CALL PKTOC(PKS(I), C_PEAKS(1, I))
+      END DO
+      N_PEAKS = NF
+      PEAKFIT_FIT_ALL_F = 0
+      IF (NF .GT. MAX_PEAKS) PEAKFIT_FIT_ALL_F = -6
+
+      DEALLOCATE(PKS, DAT, WT)
+      RETURN
+      END FUNCTION
+
+C ----------------------------------------------------------------------
+C Copy one peak between the C layout (22 doubles) and RECORD /Tpk/
+C ----------------------------------------------------------------------
+      SUBROUTINE CTOPK(C, PK)
+      IMPLICIT NONE
+      REAL*8 C(22)
+      INCLUDE 'STRUCTURES.FOR'
+      RECORD /Tpk/ PK
+      PK.Hgt = C(1)
+      PK.HgtErr = C(2)
+      PK.Loc = C(3)
+      PK.LocErr = C(4)
+      PK.Egy = C(5)
+      PK.EgyErr = C(6)
+      PK.Wth = C(7)
+      PK.WthErr = C(8)
+      PK.WE = C(9)
+      PK.WEErr = C(10)
+      PK.Skw = C(11)
+      PK.SkwErr = C(12)
+      PK.Jmp = C(13)
+      PK.JmpErr = C(14)
+      PK.Area = C(15)
+      PK.AreaErr = C(16)
+      PK.Pvary = C(17) .NE. 0.0D0
+      PK.VHGT = C(18) .NE. 0.0D0
+      PK.VLOC = C(19) .NE. 0.0D0
+      PK.VWth = C(20) .NE. 0.0D0
+      PK.VSkw = C(21) .NE. 0.0D0
+      PK.VJmp = C(22) .NE. 0.0D0
+      RETURN
+      END
+
+      SUBROUTINE PKTOC(PK, C)
+      IMPLICIT NONE
+      REAL*8 C(22)
+      INCLUDE 'STRUCTURES.FOR'
+      RECORD /Tpk/ PK
+      C(1) = PK.Hgt
+      C(2) = PK.HgtErr
+      C(3) = PK.Loc
+      C(4) = PK.LocErr
+      C(5) = PK.Egy
+      C(6) = PK.EgyErr
+      C(7) = PK.Wth
+      C(8) = PK.WthErr
+      C(9) = PK.WE
+      C(10) = PK.WEErr
+      C(11) = PK.Skw
+      C(12) = PK.SkwErr
+      C(13) = PK.Jmp
+      C(14) = PK.JmpErr
+      C(15) = PK.Area
+      C(16) = PK.AreaErr
+      C(17) = 0
+      C(18) = 0
+      C(19) = 0
+      C(20) = 0
+      C(21) = 0
+      C(22) = 0
+      IF (PK.Pvary) C(17) = 1
+      IF (PK.VHGT) C(18) = 1
+      IF (PK.VLOC) C(19) = 1
+      IF (PK.VWth) C(20) = 1
+      IF (PK.VSkw) C(21) = 1
+      IF (PK.VJmp) C(22) = 1
+      RETURN
+      END

@@ -130,6 +130,22 @@ int peakfit_fit(peakfit_peak_t *peaks, int *n_peaks, int max_peaks,
                 double *chi_sq, int *converged, int *iterations);
 
 /*
+ * Full automatic fit, as the Fortran peakfit program did it (PFIT):
+ * five passes of fitting every peak region and searching the
+ * residuals for up to 10 new peaks; errors on the last pass.
+ *
+ * peaks/n_peaks: starting peaks (may be 0); on return all fitted peaks
+ * ibeg, iend: channel range, 0 = the peak range from robfit.ini
+ * chi_sq: sum((data - peaks)^2 * weight) over the range
+ *
+ * Returns 0 on success, -6 if more than max_peaks were found (n_peaks
+ * then says how many; only max_peaks were copied), other negatives on
+ * error.
+ */
+int peakfit_fit_all(peakfit_peak_t *peaks, int *n_peaks, int max_peaks,
+                    int ibeg, int iend, double *chi_sq);
+
+/*
  * Search for peaks in the residuals of the current fit
  * Adds found peaks to the peaks array
  *
