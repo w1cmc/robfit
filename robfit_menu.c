@@ -383,9 +383,9 @@ static int handle_config(void) {
 static int handle_calibration(void) {
     WINDOW *subwin;
     int ch, selected = 0;
-    const char *options[] = {"Width Cal (WthCal)", "Efficiency Cal (EffCal)", "Efficiency Cal 2 (EffCal2)", "Back"};
-    const char *commands[] = {"WthCal", "EffCal", "EffCal2", NULL};
-    const int n_options = 4;
+    const char *options[] = {"Width Cal (WthCal)", "Back"};
+    const char *commands[] = {"WthCal", NULL};
+    const int n_options = 2;
     
     subwin = newwin(10, 50, (LINES - 10) / 2, (COLS - 50) / 2);
     keypad(subwin, TRUE);

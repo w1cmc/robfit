@@ -144,6 +144,62 @@ BKGFIT_OBJS = $(OBJDIR)/gfortransys.o \
 # ============================================================================
 
 # ============================================================================
+# Calibration programs - shared objects
+# ============================================================================
+XCAL_COMMON = $(OBJDIR)/gfortransys.o \
+              $(OBJDIR)/commons.o \
+              $(OBJDIR)/NaStr.o \
+              $(OBJDIR)/menurd.o \
+              $(OBJDIR)/ComToFrUnf.o \
+              $(OBJDIR)/Functions.o \
+              $(OBJDIR)/Cholesky.o \
+              $(OBJDIR)/robmin.o \
+              $(OBJDIR)/1dSolve.o \
+              $(OBJDIR)/rpks0.o \
+              $(OBJDIR)/bli.o \
+              $(OBJDIR)/sort8.o \
+              $(OBJDIR)/cmlread.o \
+              $(OBJDIR)/cmlrdtxt_only.o
+
+EGYCAL_OBJS = $(XCAL_COMMON) \
+              $(OBJDIR)/EgyCal.o \
+              $(OBJDIR)/EgyCalLink.o \
+              $(OBJDIR)/EdtEgyCal.o \
+              $(OBJDIR)/EgyFit.o
+
+WTHCAL_OBJS = $(XCAL_COMMON) \
+              $(OBJDIR)/WthCal.o \
+              $(OBJDIR)/WthCalLink.o \
+              $(OBJDIR)/EdtResCal.o \
+              $(OBJDIR)/ResFit.o
+
+EFFCAL_OBJS = $(XCAL_COMMON) \
+              $(OBJDIR)/EffCal.o \
+              $(OBJDIR)/EffCalLink.o \
+              $(OBJDIR)/EdtEffCal.o \
+              $(OBJDIR)/EffFit.o \
+              $(OBJDIR)/fnrsrhos.o \
+              $(OBJDIR)/DtoDRHO.o \
+              $(OBJDIR)/TplPks.o \
+              $(OBJDIR)/funnop_xmldis.o \
+              $(OBJDIR)/bli2.o \
+              $(OBJDIR)/datmfit.o \
+              $(OBJDIR)/Weight_StdDev.o \
+              $(OBJDIR)/muAtt.o \
+              $(OBJDIR)/muCompton.o \
+              $(OBJDIR)/muPairp.o \
+              $(OBJDIR)/CxyTox.o \
+              $(OBJDIR)/ekofz.o \
+              $(OBJDIR)/CnmFuns.o \
+              $(OBJDIR)/EgyToEff.o
+
+EFFCAL2_OBJS = $(XCAL_COMMON) \
+               $(OBJDIR)/Effcal2.o \
+               $(OBJDIR)/EdtEffCal2.o \
+               $(OBJDIR)/EffFit2.o \
+               $(OBJDIR)/fnrsrhos.o
+
+# ============================================================================
 # TEMPLFIT - Template fitting (from Templfit.vfproj)
 # ============================================================================
 TEMPLFIT_OBJS = $(OBJDIR)/gfortransys.o \
@@ -217,7 +273,8 @@ PEAKFIT_LIB_OBJS = $(OBJDIR)/gfortransys.o \
 # ============================================================================
 .PHONY: all clean debug help test_api test_config
 
-all: $(BINDIR)/robfit_menu $(BINDIR)/xmldis $(BINDIR)/bkgfit $(BINDIR)/peakfit $(BINDIR)/templfit
+all: $(BINDIR)/robfit_menu $(BINDIR)/xmldis $(BINDIR)/bkgfit $(BINDIR)/peakfit $(BINDIR)/templfit \
+     $(BINDIR)/EgyCal $(BINDIR)/WthCal
 
 # Config library
 $(OBJDIR)/ini.o: lib/ini.c lib/ini.h
@@ -288,6 +345,22 @@ $(BINDIR)/templfit: $(TEMPLFIT_OBJS) $(CONFIG_OBJS) $(NUCLIDE_OBJS)
 	$(FC) $(FFLAGS) -o $@ $^
 	@echo "Built templfit successfully"
 
+$(BINDIR)/EgyCal: $(EGYCAL_OBJS)
+	$(FC) $(FFLAGS) -o $@ $^
+	@echo "Built EgyCal successfully"
+
+$(BINDIR)/WthCal: $(WTHCAL_OBJS)
+	$(FC) $(FFLAGS) -o $@ $^
+	@echo "Built WthCal successfully"
+
+$(BINDIR)/EffCal: $(EFFCAL_OBJS)
+	$(FC) $(FFLAGS) -o $@ $^
+	@echo "Built EffCal successfully"
+
+$(BINDIR)/EffCal2: $(EFFCAL2_OBJS)
+	$(FC) $(FFLAGS) -o $@ $^
+	@echo "Built EffCal2 successfully"
+
 # Debug build
 debug: FFLAGS = $(FFLAGS_DEBUG)
 debug: clean all
@@ -340,6 +413,9 @@ $(OBJDIR)/%.o: $(SRCDIR)/peakfit/%.for
 $(OBJDIR)/%.o: $(SRCDIR)/templfit/%.for
 	$(FC) $(FFLAGS) -c $< -o $@
 
+$(OBJDIR)/%.o: $(SRCDIR)/xcaliber/%.for
+	$(FC) $(FFLAGS) -c $< -o $@
+
 $(OBJDIR)/%.o: $(SRCDIR)/templfit/attenuation/nlfit/pade2d/%.for
 	$(FC) $(FFLAGS) -c $< -o $@
 
@@ -359,6 +435,9 @@ $(OBJDIR)/%.o: $(SRCDIR)/templfit/attenuation/nlfit/RhoOfZ/%.for
 	$(FC) $(FFLAGS) -c $< -o $@
 
 $(OBJDIR)/%.o: $(SRCDIR)/templfit/Efficiency/Escape/%.for
+	$(FC) $(FFLAGS) -c $< -o $@
+
+$(OBJDIR)/%.o: $(SRCDIR)/templfit/Efficiency/Oteff/%.for
 	$(FC) $(FFLAGS) -c $< -o $@
 
 $(OBJDIR)/%.o: $(SRCDIR)/xmldis/%.for
