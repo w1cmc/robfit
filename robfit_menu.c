@@ -119,13 +119,48 @@ static void create_default_config(const char *spectrum_file) {
 }
 
 /*
- * Run an external command (programs read config from robfit.ini)
+ * Run robimport, which brings <name>dat.unf up to date with the spectrum
+ * named in robfit.ini and creates <name>COM.UNF if it is missing.
+ * With reset != 0 it also rebuilds COM.UNF, discarding fitted values.
+ * Must be called outside curses mode.  Returns robimport's exit status.
+ */
+static int run_import(int reset) {
+    char full_cmd[MAX_PATH * 2];
+    int status;
+
+    snprintf(full_cmd, sizeof(full_cmd), "%s/robimport%s",
+             g_program_dir, reset ? " --reset" : "");
+    status = system(full_cmd);
+    if (status == -1 || !WIFEXITED(status)) return -1;
+    return WEXITSTATUS(status);
+}
+
+static void wait_for_enter(void) {
+    int c;
+    printf("Press Enter to return to the menu...");
+    fflush(stdout);
+    while ((c = getchar()) != '\n' && c != EOF)
+        ;
+}
+
+/*
+ * Run an external command (programs read config from robfit.ini).
+ * The spectrum import step runs first so dat.unf and COM.UNF exist.
  */
 static int run_command(const char *cmd) {
     char full_cmd[MAX_PATH * 2];
     int status;
     
     endwin();  /* Temporarily exit curses mode */
+    
+    status = run_import(0);
+    if (status != 0) {
+        printf("\nSpectrum import failed; not running %s.\n"
+               "Check [spectrum] file in %s.\n", cmd, g_ini_file);
+        wait_for_enter();
+        refresh();
+        return status;
+    }
     
     snprintf(full_cmd, sizeof(full_cmd), "%s/%s", g_program_dir, cmd);
     
@@ -271,7 +306,7 @@ static int handle_config(void) {
         if (editing) {
             mvwprintw(win, win_height - 2, 2, "Enter=save, Esc=cancel");
         } else {
-            mvwprintw(win, win_height - 2, 2, "Enter/Space=edit, S=save & exit, Q=quit without saving");
+            mvwprintw(win, win_height - 2, 2, "Enter=edit  S=save & exit  Q=quit  R=reset fitted state");
         }
         
         wrefresh(win);
@@ -359,6 +394,36 @@ static int handle_config(void) {
                     refresh();
                     return 0;
                     
+                case 'r':
+                case 'R':
+                    {
+                        /* Rebuild COM.UNF from the spectrum, discarding
+                           fitted calibrations and results */
+                        const char *spec = config_get(g_cfg, "spectrum", "file", "");
+                        int yn;
+                        werase(win);
+                        box(win, 0, 0);
+                        mvwprintw(win, 2, 2, "Reset fitted state for %.50s?", spec);
+                        mvwprintw(win, 4, 2, "This saves the configuration, re-reads the spectrum");
+                        mvwprintw(win, 5, 2, "and rebuilds COM.UNF. Fitted calibrations and fit");
+                        mvwprintw(win, 6, 2, "results stored there are discarded.");
+                        mvwprintw(win, 8, 2, "Reset? (y/N)");
+                        wrefresh(win);
+                        yn = wgetch(win);
+                        if (yn == 'y' || yn == 'Y') {
+                            int rc;
+                            config_save(g_cfg, g_ini_file);
+                            endwin();
+                            printf("\n--- Resetting fitted state ---\n\n");
+                            rc = run_import(1);
+                            printf("\n%s\n", rc == 0 ? "Reset complete." :
+                                   "Reset FAILED - check [spectrum] file.");
+                            wait_for_enter();
+                            refresh();
+                        }
+                    }
+                    break;
+
                 case 'q':
                 case 'Q':
                 case 27:

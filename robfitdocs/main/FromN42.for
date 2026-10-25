@@ -3,6 +3,7 @@
       INTEGER ZERO
       DIMENSION DAT(:)
       ALLOCATABLE DAT
+      COMMON /INTVALS/IBEGC,IENDC,IDUM(20)
       OPEN(1,FILE=NADAT(:ILDAT))
       READ(1,'(A)')CTEMP !THE REST OF <ChannelData 
       IF(INDEX(CTEMP,'"CountedZeroes"').GT.0)THEN
@@ -49,7 +50,9 @@
         ENDDO
       ENDIF    
       CLOSE(1)
-      CTEMP=NADAT(:ILDAT-4)//'DAT.UNF'      
+      IBEGC=1
+      IENDC=IDATT
+      CTEMP=NADAT(:ILDAT-4)//'dat.unf'
       OPEN(1,FILE=CTEMP,FORM='UNFORMATTED')
       WRITE(1)IDATT
       WRITE(1)(DAT(I),I=1,IDATT)

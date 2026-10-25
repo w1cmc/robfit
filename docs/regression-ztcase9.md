@@ -13,7 +13,7 @@
 ## Procedure
 
 1. Inject the 2003 calibration into the .sp header (line 4: `Energy calibration: 17.665 0.146277 0 0 0 0`).
-2. `robfit ZTCASE9.SP` with `robfit.mnu` pointing at ZTCASE9.SP (creates COM.UNF + dat.unf).
+2. `robimport` (creates COM.UNF + dat.unf from `[spectrum] file`). Originally done with the legacy `robfit` and a restored `robfit.mnu`; rerun with `robimport` gives an identical continuum.
 3. `bkgfit ZTCASE9.SP` with `robfit.ini` continuum range 25–2350 keV.
 4. Compare `ZTCASE9CnmFit.unf` with the 2003 continuum channel by channel.
 
@@ -50,9 +50,10 @@ Driven through the `libpeakfit` C API in 400-ch windows:
 
 ## Remaining issues found
 
-- **.sp/.n42 bootstrap:** a new spectrum can't start without `robfit.mnu` + legacy `robfit` (roblink) to create COM.UNF, and the .mnu files were deleted in b3b9847. `robfit_menu` doesn't create COM.UNF.
-- `main/FromN42.for` has the same REAL*8 / per-record / `DAT.UNF` bugs as FromSp (not fixed).
-- Mixed `DAT.UNF` / `dat.unf` names: `g3link` and `peakfit_bridge` ask for `DAT.UNF`; `Weight` and `datmfit` ask for `dat.unf`.
+- ~~.sp/.n42 bootstrap needed robfit.mnu + legacy roblink~~ — fixed: `robimport`, run automatically by `robfit_menu`.
+- ~~FromN42 range / `DAT.UNF` name~~ — fixed (its data was already REAL*4).
+- ~~Mixed `DAT.UNF` / `dat.unf` names~~ — fixed in the built programs (xmlplot, g3linkt_ini, pklink_ini, peakfit_bridge, spout); unbuilt variants still say `DAT.UNF`.
+- `xmldis` stops in PTPL at a leftover `STOP 'TESTING'` (xmlplot.for:553) when `view_template = yes`.
 - `xmldis` stops if `<name>Nuclides.unf` is missing (true for any .sp spectrum).
 - `/FITTEDCONS/` layout differs between files (some have PCAP/LPCAP, `CnmBli.for` doesn't).
 - Makefile: on Linux the `peakfit` link needs `-lm`; FC and the libgfortran path are hardcoded to Homebrew.

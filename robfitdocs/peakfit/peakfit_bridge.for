@@ -56,7 +56,7 @@ C     Try to load common values file (calibrations etc)
       END IF
       
 C     Check for data file - this must be created by xmldis or robfit first
-      NADATUNF = NASTR('DAT.UNF', ILDAT, EX)
+      NADATUNF = NASTR('dat.unf', ILDAT, EX)
       IF (.NOT. EX) THEN
 C       dat.unf doesn't exist - user needs to run xmldis first
         PEAKFIT_LOAD_F = -4  ! No data file

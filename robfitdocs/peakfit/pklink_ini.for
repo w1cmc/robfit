@@ -52,7 +52,7 @@ C --- Read common constants from UNF file ---
       CALL UNFTOCOM(EX)
       
 C --- Check for DAT.UNF ---
-      NADATUNF=NASTR('DAT.UNF',ILDAT,EX)
+      NADATUNF=NASTR('dat.unf',ILDAT,EX)
       IF (.NOT.EX) THEN
         PRINT*,NADATUNF
         STOP 'pklink: NO DAT.UNF FILE - run xmldis first'

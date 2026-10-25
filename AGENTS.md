@@ -15,6 +15,7 @@ ROBFIT is a gamma-ray spectrum analysis suite originally written in Fortran for 
 | Program | Description | Status |
 |---------|-------------|--------|
 | `robfit_menu` | ncurses main menu driver | ✅ Working |
+| `robimport` | Spectrum import: creates `<name>dat.unf` / `<name>COM.UNF` (run by robfit_menu) | ✅ Working |
 | `xmldis` | Display spectrum data and results | ✅ Working |
 | `bkgfit` | Fit continuum/background | ✅ Working |
 | `peakfit` | Peak fitting (curses UI + libpeakfit.a) | ✅ Working |
@@ -94,7 +95,12 @@ Physics routines require COMMON blocks to be initialized:
 - `/DOUBLE/` - double parameters
 - `/FITTEDCONS/` - calibration constants
 
-Run `xmldis` first to create `dat.unf` and `COM.UNF`.
+`robimport` creates `<name>dat.unf` and `<name>COM.UNF` from the spectrum in
+`robfit.ini`; `robfit_menu` runs it before every program. It refreshes
+`dat.unf` when the spectrum is newer, creates `COM.UNF` only if missing
+(it holds fitted results), and rebuilds it only with `robimport --reset`
+(Configure → R in the menu). The legacy `robfit`/`roblink` driver, which
+needs `robfit.mnu`, is no longer required.
 
 ### Duplicate Symbols
 Some files contain multiple subroutines that conflict. Solutions:
@@ -147,7 +153,8 @@ make test_nuclides && ./test_nuclides
 ## Workflow
 
 1. Set spectrum file in robfit.ini or use robfit_menu Configure
-2. Run xmldis to process spectrum → creates dat.unf
+2. robfit_menu runs robimport automatically (dat.unf, COM.UNF); outside the
+   menu, run `./robimport` once before the other programs
 3. Run bkgfit for continuum fitting
 4. Run peakfit for peak fitting
 5. Run calibration programs as needed (EgyCal, WthCal)

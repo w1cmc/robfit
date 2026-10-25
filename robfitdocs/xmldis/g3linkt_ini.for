@@ -50,7 +50,7 @@ C --- Read common constants from UNF file ---
       IF (.NOT.EX) STOP 'NO COM.UNF FILE'
 
 C --- Check for DAT.UNF ---
-      NADATUNF=NASTR('DAT.UNF',ILDAT,EX)
+      NADATUNF=NASTR('dat.unf',ILDAT,EX)
       IF (.NOT.EX) STOP 'G3LINK NO DAT.UNF FILE'
 
 C --- Get energy/channel mode ---

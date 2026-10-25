@@ -9,6 +9,7 @@ EgyCal
 WthCal
 libpeakfit.a
 robfit_menu
+robimport
 
 # Fortran temporary/scratch files
 fort.*

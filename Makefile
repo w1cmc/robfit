@@ -79,6 +79,11 @@ ROBFIT_OBJS = $(OBJDIR)/gfortransys.o \
               $(OBJDIR)/CxyTox.o \
               $(OBJDIR)/CMLRDTXT.o
 
+# ROBIMPORT - spectrum import (INI replacement for roblink): creates
+# <name>dat.unf and <name>COM.UNF; robfit_menu runs it before each program
+ROBIMPORT_OBJS = $(filter-out $(OBJDIR)/runrobfit.o $(OBJDIR)/roblink.o,$(ROBFIT_OBJS)) \
+                 $(OBJDIR)/robimport.o
+
 # ============================================================================
 # XMLDIS - Display data and current results (from xmldis.vfproj)
 # ============================================================================
@@ -273,7 +278,7 @@ PEAKFIT_LIB_OBJS = $(OBJDIR)/gfortransys.o \
 # ============================================================================
 .PHONY: all clean debug help test_api test_config
 
-all: $(BINDIR)/robfit_menu $(BINDIR)/xmldis $(BINDIR)/bkgfit $(BINDIR)/peakfit $(BINDIR)/templfit \
+all: $(BINDIR)/robfit_menu $(BINDIR)/robimport $(BINDIR)/xmldis $(BINDIR)/bkgfit $(BINDIR)/peakfit $(BINDIR)/templfit \
      $(BINDIR)/EgyCal $(BINDIR)/WthCal
 
 # Config library
@@ -332,6 +337,10 @@ test_nuclides: test_nuclides_bin
 $(BINDIR)/robfit: $(ROBFIT_OBJS)
 	$(FC) $(FFLAGS) -o $@ $^
 	@echo "Built robfit successfully"
+
+$(BINDIR)/robimport: $(ROBIMPORT_OBJS) $(CONFIG_MOD) $(CONFIG_OBJS)
+	$(FC) $(FFLAGS) -o $@ $^
+	@echo "Built robimport successfully"
 
 $(BINDIR)/xmldis: $(XMLDIS_OBJS) $(CONFIG_OBJS) $(NUCLIDE_OBJS)
 	$(FC) $(FFLAGS) -o $@ $^
@@ -472,6 +481,9 @@ $(OBJDIR)/peakfit_bridge.o: $(SRCDIR)/peakfit/peakfit_bridge.for
 	$(FC) $(FFLAGS) -c $< -o $@
 
 # Peakfit INI config loader (uses config_module and DEC structures)
+$(OBJDIR)/robimport.o: $(SRCDIR)/main/robimport.for $(OBJDIR)/config_module.o
+	$(FC) $(FFLAGS) -I$(OBJDIR) -c $< -o $@
+
 $(OBJDIR)/pklink_ini.o: $(SRCDIR)/peakfit/pklink_ini.for $(OBJDIR)/config_module.o
 	$(FC) $(FFLAGS) -I$(OBJDIR) -c $< -o $@
 
@@ -518,7 +530,7 @@ $(OBJDIR)/rtpl_xml.o: $(SRCDIR)/emitters/rtpl_xml.for $(OBJDIR)/nuclides_module.
 # ============================================================================
 clean:
 	rm -rf $(OBJDIR)
-	rm -f $(BINDIR)/robfit $(BINDIR)/robfit_menu $(BINDIR)/xmldis $(BINDIR)/bkgfit $(BINDIR)/peakfit $(BINDIR)/templfit $(BINDIR)/peakfit_curses
+	rm -f $(BINDIR)/robfit $(BINDIR)/robfit_menu $(BINDIR)/robimport $(BINDIR)/xmldis $(BINDIR)/bkgfit $(BINDIR)/peakfit $(BINDIR)/templfit $(BINDIR)/peakfit_curses
 
 # ============================================================================
 # Help
@@ -546,6 +558,7 @@ help:
 	@echo "  make              - build all executables (uses ncurses menu)"
 	@echo "  make robfit_menu  - build ncurses menu driver (recommended)"
 	@echo "  make robfit       - build legacy Fortran menu driver"
+	@echo "  make robimport    - build spectrum import step (run by robfit_menu)"
 	@echo "  make xmldis       - build display program"
 	@echo "  make bkgfit       - build continuum/background fitting"
 	@echo "  make peakfit      - build peak fitting program (curses UI)"

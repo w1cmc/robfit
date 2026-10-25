@@ -15,7 +15,7 @@
         PRINT*,'From Spout ',NAPMLSP(:ILPML),' does not contain data'
         RETURN
       ENDIF  
-      NADAT=NASTR('DAT.UNF',ILDAT,EXDAT)
+      NADAT=NASTR('dat.unf',ILDAT,EXDAT)
       IF(.NOT.EXDAT)THEN
         PRINT*,'NO DAT FILE ',NADAT(:ILDAT)
         RETURN
