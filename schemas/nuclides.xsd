@@ -5,26 +5,44 @@
 
   <xs:annotation>
     <xs:documentation>
-      ROBFIT Emitter Schema
+      ROBFIT Nuclide Library Schema
       
-      Defines the structure for nuclide emission line files (.pgs).
-      These files contain gamma-ray and X-ray energies and intensities
-      for specific isotopes, used in template fitting for nuclide
-      identification and quantification.
+      Defines the structure for the nuclide emission line library.
+      Contains gamma-ray and X-ray energies and intensities for
+      isotopes used in template fitting for nuclide identification
+      and quantification.
+      
+      Replaces individual .pgs files with a single nuclides.xml file.
     </xs:documentation>
   </xs:annotation>
 
   <!-- Root element -->
-  <xs:element name="Emitter" type="EmitterType"/>
+  <xs:element name="Nuclides" type="NuclidesType"/>
 
-  <!-- Emitter type definition -->
-  <xs:complexType name="EmitterType">
+  <!-- Nuclides container -->
+  <xs:complexType name="NuclidesType">
+    <xs:sequence>
+      <xs:element name="Nuclide" type="NuclideType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    
+    <!-- Library version -->
+    <xs:attribute name="Version" type="xs:string" use="optional"/>
+    
+    <!-- Primary data source -->
+    <xs:attribute name="Source" type="xs:string" use="optional"/>
+    
+    <!-- Date library was generated/updated -->
+    <xs:attribute name="Date" type="xs:date" use="optional"/>
+  </xs:complexType>
+
+  <!-- Individual nuclide entry -->
+  <xs:complexType name="NuclideType">
     <xs:sequence>
       <xs:element name="Line" type="LineType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
     
     <!-- Nuclide identifier (e.g., "Cs137", "Co60", "Ho166") -->
-    <xs:attribute name="Nuclide" type="NuclideType" use="required"/>
+    <xs:attribute name="Name" type="NuclideNameType" use="required"/>
     
     <!-- Metastable state indicator -->
     <xs:attribute name="Isomer" type="xs:boolean" default="false"/>
@@ -32,39 +50,39 @@
     <!-- Half-life with unit -->
     <xs:attribute name="HalfLife" type="HalfLifeType" use="optional"/>
     
-    <!-- Measurement or acquisition time -->
-    <xs:attribute name="MeasurementTime" type="DurationType" use="optional"/>
+    <!-- Atomic number -->
+    <xs:attribute name="Z" type="xs:positiveInteger" use="optional"/>
     
-    <!-- Reference to data source (e.g., "ENSDF", "NNDC") -->
-    <xs:attribute name="DataSource" type="xs:string" use="optional"/>
+    <!-- Mass number -->
+    <xs:attribute name="A" type="xs:positiveInteger" use="optional"/>
     
-    <!-- Date of data retrieval or last update -->
-    <xs:attribute name="DataDate" type="xs:date" use="optional"/>
+    <!-- Reference to data source if different from library default -->
+    <xs:attribute name="Source" type="xs:string" use="optional"/>
   </xs:complexType>
 
-  <!-- Emission line type definition -->
+  <!-- Emission line -->
   <xs:complexType name="LineType">
     <!-- Energy in keV -->
-    <xs:attribute name="Energy" type="EnergyType" use="required"/>
+    <xs:attribute name="E" type="EnergyType" use="required"/>
     
-    <!-- Intensity (probability per decay, 0.0 to 1.0+) -->
-    <xs:attribute name="Intensity" type="IntensityType" use="required"/>
+    <!-- Intensity (probability per decay) -->
+    <xs:attribute name="I" type="IntensityType" use="required"/>
     
     <!-- Line type: gamma, X-ray, annihilation, etc. -->
     <xs:attribute name="Type" type="LineTypeEnum" use="required"/>
     
-    <!-- Originating nuclide (may differ from parent for decay products) -->
-    <xs:attribute name="Origin" type="NuclideType" use="optional"/>
+    <!-- Originating nuclide if different from parent (e.g., decay daughters) -->
+    <xs:attribute name="Origin" type="xs:string" use="optional"/>
     
     <!-- Uncertainty in energy (keV) -->
-    <xs:attribute name="EnergyUnc" type="xs:decimal" use="optional"/>
+    <xs:attribute name="dE" type="xs:decimal" use="optional"/>
     
     <!-- Uncertainty in intensity -->
-    <xs:attribute name="IntensityUnc" type="xs:decimal" use="optional"/>
+    <xs:attribute name="dI" type="xs:decimal" use="optional"/>
   </xs:complexType>
 
   <!-- Nuclide identifier pattern: Element + Mass number -->
-  <xs:simpleType name="NuclideType">
+  <xs:simpleType name="NuclideNameType">
     <xs:restriction base="xs:string">
       <xs:pattern value="[A-Z][a-z]?[0-9]{1,3}"/>
     </xs:restriction>
@@ -89,13 +107,6 @@
   <xs:simpleType name="HalfLifeType">
     <xs:restriction base="xs:string">
       <xs:pattern value="[0-9]+\.?[0-9]*(s|m|h|d|y|ms|us|ns)"/>
-    </xs:restriction>
-  </xs:simpleType>
-
-  <!-- Duration/time with unit suffix -->
-  <xs:simpleType name="DurationType">
-    <xs:restriction base="xs:string">
-      <xs:pattern value="[0-9]+\.?[0-9]*(s|m|h|d)"/>
     </xs:restriction>
   </xs:simpleType>
 
