@@ -5,6 +5,10 @@ xmldis
 bkgfit
 peakfit
 templfit
+EgyCal
+WthCal
+libpeakfit.a
+robfit_menu
 
 # Fortran temporary/scratch files
 fort.*
