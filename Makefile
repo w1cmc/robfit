@@ -269,8 +269,8 @@ $(BINDIR)/libpeakfit.a: $(PEAKFIT_LIB_OBJS)
 	@echo "Built libpeakfit.a successfully"
 
 # Curses-based peakfit (modern UI)
-$(BINDIR)/peakfit_curses: peakfit_curses.c $(BINDIR)/libpeakfit.a
-	$(CC) $(CFLAGS) -o $@ $< -L$(BINDIR) -lpeakfit -L/opt/homebrew/lib/gcc/current -lgfortran -lquadmath $(LDFLAGS_CURSES)
+$(BINDIR)/peakfit_curses: peakfit_curses.c $(BINDIR)/libpeakfit.a $(CONFIG_OBJS)
+	$(CC) $(CFLAGS) -o $@ $< $(CONFIG_OBJS) -L$(BINDIR) -lpeakfit -L/opt/homebrew/lib/gcc/current -lgfortran -lquadmath $(LDFLAGS_CURSES)
 	@echo "Built peakfit_curses successfully"
 
 # Test program for C API

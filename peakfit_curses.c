@@ -17,6 +17,7 @@
 #include <ncurses.h>
 #include <math.h>
 #include "peakfit.h"
+#include "config.h"
 
 #define MAX_PEAKS 256
 #define STATUS_LINE (LINES - 1)
@@ -80,9 +81,23 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    /* Load spectrum from command line if provided */
+    /* Load spectrum from command line or robfit.ini */
     if (argc > 1) {
         strncpy(g_spectrum_file, argv[1], sizeof(g_spectrum_file) - 1);
+    } else {
+        /* Try to load spectrum file from robfit.ini */
+        RobfitConfig *cfg = config_load("robfit.ini");
+        if (cfg) {
+            const char *spec = config_get(cfg, "spectrum", "file", "");
+            if (spec && spec[0] && strcmp(spec, "NONE") != 0) {
+                strncpy(g_spectrum_file, spec, sizeof(g_spectrum_file) - 1);
+            }
+            config_free(cfg);
+        }
+    }
+    
+    /* Load the spectrum if we have a filename */
+    if (g_spectrum_file[0]) {
         g_num_channels = peakfit_load_spectrum(g_spectrum_file, strlen(g_spectrum_file));
         if (g_num_channels > 0) {
             g_spectrum_loaded = 1;
