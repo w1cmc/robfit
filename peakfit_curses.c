@@ -31,6 +31,22 @@ static peakfit_peak_t g_peaks[MAX_PEAKS];
 static int g_num_peaks = 0;
 static double g_chi_squared = 0.0;
 
+/* Comparison function for sorting peaks by channel location */
+static int compare_peaks_by_loc(const void *a, const void *b) {
+    const peakfit_peak_t *pa = (const peakfit_peak_t *)a;
+    const peakfit_peak_t *pb = (const peakfit_peak_t *)b;
+    if (pa->loc < pb->loc) return -1;
+    if (pa->loc > pb->loc) return 1;
+    return 0;
+}
+
+/* Sort peaks by channel location */
+static void sort_peaks(void) {
+    if (g_num_peaks > 1) {
+        qsort(g_peaks, g_num_peaks, sizeof(peakfit_peak_t), compare_peaks_by_loc);
+    }
+}
+
 
 
 /* Function prototypes */
@@ -426,6 +442,7 @@ static void do_add_peak(void) {
     g_peaks[i].vjmp = 0.0;
     
     g_num_peaks++;
+    sort_peaks();
     
     draw_status("Added peak at channel %.2f (%.2f keV)",
                loc, peakfit_chn_to_egy(loc));
@@ -445,6 +462,7 @@ static void do_find_peaks(void) {
     } else if (found == 0) {
         draw_status("No new peaks found above %.1f sigma", cutoff);
     } else {
+        sort_peaks();
         draw_status("Found %d peaks", found);
     }
 }
@@ -472,6 +490,7 @@ static void do_fit_peaks(void) {
     }
     
     g_chi_squared = chi_sq;
+    sort_peaks();  /* Re-sort after fit in case locations changed */
     
     if (converged) {
         draw_status("Fit converged: chi-squared = %.2f", chi_sq);
