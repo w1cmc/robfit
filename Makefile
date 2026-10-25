@@ -271,6 +271,8 @@ PEAKFIT_LIB_OBJS = $(OBJDIR)/gfortransys.o \
                    $(OBJDIR)/1dSolve.o \
                    $(OBJDIR)/bli.o \
                    $(OBJDIR)/sort8.o \
+                   $(OBJDIR)/config_module.o \
+                   $(OBJDIR)/pklink_ini.o \
                    $(OBJDIR)/peakfit_bridge.o
 
 # ============================================================================
@@ -310,8 +312,8 @@ $(BINDIR)/peakfit: peakfit.c $(BINDIR)/libpeakfit.a $(CONFIG_OBJS)
 	@echo "Built peakfit successfully"
 
 # Test program for C API
-$(BINDIR)/test_peakfit_api: test_peakfit_api.c $(BINDIR)/libpeakfit.a
-	$(CC) $(CFLAGS) -o $@ $< -L$(BINDIR) -lpeakfit -L/opt/homebrew/lib/gcc/current -lgfortran -lquadmath
+$(BINDIR)/test_peakfit_api: test_peakfit_api.c $(BINDIR)/libpeakfit.a $(CONFIG_OBJS)
+	$(CC) $(CFLAGS) -o $@ $< $(CONFIG_OBJS) -L$(BINDIR) -lpeakfit -L/opt/homebrew/lib/gcc/current -lgfortran -lquadmath
 	@echo "Built test_peakfit_api successfully"
 
 test_api: $(BINDIR)/test_peakfit_api

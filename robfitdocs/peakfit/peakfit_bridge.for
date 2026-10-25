@@ -21,9 +21,10 @@ C ----------------------------------------------------------------------
 C Load spectrum and related files
 C Returns number of channels, or negative on error
 C
-C Note: This requires that the spectrum has been processed by xmldis
-C or robfit first to create the dat.unf file. The .+ML file contains
-C the spectrum data but in XML format that needs parsing.
+C Note: This requires that robimport has run first to create the
+C dat.unf and COM.UNF files.  Fit settings (fit type, cutoff, range,
+C vary flags) are then read from robfit.ini by Pklink, as the Fortran
+C peakfit program did.
 C ----------------------------------------------------------------------
       INTEGER FUNCTION PEAKFIT_LOAD_F(FILENAME, FLEN) 
      &    BIND(C, NAME='peakfit_load_spectrum')
@@ -34,8 +35,10 @@ C ----------------------------------------------------------------------
       INTEGER(C_INT), VALUE :: FLEN
       
       CHARACTER*256 NACMLSP, NASTR, NADATUNF
-      LOGICAL EX
-      INTEGER I, ILDAT
+      LOGICAL EX, LINQUIRE
+      INTEGER I, ILDAT, NTPKS
+      INCLUDE 'STRUCTURES.FOR'
+      RECORD /Tpk/ TPKS(15)
       INTEGER IBEGC, IENDC, IDUM(9), IBEGPKF, IENDPKF, IDUM3(7)
       
       COMMON /NAMES/NACMLSP
@@ -62,6 +65,13 @@ C       dat.unf doesn't exist - user needs to run xmldis first
         PEAKFIT_LOAD_F = -4  ! No data file
         RETURN
       END IF
+      
+C     Fit settings from robfit.ini (Pklink STOPs without it)
+      IF (.NOT. LINQUIRE('robfit.ini')) THEN
+        PEAKFIT_LOAD_F = -3  ! No configuration
+        RETURN
+      END IF
+      CALL PKLINK(TPKS, NTPKS)
       
       PEAKFIT_LOAD_F = IENDC - IBEGC + 1
       RETURN
@@ -147,6 +157,7 @@ C ----------------------------------------------------------------------
       REAL*4 DAT(:), WT(:)
       ALLOCATABLE DAT, WT
       INTEGER I, N
+      INTEGER IFITDAT
       INTEGER IBEGC, IENDC, IDUM(9), IBEGPKF, IENDPKF
       INTEGER IDUM2(3), IFIT, IDUM3(3)
       
@@ -162,7 +173,7 @@ C ----------------------------------------------------------------------
       
 C     Get weighted data
       CALL WEIGHT(WT, IBEG, IEND)
-      CALL DATMFIT(DAT, IFIT, IBEG, IEND)
+      CALL DATMFIT(DAT, IFITDAT(IFIT), IBEG, IEND)
       
 C     Copy to C arrays (1-based in C call)
       DO I = IBEG, IEND
@@ -209,6 +220,7 @@ C     Local variables
       REAL*4 DAT(:), WT(:)
       ALLOCATABLE DAT, WT
       INTEGER I, NFPKS
+      INTEGER IFITDAT
       INTEGER IBEGC, IENDC, IDUM(9), IBEGPKF, IENDPKF
       INTEGER IDUM2(3), IFIT, IDUM3(3)
       REAL*8 DDUM(2), CHISQR, DDUM2(17)
@@ -219,7 +231,7 @@ C     Local variables
 C     Set fitting range
       IBEGPKF = IBEG
       IENDPKF = IEND
-      IFIT = 1  ! Use raw data
+C     IFIT (peak_fit_type) comes from robfit.ini via Pklink
       NFPKS = N_PEAKS
       
       IF (NFPKS .LE. 0 .OR. NFPKS .GT. 256) THEN
@@ -261,7 +273,7 @@ C     Allocate data arrays
       
 C     Get data and weights
       CALL WEIGHT(WT, IBEG, IEND)
-      CALL DATMFIT(DAT, IFIT, IBEG, IEND)
+      CALL DATMFIT(DAT, IFITDAT(IFIT), IBEG, IEND)
       
 C     Call the fitting routine
       CALL NLFIT(DAT, WT, PKS, NFPKS, IBEG, IEND)
@@ -362,6 +374,7 @@ C ----------------------------------------------------------------------
       ALLOCATABLE DAT
       REAL*8 ALR(10), CLR(10), HEST
       INTEGER I, NLR, NFPKS, MAXLR, NPKSM, ICHN
+      INTEGER IFITDAT
       INTEGER IBEGC, IENDC, IDUM(9), IBEGPKF, IENDPKF
       INTEGER IDUM2(3), IFIT, IDUM3(3)
       REAL*8 DDUM3(11), CUTOFF, DDUM4(8)
@@ -374,7 +387,7 @@ C ----------------------------------------------------------------------
 C     Set range and cutoff
       IBEGPKF = IBEG
       IENDPKF = IEND
-      IFIT = 1  ! Use raw data
+C     IFIT (peak_fit_type) comes from robfit.ini via Pklink
       CUTOFF = CUTOFF_VAL
       
       NFPKS = N_PEAKS
@@ -393,7 +406,7 @@ C     Convert existing C peaks to Fortran
       
 C     Allocate data array
       ALLOCATE(DAT(IBEG:IEND))
-      CALL DATMFIT(DAT, IFIT, IBEG, IEND)
+      CALL DATMFIT(DAT, IFITDAT(IFIT), IBEG, IEND)
       
 C     Call peak finding routine
       CALL RESL21A(DAT, PKS, NFPKS, NPKSM, ALR, CLR, NLR, MAXLR)
@@ -451,3 +464,21 @@ C ----------------------------------------------------------------------
 C     Nothing to do currently - arrays are local to functions
       RETURN
       END SUBROUTINE
+
+C ----------------------------------------------------------------------
+C Map peak_fit_type (COMMON IFIT, set by Pklink) to the DATMFIT code
+C for the data the peaks are fitted on, as the Fortran peakfit did:
+C 1 = data, 2 = data - continuum, 3 = data - continuum - template.
+C ----------------------------------------------------------------------
+      INTEGER FUNCTION IFITDAT(IFIT)
+      IMPLICIT NONE
+      INTEGER IFIT
+      IF (IFIT .EQ. 3) THEN
+        IFITDAT = 6
+      ELSE IF (IFIT .EQ. 2) THEN
+        IFITDAT = 2
+      ELSE
+        IFITDAT = 1
+      END IF
+      RETURN
+      END FUNCTION
