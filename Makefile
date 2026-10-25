@@ -308,12 +308,12 @@ $(BINDIR)/libpeakfit.a: $(PEAKFIT_LIB_OBJS)
 
 # Peakfit - curses-based peak fitting UI with C API
 $(BINDIR)/peakfit: peakfit.c $(BINDIR)/libpeakfit.a $(CONFIG_OBJS)
-	$(CC) $(CFLAGS) -o $@ $< $(CONFIG_OBJS) -L$(BINDIR) -lpeakfit -L/opt/homebrew/lib/gcc/current -lgfortran -lquadmath $(LDFLAGS_CURSES)
+	$(CC) $(CFLAGS) -o $@ $< $(CONFIG_OBJS) -L$(BINDIR) -lpeakfit -L/opt/homebrew/lib/gcc/current -lgfortran -lquadmath -lm $(LDFLAGS_CURSES)
 	@echo "Built peakfit successfully"
 
 # Test program for C API
 $(BINDIR)/test_peakfit_api: test_peakfit_api.c $(BINDIR)/libpeakfit.a $(CONFIG_OBJS)
-	$(CC) $(CFLAGS) -o $@ $< $(CONFIG_OBJS) -L$(BINDIR) -lpeakfit -L/opt/homebrew/lib/gcc/current -lgfortran -lquadmath
+	$(CC) $(CFLAGS) -o $@ $< $(CONFIG_OBJS) -L$(BINDIR) -lpeakfit -L/opt/homebrew/lib/gcc/current -lgfortran -lquadmath -lm
 	@echo "Built test_peakfit_api successfully"
 
 test_api: $(BINDIR)/test_peakfit_api
