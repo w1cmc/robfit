@@ -23,8 +23,11 @@ CC = cc
 CFLAGS = -O2 -Wall -Iinclude -Ilib
 LDFLAGS_CURSES = -lncurses
 
-# Config library objects
-CONFIG_OBJS = $(OBJDIR)/ini.o $(OBJDIR)/config.o
+# Config library objects (C)
+CONFIG_OBJS = $(OBJDIR)/ini.o $(OBJDIR)/config.o $(OBJDIR)/config_fortran.o
+
+# Config module (Fortran)
+CONFIG_MOD = $(OBJDIR)/config_module.o
 
 # Fortran flags for C interop (free-form F90)
 FFLAGS_F90 = -O2 -fallow-argument-mismatch
@@ -223,7 +226,7 @@ PEAKFIT_LIB_OBJS = $(OBJDIR)/gfortransys.o \
 # ============================================================================
 # Build targets
 # ============================================================================
-.PHONY: all clean debug help test_api
+.PHONY: all clean debug help test_api test_config
 
 all: $(BINDIR)/robfit_menu $(BINDIR)/xmldis $(BINDIR)/bkgfit $(BINDIR)/peakfit $(BINDIR)/peakfit_curses $(BINDIR)/templfit
 
@@ -233,6 +236,12 @@ $(OBJDIR)/ini.o: lib/ini.c lib/ini.h
 
 $(OBJDIR)/config.o: lib/config.c lib/config.h lib/ini.h
 	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJDIR)/config_fortran.o: lib/config_fortran.c lib/config.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJDIR)/config_module.o: lib/config_module.f90
+	$(FC) $(FFLAGS_F90) -c $< -o $@ -J$(OBJDIR)
 
 # ncurses menu driver (recommended)
 $(BINDIR)/robfit_menu: robfit_menu.c $(CONFIG_OBJS)
@@ -256,6 +265,14 @@ $(BINDIR)/test_peakfit_api: test_peakfit_api.c $(BINDIR)/libpeakfit.a
 
 test_api: $(BINDIR)/test_peakfit_api
 	./test_peakfit_api
+
+# Test config module
+$(BINDIR)/test_config_f: test_config.f90 $(CONFIG_MOD) $(CONFIG_OBJS)
+	$(FC) $(FFLAGS_F90) -I$(OBJDIR) -o $@ $< $(CONFIG_MOD) $(CONFIG_OBJS)
+	@echo "Built test_config_f successfully"
+
+test_config: $(BINDIR)/test_config_f
+	./test_config_f
 
 # Legacy Fortran menu driver
 $(BINDIR)/robfit: $(ROBFIT_OBJS)
